@@ -1,0 +1,513 @@
+﻿@model ABP.Domain.BlockData.BlockData
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "ManageFreezeStatus";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.StatusRslt as Task<IEnumerable<ABP.Domain.BlockData.BlockData>>;
+    
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="ManageFreezeData">
+                       
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="post" id="search">
+                    <div class="form-group row">
+
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlYear" asp-for="YEAR" asp-items="@(new SelectList(ViewBag.Years, "FREQUENCYNO", "FREQUENCYVALUE" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <input type="hidden" id="hdnDistrict" value="" />
+                            <label class="control-label" for="demo-email-input">District<span class="text-danger">*</span></label>
+
+                            <select class="form-control" id="ddlDistrict" asp-for="DISTRICTID" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                <option value=0>---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <input type="hidden" id="hdnDistrict" value="" />
+                            <label class="control-label" for="demo-email-input">Block<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlBlock" name="Blockid">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                      
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Frequency Type<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlfreq" asp-for="FREQUENCYID">
+                                <option value="0">---Select---</option>
+                                <option value="2">Monthly</option>
+                                <option value="5">Yearly</option>
+                            </select>
+                        </div>
+
+                        <div id="ddindicatorhide" class="col-12 col-md-3 col-xl-3 costume-col mt-2">
+                            <br />
+                            <button id="btnSearch" class="btn btn-primary"> Search</button>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-2">
+                    </div>
+
+                </form>
+
+                <div>
+                    @if (ListData != null)
+                    {
+                        @*<div class='legend-box legend-box2 mr-2'>
+
+                    <div>
+                        <a href="javascript:PrintPagePF();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mt-3"><i class="icon-printer1"></i></a>
+
+                        <a href="javascript:generateExcelD();void(0)" title="Export to Excel" id="printIconD" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mt-3"><i class="icon-excel-file"></i></a>
+                    </div>
+
+                </div>*@
+                    }
+                    <div class="clearfix"></div>
+                </div>
+                @if (ListData != null)
+                {
+
+                    <div class="mb-2">
+                        <a href="javascript:generateExcel();void(0)" title="Export to Excel" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-excel-file"></i></a>
+
+                        <a href="javascript:PrintPagePF();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-printer1"></i></a>
+
+                    </div>
+
+                    <div class="table-responsive" id="printtable1">
+                        <table data-toggle="table" id="tblFreezedata" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>
+                                    <th>District</th>
+                                    <th>Block</th>
+                                    <th>Year</th>
+                                    <th>Month</th>
+                                    @*<th>Status</th>*@
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int Count = 1; }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                <tr>
+                                    <td>@Count</td>
+
+                                    <td>@item.DISTRICTNAME</td>
+                                    <td>@item.BLOCKNAME</td>
+                                    <td>@item.YEAR</td>
+                                    <td>@item.FREQUENCYVALUE</td>
+                                    @*@if (item.STATUS == 2)
+                                    {
+                                        <td><span>Submitted By BDO</span></td>
+                                    }
+                                    else
+                                    {
+
+                                    }*@
+                                    <td>
+
+                                        <a onclick="UpdateFreezeStatus(@item.APPLICATIONNO,@item.DISTRICTID,@item.BLOCKID, 0,@item.YEAR,@item.FREQUENCYID,@item.FREQUENCYNO)" class="Static " >UnFreeze</a>
+                                        @*<button type="button" class="btn btn-success">Freeze</button>*@
+                                    </td>
+                                </tr>
+                                    Count++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        /*$("#hdnDistrict").val($('#ddlDistrict option:selected').text());*/
+        if ("@HttpContextAccessor.HttpContext.Session.GetString("_nvchaliasname")" == "COL") {
+            $('#ddlDistrict').val(@HttpContextAccessor.HttpContext.Session.GetInt32("_LeveDetailId"));
+            BindBlockData(@HttpContextAccessor.HttpContext.Session.GetInt32("_LeveDetailId"), 0);
+            $('#ddlDistrict').css('pointer-events', 'none');
+        }
+        else if ("@HttpContextAccessor.HttpContext.Session.GetString("_nvchaliasname")" == "BDO") {
+            $('#ddlDistrict').val(@HttpContextAccessor.HttpContext.Session.GetInt32("_PARENTID"));
+            BindBlockData(@HttpContextAccessor.HttpContext.Session.GetInt32("_PARENTID"), @HttpContextAccessor.HttpContext.Session.GetInt32("_LeveDetailId"));
+            $('#ddlDistrict').css('pointer-events', 'none');
+            $('#ddlBlock').css('pointer-events', 'none');
+
+        }
+        else {
+
+        }
+        var compare = $("#ddlcompare").val();
+        if (compare == "3") {
+            $("#Todatapoint").show();
+            $("#Frmcompletion").html("Value1 & Value2");
+        }
+        else {
+            $("#Frmcompletion").html("Value");
+            $("#Todatapoint").hide();
+        }
+
+        $(".js-select3").select2({
+            closeOnSelect: false,
+            placeholder: "Select Month",
+            // allowHtml: true,
+            allowClear: true,
+            tags: true // создает новые опции на лету
+        });
+        $('#ddlhide').hide();
+        if (@HttpContextAccessor.HttpContext.Session.GetInt32("_HRMSSTATUS") == 0) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Do you want to change your Password?",
+                callback: function (result) {
+                    if (result == true) {
+                        window.location.href = "/Login/ChangePasswordReq?Hid=@HttpContextAccessor.HttpContext.Session.GetString("_EncryptUserName")";
+
+                    }
+                }
+            });
+        }
+        if (@ViewBag.bid!= '0') {
+            BindBlockData(@ViewBag.bid);
+        }
+
+        if ($("#ddlDistrict").val()=='0'){
+            BindBlockData(0);
+        }
+    });
+
+
+    document.getElementById("datapointenter").onkeyup = function () {
+        var input = parseInt(this.value);
+        if (input < 0 || input > 100)
+            bootbox.alert("Value should be between 0 - 100");
+        if (input < 0) {
+            $('#datapointenter').val('');
+        }
+
+        return;
+    }
+    document.getElementById("todatapointenter").onkeyup = function () {
+        var input = parseInt(this.value);
+        var input1 = $('#datapointenter').val();
+        if (input < 1 || input > 100)
+            bootbox.alert("Value should be between 1 - 100");
+        //if (input < 1) {
+        //    $('#todatapointenter').val('');
+        //}
+        //if (input < input1) {
+        //    bootbox.alert("Value should be more than from Value1 ");
+        //}
+        return;
+    }
+</script>
+<script>
+    $('#btnSearch').click(function () {
+        $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        if ($('#ddlYear').val() == 0) {
+            bootbox.alert('Please Select  year!');
+            return false;
+        }
+        if ($('#ddlDistrict').val() == 0) {
+            bootbox.alert('Please Select  District!');
+            return false;
+        }
+
+        if ($('#ddlBlock').val() == 0) {
+            bootbox.alert('Please Select  Block!');
+            return false;
+        }
+
+        if ($('#ddlfreq').val() == 0) {
+            bootbox.alert('Please Select  Frequency!');
+            return false;
+        }
+    })
+</script>
+<script>
+    function generateExcel() {
+        $('#printtable1').table2excel();
+        getvisible();
+    }
+
+    function getReportname(name) {
+
+        return "ManageFreezeStatus-" + $("#ddlDistrict").val() + "(" + $('#ddlfreq').val() + ")";
+
+    }
+
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#tblFreezedata thead').find('tr').clone();
+        var headCells = $(headrow).find('th');
+        headCells.eq(4).remove();
+        var heading = headrow[0].outerHTML;
+        vtable.push(heading);
+        $('#tblFreezedata tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            $(this).find("td").each(function (index) {
+                if (index !== 4) {
+                    temprow += '<td>' + $(this).html() + '</td>';
+                }
+            });
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+
+</script>
+<script>
+    //print function work
+    function PrintPagePF() {
+
+        var windowName = "PrintPageP";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable1").clone();
+        cloneTable.find('tr').each(function () {
+            $(this).find('td:eq(4), th:eq(4)').remove();
+        });
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("/", windowName, wOption);
+        wWinPrint.document.write('\x3Cscript type="text/javascript" src="../../js/print.js">\x3C/script>');
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();PrintableContent(\"printContent\");$(this).show();'>Print</a></h4></div></div>");
+        /* wWinPrint.document.write("<div style='display:flex;align-items:center;'><div class='float-left year mt-0'></div><div class='float-left year mt-0'></div></div>");*/
+        wWinPrint.document.write("<strong style='margin-left: 19px;font - size: 17px;color:#000'></strong><div style=''><br/>" + "<div><button class='btn btn-primary' onclick=PrintableContent('printContent'); style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>
+<script>
+    function generate() {
+        debugger;
+        var doc = new jsPDF('p', 'pt', 'letter');
+        var htmlstring = '';
+        var tempVarToCheckPageHeight = 0;
+        var pageHeight = 0;
+        var img = new Image();
+        img.src = '../images/Odisha_logo_Black.png';
+        pageHeight = doc.internal.pageSize.height;
+        specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#bypassme': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true
+            }
+        };
+        margins = {
+            top: 150,
+            bottom: 60,
+            left: 40,
+            right: 40,
+            width: 600
+        };
+        var y = 20;
+        var show = $('#printtable').html();
+        doc.setLineWidth(2);
+        doc.addImage(img, 'png', 40, 10, 50, 50);
+        doc.fromHTML("<b style='font-size:25px'>Block Monitoring Programme</b>", 90, 8);
+        // doc.fromHTML("<p style='font-size:20px'>Government of Odisha</p>", 95, 22);
+        // doc.text(50, y = y + 45, show);
+        doc.autoTable({
+            html: '#printtable',
+            startY: 100,
+            theme: 'grid',
+            styles: {
+                minCellHeight: 40
+            }
+        })
+        doc.save('DataEntryPerformance.pdf');
+    }
+    $("input:checkbox").on('click', function () {
+        var $box = $(this);
+        if ($box.is(":checked")) {
+            var group = "input:checkbox[name='" + $box.attr("name") + "']";
+            $(group).prop("checked", false);
+            $box.prop("checked", true);
+        } else {
+            $box.prop("checked", false);
+        }
+    });
+</script>
+<script>
+    function UpdateFreezeStatus(ApplicationNo, Districtid, Blockid, Status, year,frequencyid,frequencyno) {
+        $.ajax({
+            url: "/Home/UpdateFreezeStatus?ApplicationNo=" + ApplicationNo + "&Districtid=" + Districtid + "&Blockid=" + Blockid + "&Status=" + Status + "&year=" + year + "&frequencyid=" + frequencyid + "&frequencyno=" + frequencyno,
+            type: "POST",
+            dataType:"json",
+            success: function (data) {
+                if (data == "2") {
+                    bootbox.alert("Data Unfreezed Successfully !!", function () {
+                        window.location.reload();
+                    });
+                }
+                else {}
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+
+   
+
+   
+   
+</script>
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("ManageFreezeData").href = "../Home/ManageFreezeStatus?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('ManageFreezeStatus', 'gldata', 'plbdodata', 'Manage Freeze Status', 'Manage Freeze Status', 'Manage Freeze Status');
+    });
+</script>
+<script>
+
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDistrict').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---Select---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDistrict').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---Select---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>

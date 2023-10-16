@@ -1,0 +1,176 @@
+﻿@{
+    ViewData["Title"] = "BDODataSubmission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.Result as List<ABP.Domain.DataPoint.DataPoint>;
+    var SectorData = ViewBag.Sector as Task<IEnumerable<ABP.Domain.Sector.sector>>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <p id="datDurationMSG" class="text-danger"></p>
+                @if (SectorData.Result.ToList().Count > 0)
+                {
+                    <div id="accordion">
+                        @if (SectorData.Result != null)
+                        {
+                            @foreach (var items in SectorData.Result)
+                            {
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.SECTORID" aria-expanded="true" aria-controls="collapse-@items.SECTORID">
+                                                @items.SECTORNAME<span class="text-danger">*</span>
+                                                @if (ResultData.Where(u => u.SECTORID == items.SECTORID).Select(u => u.STATUS).FirstOrDefault() == 3)
+                                                {
+                                                    <span class="text-danger pull-right">         Reject Reason :  @ResultData.Select(u => u.COLLECTORREMARK).FirstOrDefault()</span>
+                                                }
+                                            </a>
+
+                                        </h5>
+                                    </div>
+                                    @if (ResultData.Where(u => u.SECTORID == items.SECTORID).Count() != 0)
+                                    {
+                                        <div id="collapse-@items.SECTORID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                            <div class="card-body pt-2">
+                                                <b class="w-100">Date : @ResultData[0].FROMDATE To @ResultData[0].TODATE</b>
+                                                <div class="table-responsive mt-2">
+                                                    <table data-toggle="table" class="table  table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>DataPoint </th>
+                                                                <th width="100px">Value<span class="text-danger">*</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.SECTORID">
+                                                            @if (ResultData != null)
+                                                            {
+                                                                int count = 1;
+                                                                int dpid = 0;
+                                                                @foreach (var list in ResultData.Where(u => u.SECTORID == items.SECTORID))
+                                                                {
+                                                                    if (list.DATAPOINTID == dpid)
+                                                                    {
+                                                                        <tr style="display:none">
+                                                                            <td>@count</td>
+                                                                            <td style="display:none;">@list.BDODATAID</td>
+                                                                            <td>@list.DATAPOINTNAME</td>
+                                                                            <td><input type="text" value="@list.DATAPOINTVALUE" id="demo-text-input" class="form-control" style="pointer-events:none"></td>
+                                                                            <td style="display:none;">@list.STATUS</td>
+                                                                            <td style="display:none;">@list.FREQUENCYNO</td>
+                                                                            <td style="display:none;">@list.DATAPOINTID</td>
+                                                                            <td style="display:none;">@list.INDICATORID</td>
+                                                                            <td style="display:none;">@list.SECTORID</td>
+                                                                            <td style="display:none;">@list.BLOCKID</td>
+                                                                            <td style="display:none;">@list.YEAR</td>
+                                                                            <td style="display:none;">@list.FROMDATE</td>
+                                                                            <td style="display:none;">@list.TODATE</td>
+                                                                            <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                            <td style="display:none;">@list.FREQUENCYID</td>
+                                                                            <td style="display:none;">@list.INDICATORMAPPINGID</td>
+                                                                            <td style="display:none;">@list.DATAID</td>
+                                                                        </tr>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@count</td>
+                                                                            <td style="display:none;">@list.BDODATAID</td>
+                                                                            <td>@list.DATAPOINTNAME</td>
+                                                                            <td><input type="text" value="@list.DATAPOINTVALUE" id="demo-text-input" class="form-control" style="pointer-events:none"></td>
+                                                                            <td style="display:none;">@list.STATUS</td>
+                                                                            <td style="display:none;">@list.FREQUENCYNO</td>
+                                                                            <td style="display:none;">@list.DATAPOINTID</td>
+                                                                            <td style="display:none;">@list.INDICATORID</td>
+                                                                            <td style="display:none;">@list.SECTORID</td>
+                                                                            <td style="display:none;">@list.BLOCKID</td>
+                                                                            <td style="display:none;">@list.YEAR</td>
+                                                                            <td style="display:none;">@list.FROMDATE</td>
+                                                                            <td style="display:none;">@list.TODATE</td>
+                                                                            <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                            <td style="display:none;">@list.FREQUENCYID</td>
+                                                                            <td style="display:none;">@list.INDICATORMAPPINGID</td>
+                                                                            <td style="display:none;">@list.DATAID</td>
+                                                                        </tr>
+                                                                    }
+                                                                    count++;
+                                                                    dpid = list.DATAPOINTID;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                @if (ViewBag.Status == 0)
+                {
+                    <div class="form-group row">
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <button onclick="sendOTP()" id="btnConfirm" class="btn btn-success show-otp">Submit</button>
+                            @*<button class="btn btn-danger mb-1">Accept</button>*@
+                        </div>
+                    </div>
+                }
+
+                <div class="form-group row pad-ver otp-box bg-light pt-3">
+
+                    <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                        Enter OTP
+                    </label>
+                    <div class="col-lg-4">
+                        <input type="number" id="txtotp" class="form-control" />
+                        <input type="hidden" id="hdnotp" class="form-control" />
+                        <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+                    </div>
+                    <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+                    <label class="col-xl-12  col-xl-12 control-label"></label>
+                    <label class="col-12  col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input onclick="submitForm()" type="submit" class="btn btn-success" value="Submit" />
+                    </div>
+                </div>
+
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/bdodatasubmission.js"></script>
+<script>
+    $(document).ready(function () {
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Datapoint Entry', 'Submit Datapoint', 'View BDOData');
+    });
+</script>

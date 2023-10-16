@@ -1,0 +1,189 @@
+﻿@model ABP.Domain.Report.Report
+@{
+    var ListData = ViewBag.LogDetails;
+    Layout = null;
+}
+<div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">
+                Log Details
+            </h5>
+            <button type="button" class="close" data-dismiss="modal" id="btnclose" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+
+        <div class="modal-body">
+            <div class="table-responsive log-table">
+                @*<table  cellspacing="0" class="table">
+                    <thead>
+                        <tr>
+                            <td>D1</td>
+                            <td>D2</td>
+                            <td>D3</td>
+                            <td>D4</td>
+                            <td>D5</td>
+                            <td>D6</td>
+                            <td>D7</td>
+                            <td>D8</td>
+                            <td>D9</td>
+                            <td>D10</td>
+                            <td>D11</td>
+                            <td>D12</td>
+                            <td>D13</td>
+                            <td>D14</td>
+                            <td>D15</td>
+                            <td>D16</td>
+                            <td>D17</td>
+                            <td>D18</td>
+                            <td>D19</td>
+                            <td>D20</td>
+                            <td>D21</td>
+                            <td>D22</td>
+                            <td>D23</td>
+                            <td>D24</td>
+                            <td>D25</td>
+                            <td>D26</td>
+                            <td>D27</td>
+                            <td>D28</td>
+                            <td>D29</td>
+                            <td>D30</td>
+                            <td>D31</td>
+                            <td>D32</td>
+                            <td>D33</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>10</td>
+                            <td>8576</td>
+                            <td>45</td>
+                            <td>565</td>
+                            <td>787</td>
+                            <td>46</td>
+                            <td>7866</td>
+                            <td>35</td>
+                            <td>10</td>
+                            <td>8576</td>
+                            <td>45</td>
+                            <td>565</td>
+                            <td>787</td>
+                            <td>46</td>
+                            <td>787</td>
+                            <td>46</td>
+                            <td>35</td>
+                            <td>10</td>
+                            <td>8576</td>
+                            <td>45</td>
+                            <td>565</td>
+                            <td>787</td>
+                            <td>46</td>
+                            <td>7866</td>
+                            <td>35</td>
+                            <td>10</td>
+                            <td>8576</td>
+                            <td>45</td>
+                            <td>565</td>
+                            <td>787</td>
+                            <td>46</td>
+                            <td>7866</td>
+                            <td>35</td>
+                        </tr>
+                    </tbody>
+                    </table>*@
+                    <table id="example" cellspacing="0" class="table">
+                        <thead>
+                            <tr>
+                                @*<th width="35px">Sl#</th>*@
+                                @foreach (var Item in ListData.Tables[0].Rows)
+                                {
+                                    <th>@Item.ItemArray[2]</th>
+                                }
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int count = 1;}
+                            @if (ListData.Tables[1].Rows.Count == 0)
+                            {
+                                <tr>
+                                    <td colspan="5" class="no-record">No Record found.</td>
+                                </tr>
+                            }
+                            else
+                            {
+
+                                @*<td>@count</td>*@
+                                @for (int K = 0; K < ListData.Tables[1].Rows.Count; K++)
+                                {
+                                    <tr>
+                                        @foreach (var Item in ListData.Tables[0].Columns[1].Table.Rows)
+                                        {
+
+                                            @for (int j = 0; j < ListData.Tables[1].Columns.Count; j++)
+                                            {
+                                                if (Item.ItemArray[1].ToUpper() == ListData.Tables[1].Columns[j].ColumnName.ToUpper())
+                                                {
+
+                                                    <td>@ListData.Tables[1].Rows[K][j]</td>
+
+
+                                                }
+
+                                            }
+
+                                        }
+                                    </tr>
+                                }
+
+
+                            }
+
+                        </tbody>
+                    </table>
+            </div>
+            @*<div class="log-indicator">
+                <ul>
+                    <li>D1 - Number of pregnant women registered for ANC during the month</li>
+                    <li>D2 - Total Estimated Pregnancy for the month</li>
+                    <li>D3 - Number of Pregnant Women received ANC in the 1st trimester (within 12 weeks) during the month</li>
+                    <li>D4 - Total number of pregnant women registered during the year</li>
+                    <li>D5 - Number of pregnant women with 4 or more ANC visit during the year</li>
+                    <li>D6 - Number of pregnant women tested for Hemoglobin at least 4 or more times</li>
+                    <li>D7 - Number of babies weight below 2500 gm</li>
+                    <li>D8 - Total number of live births weighed during the month</li>
+                    <li>D9 - Number of underweight (weight for age) children under 5 years</li>
+                    <li>D10 - Total number of children Under-5 years</li>
+                    <li>D11 - Number of SAM children Under-5 years</li>
+                    <li>D12 - Number of MAM children Under-5 years</li>
+                    <li>D13 - Number of children admitted to Nutritional Rehabilitation Center (NRC)during the month</li>
+                    <li>D14 - Number of Institutional Deliveries during the month</li>
+                    <li>D15 - Total deliveries during the month</li>
+                    <li>D16 - Number of home deliveries attended by Skill Birth Attendant (Nurse/ANM) during the month</li>
+                    <li>D17 - Total home deliveries during the month</li>
+                    <li>D18 - Number of female live births during the month</li>
+                    <li>D19 - Number of male live births during the month</li>
+                    <li>D20 - Number of infant deaths within 28 days during the month</li>
+                    <li>D21 - Total number of live births during the month</li>
+                    <li>D22 - Total number of children aged 9-11 months received fully vaccinated (BCG+ DPT3 + OPV3 + Measles1)</li>
+                    <li>D23 - Total children (9-11 Months)</li>
+                    <li>D24 - Total number of Tuberculosis (TB) cases notified (Public & Private)</li>
+                    <li>D25 - Total number of estimated Tuberculosis (TB) cases</li>
+                    <li>D26 - Number of Tuberculosis (TB) cases treated successfully in public and private institutions</li>
+                    <li>D27 - Number of persons tested Malaria positive in the month "N" of current year</li>
+                    <li>D28 - Number of persons tested Malaria positive in the month "N" of last year</li>
+                    <li>D29 - Number of sub-centres/PHCs converted into Health & Wellness Centres (HWCs)</li>
+                    <li>D30 - Total number of sub-centres/ PHCs</li>
+                    <li>D31 - Number of Anganwadis with own buildings</li>
+                    <li>D32 - Total number of Anganwadis Centers during the year</li>
+                    <li>D33  - Number of Anganwadi converted into Model Anganwadi Centers</li>
+
+                </ul>
+            </div>*@
+        </div>
+
+        </div>
+
+</div>

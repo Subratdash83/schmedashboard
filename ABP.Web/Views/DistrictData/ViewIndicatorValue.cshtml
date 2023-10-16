@@ -1,0 +1,126 @@
+﻿@model ABP.Domain.Indicator.Indicator
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewSector";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.Result as List<ABP.Domain.Indicator.Indicator>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link " asp-controller="Sector" asp-action="AddSector">Add</a>
+                        <a class="nav-item nav-link active" asp-controller="Sector" asp-action="ViewSector">View</a>*@
+
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="SectorAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="SectorView">
+
+                        View
+                    </a>
+                </ul>
+                @*<div class="indicatorslist">
+                        <a id="printicon" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"><i class="icon-printer1"></i></a>
+                        <a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>
+                    </div>*@
+            </div>
+
+            <!-- Search Panel -->
+            <!--===================================================-->
+            <div class="card-body">
+                @if (ResultData.Count> 0)
+                {
+                    <div class="table-responsive">
+                        <table data-toggle="table" id="tblSector" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>
+                                    <th>DISTRICT</th>
+                                    <th>BLOCK</th>
+                                    <th>SECTOR NAME</th>
+                                    <th>INDICATOR NAME</th>
+                                    <th>INDICATOR VALUE</th>
+                                    <th>YEAR</th>
+                                    <th>FREQUENCY VALUE</th>
+                                    <th>CREATED ON</th>
+                                    <th>FREQUENCY TYPE</th>
+                                    <th>BLOCKCODE</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int count = 1;}
+                                @foreach (var list in ResultData)
+                                {
+                                <tr>
+                                    <td>@count</td>
+                                    <td>@list.DISTRICT</td>
+                                    <td>@list.BLOCK</td>
+                                    <td>@list.SECTORNAME</td>
+                                    <td>@list.INDICATORNAME</td>
+                                    <td>@list.INDICATORVALUE</td>
+                                    <td>@list.YEAR</td>
+                                    <td>@list.FREQUENCYVALUE</td>
+                                    <td>@list.CREATEDON</td>
+                                    <td>@list.FREQUENCY_TYPE</td>
+                                    <td>@list.BLOCKCODE</td>
+                                </tr>
+                                    count++;
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                <div class="clearfix col-sm-12"></div>
+                <!--<nav aria-label="Page navigation example">
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item "><a class="page-link" href="#">Previous</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                    </ul>
+                </nav>-->
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script src="~/js/sector.js"></script>
+<script>
+    function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+    //$(document).ready(function () {
+    //    document.getElementById("SectorAdd").href = "../Sector/AddSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    //    document.getElementById("SectorView").href = "../Sector/ViewSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    //    loadNavigation('AddSector', 'gldata', 'plbdodata', 'Manage Master', 'Manage Sector', 'Add Sector');
+    //    getDataTable();
+    //});
+</script>

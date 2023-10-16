@@ -1,0 +1,726 @@
+.bdodashboard-content .card {
+    padding: 1rem;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.indicator-text {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+    position: relative;
+}
+
+.toptable-heading {
+    font-size: 18px !important;
+}
+
+.lowertable-heading {
+    font-size: 16px !important;
+}
+
+.indicator-text:after {
+    position: absolute;
+    content: "";
+    left: 0;
+    right: 0;
+    background-color: #ccc;
+    width: 100%;
+    height: 1px;
+    bottom: -7px;
+}
+
+.indicator-text span {
+    display: block;
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 22px;
+    color: #000;
+}
+
+.indicator-text small {
+    font-weight: 500;
+    color: #000;
+}
+
+.datapoint-maincontent {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-gap: 13px;
+}
+
+.bdodashboard-content .progress {
+    height: 0.4rem;
+    margin-top: 0.5rem;
+    border-radius: 0;
+    background: rgb(217 217 217);
+}
+
+.info-bg {
+    background: rgb(232 244 251) !important;
+}
+
+.warnning-bg {
+    background: rgb(255 248 229) !important;
+}
+
+.success-bg {
+    background: rgb(241 246 233) !important;
+}
+
+.danger-bg {
+    background: rgb(253 241 241) !important;
+}
+
+.primary-bg {
+    background: rgb(240 244 255) !important;
+}
+
+.info-text {
+    color: #2496d4 !important;
+}
+
+.warnning-text {
+    color: #e2a101 !important;
+}
+
+.success-text {
+    color: #70a560 !important;
+}
+
+.danger-text {
+    color: #e16772 !important;
+}
+
+.primary-text {
+    color: #3a61cc !important;
+}
+
+.progressinfo-bg {
+    background-color: #2496d4 !important;
+}
+
+.progresswarnning-bg {
+    background-color: #e2a101 !important;
+}
+
+.progresssuccess-bg {
+    background-color: #70a560 !important;
+}
+
+.progressdanger-bg {
+    background-color: #e16772 !important;
+}
+
+.progressprimary-bg {
+    background-color: #3a61cc !important;
+}
+
+
+.info-badge {
+    background-color: #2496d4 !important;
+    color: #fff;
+}
+
+.warnning-badge {
+    background-color: #e2a101 !important;
+    color: #fff;
+}
+
+.success-badge {
+    background-color: #70a560 !important;
+    color: #fff;
+}
+
+.danger-badge {
+    background-color: #e16772 !important;
+    color: #fff;
+}
+
+.primary-badge {
+    background-color: #3a61cc !important;
+    color: #fff;
+}
+
+
+.fw-600 {
+    font-weight: 600 !important;
+}
+
+.indicator-table {
+    margin-top: 0.3rem;
+}
+
+    .indicator-table table {
+        margin-bottom: 0;
+    }
+
+    .indicator-table .table tr th, .indicator-table .table tr td {
+        background: transparent;
+        padding: 0.2rem 0.2rem !important;
+        font-size: 0.9rem !important;
+        color: #000;
+        border: 0;
+    }
+
+.indicatoe-legend {
+    display: flex;
+    list-style: none;
+    justify-content: end;
+    margin-top: 5px;
+}
+
+    .indicatoe-legend li {
+        margin-right: 1.5rem;
+    }
+
+        .indicatoe-legend li:last-child {
+            margin-right: 0;
+        }
+
+.filter-points {
+    display: flex;
+    list-style: none;
+    /* justify-content: space-between; */
+    padding-left: 0;
+}
+
+    .filter-points .form-control {
+        border: none !important;
+        font-weight: bold;
+        padding-top: 0;
+        color: #7b7878;
+    }
+
+.form-control.active {
+    color: #70a560 !important;
+}
+
+.filter-points li {
+    margin-right: 1rem;
+    /* width: 30%; */
+    /*border-right: 1px solid #ccc;*/
+    position: relative;
+}
+
+    .filter-points li:after {
+        position: absolute;
+        content: "";
+        background: #b7b4b4;
+        width: 1px;
+        height: 26px;
+        top: 7px;
+        bottom: 0;
+        right: -22px;
+    }
+
+    .filter-points li:last-child:after {
+        background: transparent;
+    }
+
+    .filter-points li:last-child {
+        margin-right: 0;
+    }
+
+.table-scroll {
+    position: relative;
+    width: 100%;
+    margin: auto;
+    overflow: auto;
+    height: 1100px;
+}
+
+    .table-scroll table {
+        width: 100%;
+        margin: auto;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+.table-wrap {
+    position: relative;
+}
+
+.table-scroll th,
+.table-scroll td {
+    padding: 5px 10px;
+    border-top: 1px solid #d6d6d6;
+    background: #fff;
+    vertical-align: top;
+}
+
+.table-scroll thead {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 0;
+}
+/* safari and ios need the tfoot itself to be position:sticky also */
+.table-scroll tfoot,
+.table-scroll tfoot,
+.table-scroll tfoot {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+}
+
+    .table-scroll tfoot td {
+        background: rgb(232 244 251) !important;
+    }
+
+.table-scroll {
+    position: -webkit-sticky;
+    position: sticky;
+    left: 0;
+}
+
+    .table-scroll thead,
+    .table-scroll tfoot td {
+        z-index: 5;
+    }
+
+.indicator-badges {
+    background: #716cdd2b;
+    color: #716cdd !important;
+    font-weight: bold;
+    padding: 3px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.monthly-badges {
+    background: #4988461f;
+    color: #498846 !important;
+    font-weight: bold;
+    padding: 1px 10px;
+    font-size: 14px;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.card h6 {
+    font-size: 0.97rem !important;
+    height: 35px;
+}
+
+#table-scroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #F5F5F5;
+}
+
+#table-scroll::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+#table-scroll::-webkit-scrollbar-thumb {
+    background-color: #737b8b;
+}
+
+.bdo-tab .nav-item {
+    margin-right: 0.5rem;
+    height: 100%;
+    /* text-align: center; */
+}
+
+.bdo-tab .nav-pills .nav-link.active, .bdo-tab .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #498846;
+    position: relative;
+}
+
+    .bdo-tab .nav-pills .nav-link.active svg {
+        /*background: #fff;*/
+        fill: #fff !important;
+    }
+
+.bdo-tab .nav-pills .nav-link:hover svg {
+    /*background: #fff;*/
+    fill: #fff !important;
+}
+
+#pills-profile-tab :hover svg {
+    fill: #fff;
+}
+
+.bdo-tab .nav-pills .nav-link:hover {
+    color: #fff;
+    background-color: #498846;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+.bdo-tab .nav-pills .nav-link {
+    background: 0 0;
+    border: 1px solid #dfdfdf;
+    border-radius: 3px;
+    font-size: 15px;
+    padding: 0.4rem 0.5rem;
+    height: 100%;
+    position: relative;
+    color: #000;
+    align-items: center;
+    display: flex;
+}
+
+.warnning-bg {
+    background: rgb(255 248 229) !important;
+}
+
+.warnning-text {
+    color: #e2a101 !important;
+}
+
+.progresswarnning-bg {
+    background-color: #e2a101 !important;
+}
+
+.bdo-tab .nav-pills .nav-link.active:after, .bdo-tab .nav-pills .show > .nav-link {
+    position: absolute;
+    content: "\f0d7 ";
+    left: 0;
+    font-family: 'FontAwesome';
+    right: 0;
+    font-size: 39px;
+    bottom: -34px;
+    color: #498846;
+    text-align: center;
+}
+
+.financial-tab svg {
+    width: 30% !important;
+    fill: #3a61cc;
+}
+
+#basic-infr-tab svg {
+    /* width: 29%; */
+    fill: #e16772;
+}
+
+#pills-contact-tab svg {
+    fill: #70a560;
+}
+
+#pills-home-tab {
+    fill: #70a560;
+}
+
+#pills-profile-tab svg {
+    /* width: 29%!important; */
+    fill: #e2a101;
+}
+
+.bdo-tab .nav-pills .nav-link svg {
+    /* display: block; */
+    font-size: 10rem;
+    /*fill: #fff;*/
+    /*background: #498846;*/
+    margin-right: 10px;
+    margin-bottom: 0px;
+    height: 37px;
+    width: 34px;
+    line-height: 22px;
+    border-radius: 7px;
+}
+
+.bdo-tab ul {
+    display: grid;
+    -ms-grid-columns: (1fr)[4];
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.bdo-tab .nav-item:last-child {
+    margin-right: 0;
+}
+
+.width-60 {
+    width: 60%;
+}
+
+@media screen and (max-width: 1680px) {
+    .table-scroll {
+        /* height: 1397px; */
+    }
+
+    .bdo-tab .nav-item:last-child a {
+        font-size: 13px;
+    }
+
+    .card h6 {
+        font-size: 0.821rem !important;
+    }
+}
+
+@media screen and (max-width: 1440px) {
+    .table-scroll {
+        height: 1389px;
+    }
+    .width-60 {
+        width: 49%;
+    }
+    .bdo-tab .nav-pills .nav-link.financial-tab {
+        font-size: 12px !important;
+    }
+    .toptable-heading {
+        font-size: 16px !important;
+    }
+    .card h6 {
+        font-size: 0.725rem !important;
+        height: 29px;
+    }
+    .lowertable-heading {
+        font-size: 15px !important;
+        padding-top: 0 !important;
+    }
+    .indicator-table .table tr th, .indicator-table .table tr td {
+        font-size: 0.8rem !important;
+    }
+}
+
+@media screen and (max-width: 1366px) {
+    .table-scroll {
+        height: 1285px;
+    }
+
+    .datapoint-maincontent .card.primary-bg h6 {
+        font-size: 0.7rem !important;
+    }
+
+    .bdo-tab .nav-pills .nav-link.financial-tab {
+        font-size: 0.68rem !important;
+    }
+
+    .financial-tab svg {
+        width: 43% !important;
+    }
+
+    .card h6 {
+        font-size: 0.98rem !important;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .table-scroll {
+        height: 1252px;
+    }
+
+    .bdo-tab .nav-pills .nav-link svg {
+        width: 29px;
+    }
+
+    .bdo-tab .nav-pills .nav-link {
+        font-size: 14px;
+    }
+
+    .bdodashboard-content .card {
+        padding: 0.5rem;
+    }
+
+    .financial-tab svg {
+        width: 29% !important;
+    }
+
+    .bdo-tab .nav-pills .nav-link.financial-tab {
+        font-size: 0.65rem !important;
+    }
+
+    .indicatoe-legend li {
+        margin-right: 0.2rem;
+    }
+
+    .indicatoe-legend li {
+        margin-right: 1.2rem;
+    }
+
+    .filter-points .form-control {
+        padding: 0;
+    }
+
+
+
+    .filter-points li:after {
+        height: 21px;
+        top: 12px;
+        bottom: 0;
+        right: -9px;
+    }
+
+    .datapoint-maincontent {
+    }
+}
+
+@media screen and (max-width: 1024px) {
+
+    .card h6 {
+        font-size: 1rem !important;
+        height: auto;
+    }
+
+    .indicatoe-legend li {
+        margin-right: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+  
+
+    .indicatoe-legend {
+        justify-content: start;
+        margin-top: 1rem;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .bdo-tab .nav-pills .nav-link.financial-tab {
+        font-size: inherit !important;
+    }
+    .datapoint-maincontent {
+        display: grid;
+        -ms-grid-columns: (1fr)[4];
+        grid-template-columns: repeat(2, 1fr);
+        grid-column-gap: 25px;
+    }
+    .width-60 {
+        width: 42%;
+    }
+
+    .bdo-tab .nav-item {
+        margin-right: 0;
+    }
+
+
+    .indicatoe-legend {
+        justify-content: start;
+        margin-top: 1rem;
+    }
+
+    .bdo-tab ul {
+        display: grid !important;
+        -ms-grid-columns: (1fr)[4];
+        grid-template-columns: repeat(1, 1fr) !important;
+        grid-row-gap: 1.5rem;
+    }
+
+        .bdo-tab ul li {
+            margin-bottom: 1rem;
+        }
+
+    .financial-tab svg {
+        width: 6% !important;
+    }
+
+    .main-header {
+        display: block !important;
+        justify-content: space-between;
+    }
+
+    .filter-points {
+        margin-bottom: 0.5rem;
+    }
+
+    .indicatoe-legend {
+        justify-content: start;
+        margin-top: 0rem;
+    }
+
+        .indicatoe-legend li {
+            margin-right: 1rem;
+        }
+
+    .bdo-tab .nav-pills .nav-link.active svg {
+        margin-bottom: 0;
+    }
+
+    .bdo-tab .nav-pills .nav-link svg {
+        margin-right: 14px;
+    }
+
+    .bdo-tab .nav-pills .nav-link {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+
+    .bdo-tab ul {
+        grid-row-gap: 0;
+    }
+
+    .width-60 {
+        width: auto;
+    }
+
+    .bdodashboard-content .card {
+        margin-bottom: 0;
+    }
+
+        .bdodashboard-content .card:last-child {
+            margin-bottom: 1rem;
+        }
+
+    .bdo-tab .nav-item {
+        margin-right: 0;
+        height: 62px;
+        padding-bottom: 3px;
+    }
+
+    .datapoint-maincontent {
+        display: grid;
+        -ms-grid-columns: (1fr)[4];
+        grid-template-columns: repeat(1, 1fr);
+        grid-column-gap: 0;
+    }
+
+    .bdo-tab .nav-pills .nav-link.financial-tab {
+        font-size: 15px !important;
+    }
+
+    .bdo-tab .nav-pills .nav-link svg {
+        margin-right: 12px;
+    }
+
+    .bdo-tab .nav-pills .nav-link {
+        font-size: 15px;
+    }
+}
+
+@media screen and (max-width: 530px) {
+    .filter-points li {
+        margin-right: 1rem;
+        width: 75px;
+    }
+
+
+    .indicatoe-legend {
+        display: block;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .financial-tab svg {
+        width: 9% !important;
+    }
+
+    .table tr td {
+        font-size: 13px;
+    }
+
+    .indicatoe-legend li {
+        margin-right: 0;
+        margin-bottom: 0.5rem;
+    }
+
+    .table tr th {
+        font-size: 12px;
+    }
+}
+
+@media screen and (max-width: 375px) {
+    .financial-tab svg {
+        width: 13% !important;
+    }
+}

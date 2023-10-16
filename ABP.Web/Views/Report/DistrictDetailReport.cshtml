@@ -1,0 +1,319 @@
+﻿@model ABP.Domain.Report.DistReport
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.BlockData as Task<IEnumerable<ABP.Domain.Report.DistReport>>;
+}
+
+<link href="~/css/districtdetails.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header d-sm-flex justify-content-between align-items-center">
+              <div>
+                    <ul class="nav nav-tabs custome-tab" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="home-tab" data-toggle="tab" data-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Avg Score</button>
+                        </li>
+                     @*  <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="profile-tab" data-toggle="tab" data-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Sector Wise</button>
+                        </li>*@
+                    </ul>
+                </div>
+                <div class="map-data">
+                    <ul class="map-details">
+                        <li>
+                            <div class="mr-2">
+                                <select class="form-control" id="ddlYear" name="Year" onchange="getMapData()" asp-items="@(new SelectList(ViewBag.Year, "FREQUENCYNO", "FREQUENCYVALUE",ViewBag.Year1))">
+                                    
+                                </select>
+
+                            </div>
+                        </li>
+                        <li>
+                            <div >
+                                <select class="form-control month-select" id="ddlMonth" name="Month" onchange="getMapData()" asp-items="@(new SelectList(ViewBag.Month, "FREQUENCYNO", "FREQUENCYVALUE", ViewBag.Month1))">
+                                    
+                                </select>
+                            </div>
+                        </li>
+                    </ul>
+
+
+                </div>
+                <div class="d-flex align-items-center mt-sm-0 mt-2">
+                    <div class="d-flex align-items-center mr-2">
+                        <span class="bullet bullet-success font-small-3 cursor-pointer"></span>
+                        <span class="text-success"> >70%</span>
+                    </div>
+                    <div class="d-flex align-items-center mr-2">
+                        <span class="bullet bullet-warning font-small-3  cursor-pointer"></span>
+                        <span class="text-warning">> 30-70% </span>
+                    </div>
+                    <div class="d-flex align-items-center ml-75">
+                        <span class="bullet bullet-danger font-small-3  cursor-pointer"></span>
+                        <span class="text-danger"> < 0-30% </span>
+                    </div>
+                </div>
+                @*<p class="font-weight-bold">You are viewing data for the month of <span id="lblMonth"></span> (<span id="lblYear"></span>)</p>*@
+            </div>
+            <div class="card-body">
+                <div class="district-details id=" printtable"">
+                    <ul class="deatils-container">
+                        @if (ListData != null)
+                        {
+                            foreach (var item in ListData.Result)
+                            {
+                                string percentclass = string.Empty;
+                                if (@item.DISTPERFOMANCE > 70)
+                                {
+                                    percentclass = "success-progressbar";
+                                }
+                                else if (@item.DISTPERFOMANCE >= 30)
+                                {
+                                    percentclass = "warning-progressbar";
+                                }
+                                else if (@item.DISTPERFOMANCE != 0 && @item.DISTPERFOMANCE <= 30)
+                                {
+                                    percentclass = "danger-progressbar";
+                                }
+                                else
+                                {
+                                    percentclass = "blue-progressbar";
+                                }
+                                <li>
+                                    <a asp-asp-controller="Report" asp-action="BlockPerformance" asp-route-distcode="@item.DistrictId">
+                                        
+                                    
+                                    <div class="info-card">
+                                        <div class="info-header">
+                                            <h4 class="info-title">
+                                                    @item.Districtname <span data-toggle="tooltip" data-placement="top" title="@item.Districtname">
+                                                        <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                                    </span>
+                                                </h4>
+                                        </div>
+
+                                        <div class="info-count">
+                                            <div>
+                                                <span class="block d-block">@item.TotalBlocks</span>
+                                                <span class="score">No. of Blocks</span>
+                                            </div>
+                                            <div>
+                                                <span class="block d-block ">@item.DISTPERFOMANCE%</span>
+                                                <span class="score ">Data Entry Performance</span>
+                                            </div>
+                                        </div>
+                                        <div class="progress custome-progress @percentclass">
+                                            <div class="progress-bar " role="progressbar" style="width: @item.DISTPERFOMANCE%" aria-valuenow="@item.DISTPERFOMANCE" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                    </a>
+                                </li>
+                            }
+                        }
+                       
+                  
+                    </ul>                   
+                </div>              
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        //document.getElementById("tabMonthly").href = "../Home/Dashboard?Glink=" + gl + "&Plink=" + pl;
+        //document.getElementById("tabAnnually").href = "../Home/MailWiseBlockReport?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Report', 'DistrictPerformance', 'DistrictPerformance');
+        document.getElementById("dashsearch").href = "../Home/DistDashboard?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        var date = new Date();
+        const monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        $('#lblYear').text(date.getFullYear());
+        $('#lblMonth').text(monthNames[date.getMonth()-1]);
+    });
+
+</script>
+<script>
+    // print function
+    function PrintPage() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable").clone();
+        var head = $('#printtable thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div><div class='float-left'>For the Year:- " + $("#ddlYear").val() + "</div><div class='legend-box float-right'><a href='#' class='text-success'>  <span class='back-green'></span> <strong>100% Completed </strong> </a><a href='#' class='text-warning'>  <span class='back-yellow'></span>  <strong> &gt;50% Completed</strong> </a><a href='#' class=''>  <span class='back-red'></span>  <strong>&lt; 50% Completed </strong></a></div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+    //$('#btnsearch').click(function () {
+    //    location.reload();
+    //})
+
+
+</script>
+<script>
+    function CheckEntered() {
+        $("tbody").find("tr").each(function () {
+            $(this).show();
+            var textvalue1 = $(this).find('td.back-yellow');
+            var textvalue2 = $(this).find('td.back-green');
+            var textvalue3 = $(this).find('td.back-red');
+            if (textvalue1.length == 0 && textvalue2.length == 0 && textvalue3.length == 0) {
+                $(this).hide();
+            }
+        });
+        DyncSlno();
+    }
+
+    //function bindBlock() {
+
+    //    var id = $('#ddlDistrict').val();
+
+    //    $.getJSON("/Report/Blocklist", { DistCode: id }, function (data) {
+    //       // alert(id);
+    //        var row = '<option value="">Select  </option>';
+    //        console.log(data);
+    //        $("#ddlblock").empty();
+    //        for (var i = 0; i < data.length; i++) {
+    //            row += '<option value=' + data[i].blockid + '>' + data[i].blockName + '</option>';
+
+    //        }
+    //        $("#ddlblock").append(row);
+    //    })
+    //}
+
+    $('#ddlblock').change(function () {
+        $("#hdnUserName").val($('#ddlblock').val());
+    });
+    function CheckNotEntered() {
+        $("tbody").find("tr").each(function () {
+            $(this).show();
+            var textvalue1 = $(this).find('td.back-yellow');
+            var textvalue2 = $(this).find('td.back-green');
+            var textvalue3 = $(this).find('td.back-red');
+            if (textvalue1.length != 0 || textvalue2.length != 0 || textvalue3.length != 0) {
+                $(this).hide();
+            }
+        });
+        DyncSlno();
+    }
+    function CheckAll() {
+        $("tbody").find("tr").each(function () {
+            $(this).show();
+        });
+        DyncSlno();
+    }
+    function DyncSlno() {
+        var count = 1;
+        $("tbody").find("tr").each(function () {
+            if ($(this).css('display') == 'table-row') {
+                $(this).find('td:eq(0)').text(count);
+                count++;
+            }
+        });
+
+    }
+
+        //function bindBlock() {
+        //    var id = $('#ddldistrict').val();
+        //    $.getJSON("../Mailer/Blocklist", { did: id }, function (data) {
+        //        var row = '<option value="">Select  </option>';
+        //        console.log(data);
+        //        $("#ddlblock").empty();
+        //        for (var i = 0; i < data.length; i++) {
+        //            row += '<option value=' + data[i].username + '>' + data[i].blocK_NAME + '</option>';
+        //        }
+        //        $("#ddlblock").append(row);
+        //    })
+        //}
+        //$('#ddlblock').change(function () {
+        //    $("#hdnUserName").val($('#ddlblock').val());
+        //});
+</script>
+<script>
+    function sethdnsector(AppNo) {
+        $.ajax({
+            url: "/BlockData/GetAllIndicatorAndDatapoints?AppNo=" + AppNo + "&Status=1",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+                $('#datapointpopup').html(data);
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+        });
+    }
+    function getMapData() {
+        location.href = "/Report/DistrictDetailReport?Year=" + $("#ddlYear").val() + "&FREQUENCYNO=" + $("#ddlMonth").val();
+    }
+</script>
+
+

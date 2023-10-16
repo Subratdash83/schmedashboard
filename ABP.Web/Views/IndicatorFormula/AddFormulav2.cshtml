@@ -1,0 +1,392 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddFormular";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #Dcheck {
+        height: 300px;
+        overflow-x: auto;
+        margin: 10px 0px 30px 0px;
+    }
+</style>
+
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+<link href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css"
+      rel="Stylesheet" type="text/css" />
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="Indicator" asp-action="AddIndicator">Add</a>
+                    <a class="nav-item nav-link " asp-controller="Indicator" asp-action="ViewIndicator">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndicatorFormulaAdd">
+
+                        Add Indicator Formula
+                    </a>
+                    @*<a class="nav-item nav-link" data-toggle="tooltip" id="IndicatorFormulaView">
+
+                    View
+                    </a>*@
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlSector" onchange="BindIndicators1()" name="Sector" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Frequency<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <select class="form-control" id="ddlFrequency" onchange="BindIndicators()" name="Frequency" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row" id="DP" style="display:none">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">DataPoints <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-4 col-xl-4">
+                        <span class="colon">:</span>
+                        @*<select id="ddlKPI"
+                        multiple class="form-control">
+                        <option value="0">Select</option>
+                        </select>*@
+                        <div id="Dcheck"></div>
+                    </div>
+                </div>
+                <div style="display:none" id="DFormula">
+                    <div class="section1">
+                        <div class="table-responsive">
+                            <table data-toggle="table" class="table table-bordered" id="Approvalinsert">
+                                <thead>
+                                    <tr>
+                                        <th width="45px" class="text-center">Sl#</th>
+                                        <th width="250px">Indicator Name</th>
+                                        <th width="550px">Indicator Formula</th>
+
+                                        <th width="20px" style="display:none"></th>
+                                        @* <th  width="20px" style="visibility:hidden">KPIFormulaOriginal</th>*@
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row" id="btngroup">
+                   @* <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-success mb-1" id="btnSubmitNow">Submit</button>
+                        <a class="btn btn-danger mb-1" onclick="ClearScheme()">Reset</a>
+                    </div>*@
+                </div>
+         
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+
+</style>
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndicatorFormulaAdd").href = "../IndicatorFormula/AddFormula?Glink=" + @Glink + "&Plink=" + @Plink;
+        //document.getElementById("IndforView").href = "../IndicatorFormula/ViewFormula?Glink=" + @Glink + "&Plink=" + @Plink;
+        loadNavigation('AddFormula', 'gldata', 'plbdodata', 'Manage IndicatorFormula', 'Add IndicatorFormula', 'Add IndicatorMapping');
+        $("#data").hide();
+        var formulaId = getUrlVars()["FormulaId"];
+        if (formulaId != undefined) {
+            $("#btnSubmit").html("Update");
+            $("#btnCancel").html("Cancel");
+            BindFormulaById(formulaId);
+        }
+        $('#btngroup').hide();
+    });
+    //$("#btnSubmitNow").click(function (e) {
+
+
+    //    debugger;
+    //    var ProjectMasterID = getUrlVars()["ID"];
+    //    if (ProjectMasterID != undefined) {
+    //        msg = "Are you sure ,you want to Update?";
+    //    }
+    //    else {
+    //        msg = "<p class='msg-display'>Are you sure ,you want to Submit?</p>";
+    //    }
+    //    var rowcount = 0;
+    //    $('#Approvalinsert tbody tr').each(function (index) {
+
+
+    //        var Question1 = $(this).find("td").eq(1).find("#txtDatapointName").val();
+
+
+
+    //        if (Question1 == "") {
+    //            bootbox.alert("Please Enter Question1.");
+    //            $(this).focus();
+    //            rowcount = 0;
+    //            return false;// breaks out of each loop
+    //        }
+
+
+    //        else {
+    //            rowcount++;
+    //        }
+    //    })
+    //    if (rowcount > 0) {
+
+    //        var linkDetails = new Array();
+    //        var fileData = new FormData();
+    //        var DPNames = '';
+    //        $(".department").each(function () {
+    //            if (this.checked == true) {
+
+    //                DPNames = DPNames + this.value + ',';
+    //                // myArray.push(this.name);
+
+    //            }
+
+    //        })
+    //        $('#Approvalinsert tbody tr').each(function (index) {
+
+    //            var KpiMasterid = $(this).find("td").eq(3).find("#txtINDID").val();
+
+    //            var KpiFormula = $(this).find("td").eq(2).find("#txtDatapointName").val();
+
+
+    //            var linkDetail = {};
+    //            linkDetail.Sectorid = parseInt($("#ddlSector").val());
+    //            linkDetail.INDICATORID = KpiMasterid;
+    //            linkDetail.IndicatorFormulaName = KpiFormula;
+    //            linkDetail.SelectedDataPoints = DPNames;
+    //            linkDetails.push(linkDetail);
+    //        });
+    //        fileData.append("Elements", JSON.stringify(linkDetails));
+
+    //        bootbox.confirm({
+    //            size: "medium",
+    //            message: msg,
+    //            callback: function (result) {
+    //                if (result === true) {
+
+    //                    addDatapoint(fileData);
+    //                }
+    //            }
+    //        });
+    //    }
+    //});
+    function BindIndicators1() {
+        if ($("#ddlFrequency").val() != 0) {
+            BindIndicators();
+        }
+    }
+    //function addDatapoint(Data) {
+    //    $.ajax({
+
+    //        type: "POST",
+    //        //url: "/Datapoint/AddDatapoint",
+    //        url: '@Url.Action("AddFormulaData", "IndicatorFormula")', //Controller and Method(/Controller/Method)
+
+    //        beforeSend: function (xhr) {
+    //            xhr.setRequestHeader("XSRF-TOKEN",
+    //                $('input:hidden[name="__RequestVerificationToken"]').val());
+    //        },
+    //        data: Data,
+    //        contentType: false, // Not to set any content header=================
+    //        processData: false, // Not to process data
+    //        success: function (res) {
+    //            var ID = getUrlVars()["ID"];
+    //            if (ID != undefined) {
+    //                bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+    //                    window.location.href = "../IndicatorFormula/ViewFormula?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    //                });
+    //            }
+    //            else {
+    //                bootbox.alert(res, function () { //Alert showing through bootbox for a better look and fill
+    //                    window.location.href = "../IndicatorFormula/AddFormula?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    //                    //window.location.reload();
+    //                });
+    //            }
+    //        },
+    //        failure: function (response) {
+    //            console.log(response.responseText);
+    //        },
+    //        error: function (response) {
+    //            console.log(response.responseText);
+    //        }
+    //    });
+    //}
+
+
+    $(document).on('keyup', '.inputs', function () {
+
+        $('#Approvalinsert tbody tr').each(function (index) {
+
+            function split(val, separator) {
+
+                return val.split(RegExp('\\' + separator + '\\s*'));
+
+
+            }
+
+
+
+
+            $(this).find("td").eq(2).find("#txtDatapointName").autocomplete({
+
+                // source: availableTags
+                source: function (request, response) {
+                    var Sectorid = $("#ddlSector").val();
+                    var IndicatorFormulaID = $("#ddlFrequency").val();
+                    $.ajax({
+                        url: "../IndicatorFormula/BindIndicatorAutoFill",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                            "Sectorid": Sectorid, "IndicatorFormulaID": IndicatorFormulaID
+                        },
+                        success: function (data) {
+                            var out = $.parseJSON(data);
+
+                            response($.map(out, function (item) {
+                                return { label: item.DISPLAYNAME, value: item.DISPLAYNAME };
+                            }))
+
+                        }
+                    })
+                },
+                multiselect: true,
+                focus: function () {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function (event, ui) {
+                    var op = '';
+                    op = this.value.substr(-1);
+
+                    var terms = split(this.value, op);
+
+
+
+                    terms.pop();
+                    var test = ui.item.value;
+                    terms.push(test);
+                    op = op + '';
+
+                    if (terms[0] != "") {
+                        this.value = terms.join(op);
+                    }
+                    else { this.value = terms.join(''); }
+                    return false;
+
+                }
+
+            });
+            //  $(this).find("td").eq(4).find("#txtKFO").value = KFOvalue;
+        });
+
+    });
+
+    function BindIndicators() {
+        $("#DFormula").show(100);
+
+
+        var Sectorid = $("#ddlSector").val();
+        var frequencyid = $("#ddlFrequency").val();
+        var url = '../IndicatorFormula/BindIndicators'; @* '@Url.Action("BindScheme", "ApprovalConfing")',*@
+            $.getJSON(url, { Sectorid: Sectorid, frequencyid: frequencyid }, function (result) {   //result has to be parsed to get an object from string
+                var item = "";
+                $("#Approvalinsert").find('tbody').empty();
+                if (result == "[]") {
+                    $("#Approvalinsert").find('thead').empty();
+                    item += '<tr><td rowspan="4"><label class="norecord">No Indicator Found</label></td></tr>'
+                    $("#Approvalinsert").find('tbody').append(item);
+                    $('#btngroup').hide();
+                }
+                else {
+                    $.each(JSON.parse(result), function (i, data) {
+                        //  item += '<option value="' + data.ID + '">' + data.SCHEME_NAME + '</option>'
+                        item += '<tr><td class="text-center">' + parseInt(i + 1) + '</td>';
+                        item += '<td>' + data.INDICATORNAME + '</td>';
+                        if (data.IndicatorFormulaName != null) {
+
+                            item += '<td> <textarea id="txtDatapointName" class="inputs form-control"  style="width:700px" readonly>' + data.IndicatorFormulaName + '</textarea></td>';
+                            item += '<td style="display:none"><input type="text" class="form-control" value=' + data.INDICATORID + ' id="txtINDID"  name="DisplayName"    /></td> ';
+                        }
+                        else {
+                            item += '<td> <textarea id="txtDatapointName" class="inputs form-control" style="width:700px" readonly></textarea></td>';
+                            item += '<td style="display:none"><input type="text" class="form-control" value=' + data.INDICATORID + ' id="txtINDID"  name="DisplayName"/></td> ';
+                        }
+
+                        //  item += '<td style="visibility:hidden"><input type="text"  id="txtKFO"  name="KFO"    /></td></tr > ';
+
+                    });
+
+                    $("#Approvalinsert").find('tbody').append(item);
+                    $('#btngroup').show();
+                }
+            });
+    }
+    function ClearScheme() {
+        window.location.href = "../IndicatorFormula/AddFormula?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    }
+    function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+    function BindFormulaById(IndicatorFormulaID) {
+        $.ajax({
+            url: "/IndicatorFormula/BindFormulaById?IndicatorFormulaID=" + IndicatorFormulaID,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {  //Filling the values in appropriate field for updating purpose
+                /*$('#hdnDATAPOINTID').val(data[0].DATAPOINTID);*/
+                $('#ddlSector').val(data[0].SECTORID);
+                BindIndicators();
+                //$('#txtDATAPOINTNAME').val(data[0].DATAPOINTNAME);
+                //$('#txtDATAPOINTDATE').val(data[0].DATAPOINTDATE);
+                //$('#ddlFrequency').val(data[0].FREQUENCYID);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>

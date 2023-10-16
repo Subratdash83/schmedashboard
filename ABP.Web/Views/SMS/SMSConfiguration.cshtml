@@ -1,0 +1,343 @@
+﻿@model ABP.Domain.SMS.SMSData
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "SMSConfiguration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="SMSTEMPAdd">
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="SMSTEMPView">
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <input type="hidden" id="hdnsmseventId" />
+                <input type="hidden" id="hdnsmstemplatemsg" />
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Event Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlevent" asp-items="@(new SelectList(ViewBag.Event, "EVENTID", "EVENTNAME" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-text-input">Template<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="templateid" asp-items="@(new SelectList(ViewBag.Template, "TEMPLATEID", "TEMPLATETITLE" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Job Title<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="text" id="txtjobtitle" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddltype">
+                            <option value="0">---Select---</option>
+                            <option value="1">Hourly</option>
+                            <option value="2">Daily</option>
+                            <option value="3">Weekly</option>
+                            <option value="4">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">User Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddluser">
+                            <option value="0">---Select---</option>
+                            <option value="Collector">Collector</option>
+                            <option value="BDO">BDO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row" style="display:none" id="divDistrict">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">District<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlDist" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="form-group row" style="display:none" id="divBlock">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Block<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlBlock" name="BlockId">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-readonly-input">Start Date<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <div class="input-group">
+
+                            <input type="datetime-local" class="form-control" id="txtDate" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+                            @*<div class="input-group-append">
+                        <span class="input-group-text" id="inputGroup-sizing-default"><i class="icon-calendar1"></i></span>
+                    </div>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Save</button>
+                    </div>
+                </div>
+
+
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("SMSTEMPAdd").href = "../SMS/SMSConfiguration?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("SMSTEMPView").href = "../SMS/ViewSMSTemplates?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('SMSConfiguration', 'gldata', 'plbdodata', 'SMS Config', 'SMS Config', 'SMS Config');
+        var DATAPOINTID = getUrlVars()["ID"];
+        if (DATAPOINTID != undefined) {
+            $("#btnSubmit").html("Update");
+            $("#btnCancel").html("Cancel");
+            bindSMSTempById(DATAPOINTID);
+        }
+    });
+    $('#templateid').change(function () {
+        var temp = $("#templateid").val();
+        GetTemplateMessage(temp);
+    })
+    $('#btnSubmit').click(function () {
+        if (validate()) {
+            var DATAPOINTID = getUrlVars()["ID"];
+            if (DATAPOINTID != undefined) {
+                msg = "Are you sure ,you want to Update?";
+            } else {
+                msg = "Are you sure ,you want to Save?";
+            }
+            bootbox.confirm({
+                size: "medium",
+                message: msg,
+                callback: function (result) {
+                    if (result === true) {
+                        var fileData = new FormData();
+                        fileData.append("ID", $('#hdnsmseventId').val());
+                        fileData.append("EVENTID", $('#ddlevent').val());
+                        fileData.append("TEMPLATEID", $('#templateid').val());
+                        fileData.append("TEMPLATEMESSAGE", $('#hdnsmstemplatemsg').val());
+                        fileData.append("TEMPLATETYPE", $('#ddltype').val());
+                        fileData.append("JOBTITLE", $('#txtjobtitle').val());
+                        fileData.append("TEMPDATE", $('#txtDate').val());
+                        fileData.append("USERTYPE", $('#ddluser').val());
+                        fileData.append("DISTRICTID", $('#ddlDist').val());
+                        fileData.append("BLOCKID", $('#ddlBlock').val());
+                        addSMSConfig(fileData);
+                    }
+                }
+            });
+        }
+
+    });
+    //Validations for the fields in the form
+    function validate() {
+        if ($('#ddlevent').val() == "0") {
+            bootbox.alert("Please select Event!");
+            $('#ddlevent').focus();
+            return false;
+        }
+        else if ($('#templateid').val() == "0") {
+            bootbox.alert("Please select Template!");
+            $('#templateid').focus();
+            return false;
+        }
+        else if ($('#ddltype').val() == "0") {
+            bootbox.alert("Please Select Type!");
+            $('#ddltype').focus();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    //Post Call to the controller for data insertion
+    function addSMSConfig(Data) {
+        $.ajax({
+            type: "POST",
+            url: "/SMS/SMSConfiguration",//Controller and Method(/Controller/Method)
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            data: Data,
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
+            success: function (res) {
+                bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                    window.location.href = "/SMS/ViewSMSTemplates";
+                });
+            },
+            failure: function (response) {
+                console.log(response.responseText);
+            },
+            error: function (response) {
+                console.log(response.responseText);
+            }
+        });
+    }
+    function bindSMSTempById(DATAPOINTID) {
+        $.ajax({
+            url: "/SMS/GetSMSEventDataById?DATAPOINTID=" + DATAPOINTID,
+        type: "GET",
+            dataType: "json",
+                contentType: "application/json;charset=UTF-8",
+                    success: function (data) {  //Filling the values in appropriate field for updating purpose
+                        $('#hdnsmseventId').val(data.id);
+                        $('#ddlevent').val(data.eventid);
+                        $('#templateid').val(data.templateid);
+                        $('#ddltype').val(data.templatetype);
+                        $('#txtjobtitle').val(data.jobtitle);
+                        $('#txtDate').val(data.tempdate);
+                        $('#ddluser').val(data.usertype);
+                        if (data.districtid != null) {
+                            $('#ddlDist').val(data.districtid);
+                            $("#divDistrict").show();
+                        }
+                        else {
+                            $("#divDistrict").hide();
+                        }
+                        BindBlockData(data.districtid);
+                        if (data.blockid!=null) {
+                            $('#ddlBlock').val(data.blockid);
+                            $("#divBlock").show();
+                        }
+                        else {
+                            $("#divBlock").hide();
+                        }
+                        
+                    },
+        error: function (error) {
+            jsonValue = jQuery.parseJSON(error.responseText);
+            bootbox.alert("Error : " + jsonValue);
+        }
+    });
+}
+</script>
+<script>
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDist').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---All---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDist').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---All---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+    function BindMonth(id) {
+        $.ajax({
+            url: "/Home/GetMonth?id=" + $('#ddlsector').val(),
+            type: "GET",
+            success: function (data) {
+
+                var Ghtml = '';
+                console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].frequencyno + '">' + data[i].frequencyvalue + '</option>'
+                }
+                $('#ddlMonth').html(Ghtml);
+                //  BindDataPointData();
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+    function GetTemplateMessage(temp) {
+        $.ajax({
+            url: "/SMS/GetSMSTemplateMsgByTempId?TEMPID=" + temp,
+            type: "GET",
+            success: function (data) {
+                $('#hdnsmstemplatemsg').val(data.templatemessage);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+    $("#ddluser").change(function () {
+        var user = $("#ddluser").val();
+        if (user == "Collector") {
+            $("#divDistrict").show();
+            $("#divBlock").hide();
+        }
+        else if (user == "BDO") {
+            $("#divDistrict").show();
+            $("#divBlock").show();
+        }
+        else {
+            $("#divDistrict").hide();
+            $("#divBlock").hide();
+        }
+    });
+</script>

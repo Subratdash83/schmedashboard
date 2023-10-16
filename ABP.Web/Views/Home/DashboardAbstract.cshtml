@@ -1,0 +1,2394 @@
+﻿@model ABP.Domain.Report.AbstractData
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "MonthlyDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.DatapointData as Task<IEnumerable<ABP.Domain.Report.AbstractData>>;
+    var year = ViewBag.year;
+    var month = ViewBag.month;
+    var Aspirationblock = ViewBag.Aspirationblock;
+    //var ListDataYr = ViewBag.DatapointDatayearly as Task<IEnumerable<ABP.Domain.Report.Report>>;
+    // var ListDpfall = ViewBag.Monthwisedp as Task<IEnumerable<ABP.Domain.Report.Report>>;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 10px;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+    tfoot tr {
+        background: #eaf1fb;
+    }
+
+    .legend-box.legend-box2 a {
+        margin-bottom: 12px;
+        margin-left: 16px;
+    }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+    .sum-row {
+        background: #ebebeb;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="post" id="search">
+                    <div class="form-group row">
+
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlYear" asp-for="Year" asp-items="@(new SelectList(ViewBag.Years, "FREQUENCYNO", "FREQUENCYVALUE" ))">
+                                <option value=0>--Select--</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <input type="hidden" id="hdnDistrict" value="" />
+                            <label class="control-label" for="demo-email-input">District</label>
+                            <select class="form-control" id="ddlDistrict" asp-for="DISTRICTID" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                <option value=0>All</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <label class="control-label" for="Month">Category</label>
+                            <select class="form-control" id="ddlcompare" asp-for="Aspirationblock">
+                                <option value=0>All</option>
+                                <option value="1">Aspirational block</option>
+                                <option value="2">Non Aspirational block</option>
+                            </select>
+                        </div>
+                        <div id="ddindicatorhide" class="col-12 col-md-3 col-xl-3">
+                            <br />
+                            <button id="btnSearch" class="btn btn-primary"> Search</button>
+                            @*<input action="action" onclick="window.history.go(-1); return false;" type="button" value="Back" />*@
+                        </div>
+
+
+
+                    </div>
+
+
+                </form>
+
+                <div>
+                   
+                    @if (ListData != null)
+                    {
+                        <div class='legend-box legend-box2 '>
+                            <div>
+                                <a href='#' class="text-success  mb-lg-0 ml-0" id="gcheck">  <span class='back-green1'></span> <strong>100% Completed </strong> </a>
+                                <a href='#' class='text-warning mb-lg-0' id="ycheck">  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a>
+                                <a href='#' class='text-danger mb-lg-0' id="rcheck">  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a>
+                            </div>
+                            <div>
+                                <a href="javascript:PrintPageAbs();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mt-3"><i class="icon-printer1"></i></a>
+
+                                <a href="javascript:generateExcelD();void(0)" title="Export to Excel" id="printIconD" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mt-3"><i class="icon-excel-file"></i></a>
+                            </div>
+
+                        </div>
+                    }
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="table-responsive" id="printtableabs">
+                    @if (ListData != null && ListData.Result.ToList().Count > 0)
+                    {
+                        #region colour code all month block wise total
+                        decimal percenttot;
+                        int totalblocktot = @ListData.Result.ToList()[0].TOTALBLOCK;
+                        int block100perenteredtotjan = @ListData.Result.ToList()[0].JANTOTAL;
+                        if (@block100perenteredtotjan == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotjan * 100) / totalblocktot;
+                        }
+                        string percentclasstotjan = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotjan = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotjan = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotjan = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotjan = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotfeb = @ListData.Result.ToList()[0].FEBTOTAL;
+                        if (@block100perenteredtotfeb == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotfeb * 100) / totalblocktot;
+                        }
+                        string percentclasstotfeb = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotfeb = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotfeb = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotfeb = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotfeb = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotmar = @ListData.Result.ToList()[0].MARTOTAL;
+                        if (@block100perenteredtotmar == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotmar * 100) / totalblocktot;
+                        }
+                        string percentclasstotmar = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotmar = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotmar = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotmar = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotmar = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotapr = @ListData.Result.ToList()[0].APRTOTAL;
+                        if (@block100perenteredtotapr == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotapr * 100) / totalblocktot;
+                        }
+                        string percentclasstotapr = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotapr = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotapr = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotapr = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotapr = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotmay = @ListData.Result.ToList()[0].MAYTOTAL;
+                        if (@block100perenteredtotmay == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotmay * 100) / totalblocktot;
+                        }
+                        string percentclasstotmay = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotmay = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotmay = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotmay = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotmay = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotjun = @ListData.Result.ToList()[0].JUNTOTAL;
+                        if (@block100perenteredtotjun == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotjun * 100) / totalblocktot;
+                        }
+                        string percentclasstotjun = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotjun = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotjun = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotjun = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotjun = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotjul = @ListData.Result.ToList()[0].JULTOTAL;
+                        if (@block100perenteredtotjul == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotjul * 100) / totalblocktot;
+                        }
+                        string percentclasstotjul = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotjul = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotjul = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotjul = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotjul = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotaug = @ListData.Result.ToList()[0].AUGTOTAL;
+                        if (@block100perenteredtotaug == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotaug * 100) / totalblocktot;
+                        }
+                        string percentclasstotaug = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotaug = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotaug = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotaug = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotaug = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotsep = @ListData.Result.ToList()[0].SEPTOTAL;
+                        if (@block100perenteredtotsep == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotsep * 100) / totalblocktot;
+                        }
+                        string percentclasstotsep = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotsep = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotsep = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotsep = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotsep = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotoct = @ListData.Result.ToList()[0].OCTTOTAL;
+                        if (@block100perenteredtotoct == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotoct * 100) / totalblocktot;
+                        }
+                        string percentclasstotoct = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotoct = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotoct = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotoct = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotoct = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotnov = @ListData.Result.ToList()[0].NOVTOTAL;
+                        if (@block100perenteredtotnov == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotnov * 100) / totalblocktot;
+                        }
+                        string percentclasstotnov = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotnov = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotnov = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotnov = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotnov = "font-weight-bold";
+                        }
+
+                        int block100perenteredtotdec = @ListData.Result.ToList()[0].DECTOTAL;
+                        if (@block100perenteredtotdec == 0)
+                        {
+                            percenttot = 0;
+                        }
+                        else
+                        {
+                            percenttot = (@block100perenteredtotdec * 100) / totalblocktot;
+                        }
+                        string percentclasstotdec = string.Empty;
+                        if (percenttot == 100)
+                        {
+                            percentclasstotdec = "back-green";
+                        }
+                        else if (percenttot >= 50)
+                        {
+                            percentclasstotdec = "back-yellow";
+                        }
+                        else if (percenttot != 0 && percenttot <= 50)
+                        {
+                            percentclasstotdec = "back-red";
+                        }
+                        else
+                        {
+                            percentclasstotdec = "font-weight-bold";
+                        }
+
+                        #endregion
+                        <table class="table " style="width:100%;" id="tbldata">
+                            <thead>
+                                <tr>
+                                    @if (ListData != null)
+                                    {
+                                        <th width="67px">Sl No. </th>
+                                        <th width="120px">District </th>
+                                        <th class="text-center">Jan</th>
+                                        <th class="text-center">Feb</th>
+                                        <th class="text-center">Mar</th>
+                                        <th class="text-center">Apr</th>
+                                        <th class="text-center">May</th>
+                                        <th class="text-center">Jun</th>
+                                        <th class="text-center">Jul</th>
+                                        <th class="text-center">Aug</th>
+                                        <th class="text-center">Sep</th>
+                                        <th class="text-center">Oct</th>
+                                        <th class="text-center">Nov</th>
+                                        <th class="text-center">Dec</th>
+                                    }
+                                </tr>
+                            </thead>
+
+                            <tbody id="tbody">
+
+
+
+                                @{
+                                    int Count = 1;
+                                }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                    #region colour code all month block wise
+                                    decimal percent;
+                                    int totalblock = @item.TOTALDBLOCK;
+                                    int block100perenteredjan = @item.JAN;
+                                    if (@block100perenteredjan == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredjan * 100) / totalblock;
+                                    }
+                                    string percentclassjan = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassjan = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassjan = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassjan = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassjan = "font-weight-bold";
+                                    }
+                                    int block100perenteredfeb = @item.FEB;
+                                    if (@block100perenteredfeb == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredfeb * 100) / totalblock;
+                                    }
+                                    string percentclassfeb = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassfeb = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassfeb = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassfeb = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassfeb = "font-weight-bold";
+                                    }
+                                    int block100perenteredmar = @item.MAR;
+                                    if (@block100perenteredmar == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredmar * 100) / totalblock;
+                                    }
+                                    string percentclassmar = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassmar = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassmar = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassmar = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassmar = "font-weight-bold";
+                                    }
+                                    int block100perenteredapr = @item.APR;
+                                    if (@block100perenteredapr == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredapr * 100) / totalblock;
+                                    }
+                                    string percentclassapr = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassapr = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassapr = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassapr = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassapr = "font-weight-bold";
+                                    }
+                                    int block100perenteredmay = @item.MAY;
+                                    if (@block100perenteredmay == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredmay * 100) / totalblock;
+                                    }
+                                    string percentclassmay = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassmay = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassmay = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassmay = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassmay = "font-weight-bold";
+                                    }
+                                    int block100perenteredjun = @item.JUN;
+                                    if (@block100perenteredjun == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredjun * 100) / totalblock;
+                                    }
+                                    string percentclassjun = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassjun = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassjun = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassjun = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassjun = "font-weight-bold";
+                                    }
+                                    int block100perenteredjul = @item.JUL;
+                                    if (@block100perenteredjul == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredjul * 100) / totalblock;
+                                    }
+                                    string percentclassjul = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassjul = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassjul = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassjul = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassjul = "font-weight-bold";
+                                    }
+                                    int block100perenteredaug = @item.AUG;
+                                    if (@block100perenteredaug == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredaug * 100) / totalblock;
+                                    }
+                                    string percentclassaug = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassaug = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassaug = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassaug = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassaug = "font-weight-bold";
+                                    }
+                                    int block100perenteredsep = @item.SEP;
+                                    if (@block100perenteredsep == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredsep * 100) / totalblock;
+                                    }
+                                    string percentclasssep = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclasssep = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclasssep = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclasssep = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclasssep = "font-weight-bold";
+                                    }
+                                    int block100perenteredoct = @item.OCT;
+                                    if (@block100perenteredoct == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenteredoct * 100) / totalblock;
+                                    }
+                                    string percentclassoct = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassoct = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassoct = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassoct = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassoct = "font-weight-bold";
+                                    }
+                                    int block100perenterednov = @item.NOV;
+                                    if (@block100perenterednov == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perenterednov * 100) / totalblock;
+                                    }
+                                    string percentclassnov = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassnov = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassnov = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassnov = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassnov = "font-weight-bold";
+                                    }
+                                    int block100perentereddec = @item.DEC;
+                                    if (@block100perentereddec == 0)
+                                    {
+                                        percent = 0;
+                                    }
+                                    else
+                                    {
+                                        percent = (@block100perentereddec * 100) / totalblock;
+                                    }
+                                    string percentclassdec = string.Empty;
+                                    if (percent == 100)
+                                    {
+                                        percentclassdec = "back-green";
+                                    }
+                                    else if (percent >= 50)
+                                    {
+                                        percentclassdec = "back-yellow";
+                                    }
+                                    else if (percent != 0 && percent <= 50)
+                                    {
+                                        percentclassdec = "back-red";
+                                    }
+                                    else
+                                    {
+                                        percentclassdec = "font-weight-bold";
+                                    }
+                                    #endregion
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td> <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">@item.NVCHLEVELNAME</a></td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 1 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassjan">@item.JAN</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 2 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassfeb">@item.FEB</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 3 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassmar">@item.MAR</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 4 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassapr">@item.APR</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 5 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassmay">@item.MAY</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 6 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassjun">@item.JUN</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 7 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassjul">@item.JUL</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 8 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassaug">@item.AUG</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 9 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclasssep">@item.SEP</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 10 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassoct">@item.OCT</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 11 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassnov">@item.NOV</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 12 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                    <span class="@percentclassdec">@item.DEC</span>/@item.TOTALDBLOCK
+                                                </a>
+                                            }
+                                        </td>
+
+                                    </tr>
+                                    Count++;
+                                }
+
+                            </tbody>
+                            <tfoot>
+                                @if (ListData.Result.ToList().Count > 1)
+                                {
+                                    <tr class="sum-row">
+                                        <td class="font-weight-bold">Total</td>
+                                        <td class="font-weight-bold">Odisha</td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 1 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotjan">@ListData.Result.ToList()[0].JANTOTAL</span>/ <span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 2 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotfeb">@ListData.Result.ToList()[0].FEBTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 3 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotmar">@ListData.Result.ToList()[0].MARTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 4 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotapr">@ListData.Result.ToList()[0].APRTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 5 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotmay">@ListData.Result.ToList()[0].MAYTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 6 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotjun">@ListData.Result.ToList()[0].JUNTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 7 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotjul">@ListData.Result.ToList()[0].JULTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 8 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotaug">@ListData.Result.ToList()[0].AUGTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 9 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotsep">@ListData.Result.ToList()[0].SEPTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 10 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotoct">@ListData.Result.ToList()[0].OCTTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 11 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotnov">@ListData.Result.ToList()[0].NOVTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (year == Convert.ToInt32(DateTime.Today.Year) && 12 > month)
+                                            {
+                                                <label><b>--</b></label>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect(0)">
+                                                    <span class="@percentclasstotdec">@ListData.Result.ToList()[0].DECTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                                </a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tfoot>
+                        </table>
+                    }
+                </div>
+            </div>
+
+            <div class="table-responsive" id="printtableabscopy">
+                @if (ListData != null && ListData.Result.ToList().Count > 0)
+                {
+                    #region colour code all month block wise total
+                    decimal percenttot;
+                    int totalblocktot = @ListData.Result.ToList()[0].TOTALBLOCK;
+                    int block100perenteredtotjan = @ListData.Result.ToList()[0].JANTOTAL;
+                    if (@block100perenteredtotjan == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotjan * 100) / totalblocktot;
+                    }
+                    string percentclasstotjan = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotjan = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotjan = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotjan = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotjan = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotfeb = @ListData.Result.ToList()[0].FEBTOTAL;
+                    if (@block100perenteredtotfeb == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotfeb * 100) / totalblocktot;
+                    }
+                    string percentclasstotfeb = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotfeb = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotfeb = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotfeb = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotfeb = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotmar = @ListData.Result.ToList()[0].MARTOTAL;
+                    if (@block100perenteredtotmar == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotmar * 100) / totalblocktot;
+                    }
+                    string percentclasstotmar = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotmar = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotmar = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotmar = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotmar = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotapr = @ListData.Result.ToList()[0].APRTOTAL;
+                    if (@block100perenteredtotapr == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotapr * 100) / totalblocktot;
+                    }
+                    string percentclasstotapr = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotapr = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotapr = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotapr = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotapr = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotmay = @ListData.Result.ToList()[0].MAYTOTAL;
+                    if (@block100perenteredtotmay == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotmay * 100) / totalblocktot;
+                    }
+                    string percentclasstotmay = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotmay = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotmay = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotmay = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotmay = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotjun = @ListData.Result.ToList()[0].JUNTOTAL;
+                    if (@block100perenteredtotjun == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotjun * 100) / totalblocktot;
+                    }
+                    string percentclasstotjun = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotjun = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotjun = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotjun = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotjun = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotjul = @ListData.Result.ToList()[0].JULTOTAL;
+                    if (@block100perenteredtotjul == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotjul * 100) / totalblocktot;
+                    }
+                    string percentclasstotjul = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotjul = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotjul = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotjul = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotjul = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotaug = @ListData.Result.ToList()[0].AUGTOTAL;
+                    if (@block100perenteredtotaug == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotjan * 100) / totalblocktot;
+                    }
+                    string percentclasstotaug = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotaug = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotaug = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotaug = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotaug = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotsep = @ListData.Result.ToList()[0].SEPTOTAL;
+                    if (@block100perenteredtotsep == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotsep * 100) / totalblocktot;
+                    }
+                    string percentclasstotsep = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotsep = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotsep = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotsep = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotsep = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotoct = @ListData.Result.ToList()[0].OCTTOTAL;
+                    if (@block100perenteredtotoct == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotoct * 100) / totalblocktot;
+                    }
+                    string percentclasstotoct = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotoct = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotoct = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotoct = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotoct = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotnov = @ListData.Result.ToList()[0].NOVTOTAL;
+                    if (@block100perenteredtotnov == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotnov * 100) / totalblocktot;
+                    }
+                    string percentclasstotnov = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotnov = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotnov = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotnov = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotnov = "font-weight-bold";
+                    }
+
+                    int block100perenteredtotdec = @ListData.Result.ToList()[0].DECTOTAL;
+                    if (@block100perenteredtotdec == 0)
+                    {
+                        percenttot = 0;
+                    }
+                    else
+                    {
+                        percenttot = (@block100perenteredtotdec * 100) / totalblocktot;
+                    }
+                    string percentclasstotdec = string.Empty;
+                    if (percenttot == 100)
+                    {
+                        percentclasstotdec = "back-green";
+                    }
+                    else if (percenttot >= 50)
+                    {
+                        percentclasstotdec = "back-yellow";
+                    }
+                    else if (percenttot != 0 && percenttot <= 50)
+                    {
+                        percentclasstotdec = "back-red";
+                    }
+                    else
+                    {
+                        percentclasstotdec = "font-weight-bold";
+                    }
+
+                    #endregion
+                    <table class="table " style="width:100%;" id="tbldata">
+                        <thead>
+                            <tr>
+                                @if (ListData != null)
+                                {
+                                    <th width="67px">Sl No. </th>
+                                    <th width="120px">District </th>
+                                    <th class="text-center">Jan</th>
+                                    <th class="text-center">Feb</th>
+                                    <th class="text-center">Mar</th>
+                                    <th class="text-center">Apr</th>
+                                    <th class="text-center">May</th>
+                                    <th class="text-center">Jun</th>
+                                    <th class="text-center">Jul</th>
+                                    <th class="text-center">Aug</th>
+                                    <th class="text-center">Sep</th>
+                                    <th class="text-center">Oct</th>
+                                    <th class="text-center">Nov</th>
+                                    <th class="text-center">Dec</th>
+                                }
+                            </tr>
+                        </thead>
+
+                        <tbody id="tbody">
+
+
+
+                            @{
+                                int Count = 1;
+                            }
+
+                            @foreach (var item in ListData.Result)
+                            {
+                                #region colour code all month block wise
+                                decimal percent;
+                                int totalblock = @item.TOTALDBLOCK;
+                                int block100perenteredjan = @item.JAN;
+                                if (@block100perenteredjan == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredjan * 100) / totalblock;
+                                }
+                                string percentclassjan = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassjan = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassjan = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassjan = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassjan = "font-weight-bold";
+                                }
+                                int block100perenteredfeb = @item.FEB;
+                                if (@block100perenteredfeb == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredfeb * 100) / totalblock;
+                                }
+                                string percentclassfeb = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassfeb = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassfeb = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassfeb = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassfeb = "font-weight-bold";
+                                }
+                                int block100perenteredmar = @item.MAR;
+                                if (@block100perenteredmar == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredmar * 100) / totalblock;
+                                }
+                                string percentclassmar = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassmar = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassmar = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassmar = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassmar = "font-weight-bold";
+                                }
+                                int block100perenteredapr = @item.APR;
+                                if (@block100perenteredapr == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredapr * 100) / totalblock;
+                                }
+                                string percentclassapr = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassapr = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassapr = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassapr = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassapr = "font-weight-bold";
+                                }
+                                int block100perenteredmay = @item.MAY;
+                                if (@block100perenteredmay == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredmay * 100) / totalblock;
+                                }
+                                string percentclassmay = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassmay = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassmay = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassmay = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassmay = "font-weight-bold";
+                                }
+                                int block100perenteredjun = @item.JAN;
+                                if (@block100perenteredjun == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredjun * 100) / totalblock;
+                                }
+                                string percentclassjun = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassjun = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassjun = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassjun = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassjun = "font-weight-bold";
+                                }
+                                int block100perenteredjul = @item.JUL;
+                                if (@block100perenteredjul == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredjul * 100) / totalblock;
+                                }
+                                string percentclassjul = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassjul = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassjul = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassjul = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassjul = "font-weight-bold";
+                                }
+                                int block100perenteredaug = @item.AUG;
+                                if (@block100perenteredaug == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredaug * 100) / totalblock;
+                                }
+                                string percentclassaug = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassaug = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassaug = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassaug = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassaug = "font-weight-bold";
+                                }
+                                int block100perenteredsep = @item.SEP;
+                                if (@block100perenteredsep == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredsep * 100) / totalblock;
+                                }
+                                string percentclasssep = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclasssep = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclasssep = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclasssep = "back-red";
+                                }
+                                else
+                                {
+                                    percentclasssep = "font-weight-bold";
+                                }
+                                int block100perenteredoct = @item.OCT;
+                                if (@block100perenteredoct == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenteredoct * 100) / totalblock;
+                                }
+                                string percentclassoct = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassoct = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassoct = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassoct = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassoct = "font-weight-bold";
+                                }
+                                int block100perenterednov = @item.NOV;
+                                if (@block100perenterednov == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perenterednov * 100) / totalblock;
+                                }
+                                string percentclassnov = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassnov = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassnov = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassnov = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassnov = "font-weight-bold";
+                                }
+                                int block100perentereddec = @item.DEC;
+                                if (@block100perentereddec == 0)
+                                {
+                                    percent = 0;
+                                }
+                                else
+                                {
+                                    percent = (@block100perentereddec * 100) / totalblock;
+                                }
+                                string percentclassdec = string.Empty;
+                                if (percent == 100)
+                                {
+                                    percentclassdec = "back-green";
+                                }
+                                else if (percent >= 50)
+                                {
+                                    percentclassdec = "back-yellow";
+                                }
+                                else if (percent != 0 && percent <= 50)
+                                {
+                                    percentclassdec = "back-red";
+                                }
+                                else
+                                {
+                                    percentclassdec = "font-weight-bold";
+                                }
+                                #endregion
+                                <tr>
+                                    <td>@Count</td>
+                                    <td> <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">@item.NVCHLEVELNAME</a></td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 1 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassjan">@item.JAN</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 2 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassfeb">@item.FEB</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 3 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassmar">@item.MAR</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 4 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassapr">@item.APR</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 5 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassmay">@item.MAY</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 6 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassjun">@item.JUN</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 7 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassjul">@item.JUL</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 8 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassaug">@item.AUG</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 9 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclasssep">@item.SEP</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 10 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassoct">@item.OCT</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 11 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassnov">@item.NOV</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 12 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect('@item.DISTRICTID','@item.NVCHLEVELNAME')">
+                                                <span class="@percentclassdec">@item.DEC</span>/@item.TOTALDBLOCK
+                                            </a>
+                                        }
+                                    </td>
+
+                                </tr>
+                                Count++;
+                            }
+
+                        </tbody>
+                        <tfoot>
+                            @if (ListData.Result.ToList().Count > 1)
+                            {
+                                <tr class="sum-row">
+                                    <td class="font-weight-bold">Total</td>
+                                    <td class="font-weight-bold">Odisha</td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 1 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotjan">@ListData.Result.ToList()[0].JANTOTAL</span>/ <span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 2 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotfeb">@ListData.Result.ToList()[0].FEBTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 3 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotmar">@ListData.Result.ToList()[0].MARTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 4 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotapr">@ListData.Result.ToList()[0].APRTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 5 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotmay">@ListData.Result.ToList()[0].MAYTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 6 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotjun">@ListData.Result.ToList()[0].JUNTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 7 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotjul">@ListData.Result.ToList()[0].JULTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 8 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotaug">@ListData.Result.ToList()[0].AUGTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 9 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotsep">@ListData.Result.ToList()[0].SEPTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 10 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotoct">@ListData.Result.ToList()[0].OCTTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 11 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotnov">@ListData.Result.ToList()[0].NOVTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (year == Convert.ToInt32(DateTime.Today.Year) && 12 > month)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(0)">
+                                                <span class="@percentclasstotdec">@ListData.Result.ToList()[0].DECTOTAL</span>/<span class="font-weight-bold">@ListData.Result.ToList()[0].TOTALBLOCK</span>
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tfoot>
+                    </table>
+                }
+            </div>
+        </div>
+
+
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        loadNavigation('DashboardAbstract', 'gldata', 'plbdodata', 'MIS Report', 'Data Entry Abstract', 'Data Entry Abstract');
+        $('#printtableabscopy').hide();
+        if (@HttpContextAccessor.HttpContext.Session.GetInt32("_HRMSSTATUS") == 0) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Do you want to change your Password?",
+                callback: function (result) {
+                    if (result == true) {
+                        window.location.href = "/Login/ChangePasswordReq?Hid=@HttpContextAccessor.HttpContext.Session.GetString("_EncryptUserName")";
+
+                    }
+                }
+            });
+        }
+
+    });
+    $('#btnSearch').click(function () {
+        //  $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        if ($('#ddlYear').val() == 0) {
+            bootbox.alert('Please Select  year!');
+            return false;
+        }
+
+
+    })
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtableabscopy thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtableabscopy tbody').find('tr').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+    function generateExcelD() {
+        $('#printtableabscopy').table2excel();
+        getvisible();
+    }
+    $("#ddlDistrict").change(function () {
+
+    })
+
+
+
+
+    function getReportname(name) {
+        if ($('#ddlDistrict').val() != 0) {
+            return "BMPMonthlyDataEntryReport-" + $("#hdnDistrict").val() + "(" + $('#ddlYear').val() + ")";
+        }
+        else {
+            return "BMPMonthlyDataEntryReport(" + $('#ddlYear').val() + ")";
+        }
+    }
+</script>
+
+<script type="text/javascript">
+    $(function () {
+        var trs = $("#tbldata tbody").find("tr");
+        var sum = 0;
+        $(trs).each(function () {
+            var tds = $(this).find('td');
+            sum = sum + parseFloat($(tds).eq(2).html());
+        });
+        $("#lblSum").html(sum);
+    })
+</script>
+<script>
+    //print function work
+    function PrintPageAbs() {
+
+        var windowName = "PrintPageAbs";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtableabs").clone();
+        var head = $('#printtableabs thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+        var selectdist = $("#ddlDistrict").val();
+        var sdata = "";
+        if (selectdist == 0) {
+            sdata = "All";
+
+        }
+        else {
+            sdata = $("#ddlDistrict").find("option:selected").text();
+
+        }
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("/", windowName, wOption);
+        wWinPrint.document.write('\x3Cscript type="text/javascript" src="../../js/print.js">\x3C/script>');
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();PrintableContent(\"printContent\");$(this).show();'>Print</a></h4></div></div>" + "</div>" + "<div></div>");
+        wWinPrint.document.write("<strong style='margin-left: 19px;font - size: 17px;color:#000'>District Wise Data Entry Abstract Report</strong><div style=''><br/><div><div class='float-left year mt-0'>For the Year:- " + $("#ddlYear").val() + "</div><div class='float-left year mt-0'>District:-" + sdata + "</div></div><div class='legend-box float-right' style='    line-height: 2px;'><a href='#' style='text-decoration:none'  class='text-success mb-0'>  <span class='back-green1'></span> <strong>100% Completed </strong> </a><a href='#' style='text-decoration:none' class='text-warning mb-00'>  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a><a href='#' style='text-decoration:none' class='mb-0 text-danger'>  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a></div></div><div><button class='btn btn-primary' onclick=PrintableContent('printContent'); style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div></div>");
+       
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+       
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>
+<script>
+
+    function redirect(distid,distname) {
+        var parameterValue = "DistrictId=" + distid + "&Year=" + @ViewBag.year + "&Category=" + @ViewBag.Aspirationblock + "&DistrictName=" + distname;
+        var url = '@Url.Action("DashboardData", "Home")';
+        url += '?' + parameterValue;
+        window.location.href = url;
+    };
+</script>
+
+<script>
+
+
+    function generate() {
+        debugger;
+        var doc = new jsPDF('p', 'pt', 'letter');
+        var htmlstring = '';
+        var tempVarToCheckPageHeight = 0;
+        var pageHeight = 0;
+        var img = new Image();
+        img.src = '../images/Odisha_logo_Black.png';
+        pageHeight = doc.internal.pageSize.height;
+        specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#bypassme': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true
+            }
+        };
+        margins = {
+            top: 150,
+            bottom: 60,
+            left: 40,
+            right: 40,
+            width: 600
+        };
+        var y = 20;
+        var show = $('#printtable').html();
+        doc.setLineWidth(2);
+        doc.addImage(img, 'png', 40, 10, 50, 50);
+        doc.fromHTML("<b style='font-size:25px'>Block Monitoring Programme</b>", 90, 8);
+        // doc.fromHTML("<p style='font-size:20px'>Government of Odisha</p>", 95, 22);
+        // doc.text(50, y = y + 45, show);
+        doc.autoTable({
+            html: '#printtable',
+            startY: 100,
+            theme: 'grid',
+            styles: {
+                minCellHeight: 40
+            }
+        })
+        doc.save('DataEntryPerformance.pdf');
+    }
+    $("input:checkbox").on('click', function () {
+        var $box = $(this);
+        if ($box.is(":checked")) {
+            var group = "input:checkbox[name='" + $box.attr("name") + "']";
+            $(group).prop("checked", false);
+            $box.prop("checked", true);
+        } else {
+            $box.prop("checked", false);
+        }
+    });
+</script>
+
+@*<script>
+
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // Wait for the document to be ready
+        function calculateAndDisplaySums() {
+            // Get the table body rows
+            const rows = document.querySelectorAll('#tbldata tbody tr');
+
+            // Initialize an array to hold the sums of each column
+            const sums = new Array(13).fill(0);
+
+            // Loop through each row
+            rows.forEach(row => {
+                // Get the cells of the row
+                const cells = row.cells;
+
+                // Loop through each cell (starting from index 2, as we skip the 'Sl No.' and 'District' columns)
+                for (let i = 2; i < cells.length; i++) {
+                    // Convert the cell content to a number (remove any non-numeric characters, e.g., '/')
+                    const cellContent = cells[i].innerText.replace('/', '');
+                    const cellValue = parseFloat(cellContent);
+
+                    // Add the cell value to the corresponding sum
+                    sums[i] += isNaN(cellValue) ? 0 : cellValue;
+                }
+            });
+
+            // Get the footer row
+            const footerRow = document.querySelector('#tbldata tfoot tr.sum-row');
+
+            // Loop through the sums array and populate the footer cells with the calculated sums
+            for (let i = 2; i < sums.length; i++) {
+                const sumCell = footerRow.querySelector(`#sum-${months[i - 2].toLowerCase()}`);
+                sumCell.innerText = sums[i].toFixed(2); // You can format the sum as needed
+            }
+        });
+    </script>*@
+<script>
+
+
+    function calculateColumnSum() {
+        var table = $("#tbldata");
+        var footer = table.find("tfoot");
+        var columnsCount = footer.find("td").length;
+
+        for (var i = 2; i < columnsCount; i++) { // Start from the third column (Jan), skipping the first two columns (Sl No. and District)
+            var sum = 0;
+            table.find("tbody tr").each(function () {
+                var tdValue = $(this).find("td:nth-child(" + i + ")").text().trim();
+                var value = parseFloat(tdValue.replace(",", "")); // Convert to a number, remove any commas if present
+
+                if (!isNaN(value)) {
+                    sum += value;
+                }
+            });
+            footer.find("td:nth-child(" + i + ")").text(sum.toFixed(2)); // Show the total in the footer, rounded to 2 decimal places
+        }
+    }
+</script>

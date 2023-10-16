@@ -1,0 +1,1046 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddSector";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="Sector" asp-action="AddSector">Add</a>
+                        <a class="nav-item nav-link " asp-controller="Sector" asp-action="ViewSector">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="SectorAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="SectorView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnSectorId" hidden="hidden" value="0" class="form-control">
+                @*<form method="post" asp-action="AddSector" asp-controller="Sector">*@
+                @*<div class="form-group row">
+            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Department Name<span class="text-danger">*</span></label>
+            <div class="col-12 col-md-6 col-xl-4">
+                <select class="form-control" id="ddlDepartment"  asp-items="@(new SelectList(ViewBag.Department, "DEPTID", "DEPTNAME" ))">
+                    <option value="0">---Select Department---</option>
+                </select>
+            </div>
+        </div>*@
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name <span class="text-danger">*</span></label>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <input type="text" id="txtSectorName" class="form-control" maxlength="500" onkeypress="return inputLimiter(event,'NameCharactersymbol')">
+                    <small class="text-danger"> (Max 500 Character(s) Allow.)</small>
+                </div>
+                
+            </div>
+                @*<div class="form-group row">
+            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-readonly-input">Effective Date<span class="text-danger">*</span></label>
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="input-group">
+                    <input type="text" id="txtDate" class="form-control datepicker" aria-label="Default" aria-describedby="inputGroup-sizing-default" autocomplete="off">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="inputGroup-sizing-default"><i class="icon-calendar1"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">Icon</label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" id="fuUploadPoc">
+                            <label class="custom-file-label" for="customFile" id="fuUploadPocPrev">Choose file</label>
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div><small class="text-danger">Max file size is 5MB Only png allowed</small></div>
+                    </div>
+                    @*<div class="col-12 col-md-6 col-xl-4">
+            <input type="text" id="txtcssclass" class="form-control">
+            </div>*@
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Submit</button>
+                        @*<button id="btnConfirm" onclick="sendOTP()" class="btn btn-success show-otp">Submit</button>*@
+                        <button class="btn btn-danger mb-1">Cancel</button>
+                        @*<input type="submit" class="btn btn-danger " value="Reset" id="btnCancel" />*@
+                    </div>
+                </div>
+                @*</form>*@
+
+                @*<div class="form-group row pad-ver otp-box bg-light pt-3">
+
+            <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                Enter OTP
+            </label>
+            <div class="col-lg-4">
+                <input type="number" id="txtotp" class="form-control" />
+                <input type="hidden" id="hdnotp" class="form-control" />
+                <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+            </div>
+            <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+            <label class="col-xl-12  col-xl-12 control-label"></label>
+            <label class="col-12  col-xl-2 control-label"></label>
+            <div class="col-12 col-md-6 col-xl-4">
+
+                <input type="submit" class="btn btn-primary mb-1" value="Submit" id="btnSubmit" />
+                <input type="submit" class="btn btn-danger mb-1" value="Reset" id="btnCancel1" />
+            </div>
+        </div>*@
+
+
+
+
+
+
+
+
+                @*<div class="table-responsive mytable">
+
+                    <table id="example" cellspacing="0" class="table" style="width:8000px;">
+                        <thead>
+                            <tr>
+                                <th>Elements</th>
+                                <th>Total Estimated Pregnancy for the month</th>
+                                <th>Number of Pregnant Women received ANC in the 1st trimester (within 12 weeks) during the month</th>
+                                <th>Total number of pregnant women registered during the year</th>
+                                <th>Number of pregnant women with 4 or more ANC visit during the year</th>
+                                <th>Number of pregnant women tested for Hemoglobin at least 4 or more times</th>
+                                <th>Number of babies weight below 2500 gm</th>
+                                <th>Total number of  live births weighed during the month</th>
+                                <th>Number of underweight (weight for age) children under 5 years</th>
+                                <th>Total number of children Under-5 years</th>
+                                <th>Number of SAM children Under-5 years</th>
+                                <th>Number of MAM children Under-5 years</th>
+                                <th>Number of SAM children admitted to Nutritional Rehabilitation Center (NRC)during the month </th>
+                                <th>Number of Institutional Deliveries during the month</th>
+                                <th>Total deliveries during the month</th>
+                                <th>Number of home deliveries attended by Skill Birth Attendant (Nurse/ANM) during the month</th>
+                                <th> Total home deliveries during the month</th>
+                                <th>Number of female live births during the month</th>
+                                <th>Number of male live births during the month</th>
+                                <th>Number of infant deaths within 28 days  during the month</th>
+                                <th>Total number of live births during the month</th>
+                                <th>Total number of children aged 9-11 months received fully vaccinated (BCG+ DPT3 + OPV3 + Measles1)</th>
+                                <th>Total children (9-11 Months)</th>
+                                <th>Total number of Tuberculosis (TB) cases notified (Public &amp; Private) </th>
+                                <th>Total number of estimated Tuberculosis (TB) cases</th>
+                                <th>Number of Tuberculosis (TB) cases treated successfully in public and private institutions</th>
+                                <th>Number of persons tested Malaria positive in the month "N" of current year</th>
+                                <th>Number of persons tested Malaria positive in the month "N" of last year</th>
+                                <th>Number of sub-centres/PHCs converted into Health &amp; Wellness Centres (HWCs)</th>
+                                <th>Total number of sub-centres/ PHCs</th>
+                                <th>Number of Anganwadis with own buildings</th>
+                                <th>Total number of Anganwadis Centers during the year</th>
+                                <th>Number of Anganwadi converted into Model Anganwadi Centers</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>0</th>
+                                <td>0</td>
+                                <td>0</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                                <td></td>
+                                <td>0</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <th>0</th>
+                                <td>252</td>
+                                <td>144</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td>162</td>
+                                <td>833</td>
+                                <td>10927</td>
+                                <td>3</td>
+                                <td>76</td>
+                                <td></td>
+                                <td>38</td>
+                                <td>124</td>
+                                <td></td>
+                                <td></td>
+                                <td>56</td>
+                                <td>68</td>
+                                <td>5</td>
+                                <td>159</td>
+                                <td>195</td>
+                                <td>215</td>
+                                <td>57</td>
+                                <td>13</td>
+                                <td>5</td>
+                                <td></td>
+                                <td></td>
+                                <td>9</td>
+                                <td></td>
+                                <td>186</td>
+                                <td></td>
+                                <td>50</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>*@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="/js/CharacterCheck.js"></script>
+<script>
+    // function getUrlVars() {
+    //    var vars = [], hash;
+    //    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    //    for (var i = 0; i < hashes.length; i++) {
+    //        hash = hashes[i].split('=');
+    //        vars.push(hash[0]);
+    //        vars[hash[0]] = hash[1];
+    //    }
+    //    return vars;
+    //}
+    $(document).ready(function () {
+        document.getElementById("SectorAdd").href = "../Sector/AddSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("SectorView").href = "../Sector/ViewSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('AddSector', 'gldata', 'plbdodata', 'Manage Master', 'Manage Sector', 'Add Sector');
+        $(document).on('focus', ".datepicker", function () {
+            $(this).datepicker({
+                format: "dd-M-yyyy",
+                todayBtn: "linked",
+                autoclose: true,
+                //startDate: '-30d',
+                endDate: new Date(),
+                todayHighlight: true
+            });
+        });
+        var secId = getUrlVars()["ID"];
+        if (secId != undefined) {
+            $("#btnSubmit").html("Update");
+            $("#btnCancel").html("Cancel");
+            bindSectorById(secId);
+        }
+    });
+
+    $('#btnCancel1').click(function () {
+        var secId = getUrlVars()["ID"];
+        if (secId != undefined) {
+            location.href = "/Sector/ViewSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        } else {
+            $('#ddlDepartment').val("0");
+            $('#txtSectorName').val("");
+            $('#txtDate').val("");
+            $('#fuUploadPocPrev').text("Choose file");
+            $('#txtcssclass').val("");
+            $('#btnConfirm').show();
+            $('#txtotp').val("");
+            $(".otp-box").hide();
+            $('#btnCancel').show();
+            
+        }
+
+    });
+//=============================
+function getUrlVars() {
+    var vars = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for (var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        vars.push(hash[0]);
+        vars[hash[0]] = hash[1];
+    }
+    return vars;
+}
+
+//======Add And Update Sector Master========
+$('#btnSubmit').click(function () {
+    if (validate()) {
+        var secId = getUrlVars()["ID"];
+        if (secId != undefined) {
+            msg = "Are you sure ,you want to Update?";
+        } else {
+            msg = "Are you sure ,you want to Submit?";
+        }
+        bootbox.confirm({
+            size: "medium",
+            message: msg,
+            callback: function (result) {
+                if (result === true) {
+                    var fileData = new FormData(); //Creating FormData Object to fill the values entered by the  user for insert into the database
+                    /*fileData.append("DEPTID", $('#ddlDepartment').val());*/
+                    fileData.append("SECTORID", $('#hdnSectorId').val());
+                    fileData.append("SECTORNAME", $('#txtSectorName').val());
+                    
+                    //fileData.append("CSSCLASS", $('#txtcssclass').val());
+                    if (window.FormData !== undefined) {
+                        var fileUpload = $("#fuUploadPoc").get(0);
+
+                        var files = fileUpload.files;
+                        if (files.length > 0) {
+                            for (var i = 0; i < files.length; i++) {
+                                fileData.append(files[i].name, files[i]);
+                            }
+                        }
+                        else {
+                            fileData.append("CSSCLASS", $('#fuUploadPocPrev')[0].innerText);
+                        }
+                    }
+                    addSectorData(fileData);
+                }
+            }
+        });
+    }
+
+});
+$('#fuUploadPoc').on('change', function (e) {
+    var file = $('#fuUploadPoc')[0].files[0].name;
+    $('#fuUploadPocPrev').text(file);
+    if (!ValidateFile('fuUploadPoc', 'Valid Document')) {
+        return false;
+    };
+    if (!CheckFileType('fuUploadPoc', '2')) {
+        return false;
+    };
+});
+function ValidateFile(cntr, strText) {
+    var strValue = $('#' + cntr).get(0).files.length;
+    if (strValue == "0") {
+        bootbox.alert("Please upload " + strText);
+        $('#fuUploadPocPrev').text("Choose File");
+        return false;
+    }
+    else
+        return true;
+}
+function CheckFileType(cntr, ftype) {
+    var userImg = '@Url.Content("~/imgs/no_user.png")';
+    // Get the file upload control file extension
+    var extn = $('#' + cntr).val().split('.').pop().toLowerCase();
+    if (extn != '') {
+
+        // Create array with the files extensions to upload
+        var fileListToUpload;
+        if (parseInt(ftype) == 1)
+            fileListToUpload = new Array('pdf', 'jpg', 'jpeg', 'png');
+        else if (parseInt(ftype) == 2)
+            fileListToUpload = new Array('png');
+        else
+            fileListToUpload = new Array('pdf');
+
+        //Check the file extension is in the array.
+        var isValidFile = $.inArray(extn, fileListToUpload);
+
+        // isValidFile gets the value -1 if the file extension is not in the list.
+        if (isValidFile == -1) {
+            if (parseInt(ftype) == 1) {
+                bootbox.alert('Please upload a valid document of type pdf/jpg/jpeg!!!');
+                $('#' + cntr).replaceWith($('#' + cntr).val('').clone(true));
+                $('#' + cntr).focus();
+            }
+            else if (parseInt(ftype) == 2) {
+                bootbox.alert('Please upload a valid png photo.!!!');
+                $('#fuUploadPocPrev').text("Choose file");
+                $('#showPhoto').attr('src', userImg);
+                $('#' + cntr).replaceWith($('#' + cntr).val('').clone(true));
+                $('#' + cntr).focus()
+            }
+            else if (parseInt(ftype) == 3) {
+                bootbox.alert("<strong>Please upload a valid pdf file</strong>");
+                $('#fuUploadPocPrev').text("Choose File");
+                $('#' + cntr).replaceWith($('#' + cntr).val('').clone(true));
+                $('#' + cntr).focus();
+            }
+            else {
+                bootbox.alert('Please Upload a valid document !!!');
+                $('#' + cntr).replaceWith($('#' + cntr).val('').clone(true));
+                $('label[id*="' + cntr + '"]').text('');
+                $('#' + cntr).focus();
+            }
+        }
+        else {
+            // Restrict the file size to 2MB(1024 * 5120;)
+            if ($('#' + cntr).get(0).files[0].size > (5242880)) {
+                bootbox.alert("<strong>Proceeding file size should not exceed 5MB.!!!</strong>");
+                $('#fuUploadPocPrev').text("Choose File");
+                $('#' + cntr).replaceWith($('#' + cntr).val('').clone(true));
+                $('#' + cntr).focus();
+            }
+            if ($('#' + cntr).get(0).files[0].name.length > 100) {
+                bootbox.alert("<strong>Proceeding file Name should be maximum 100 Characters!</strong>");
+                $('#fuUploadPocPrev').text("Choose File");
+                $('#' + cntr).replaceWith($('#' + cntr).val('').clone(true));
+                $('label[id*="' + cntr + '"]').text('');
+                $('#' + cntr).focus();
+            }
+            else
+                return true;
+        }
+    }
+    else
+        return true;
+}
+//Validations for the fields in the form
+function validate() {
+    var d = new Date();
+    //if ($('#ddlDepartment').val() == "0") {
+    //    bootbox.alert("Please select department name!");
+    //    return false;
+    //    $('#ddlDepartment').focus();
+    //}
+     if ($('#txtSectorName').val() == "") {
+        bootbox.alert("Please enter sector name!");
+        $('#txtSectorName').focus();
+        return false;
+    }
+   
+    else {
+        $("#btnCancel").hide();
+        return true;
+    }
+        
+}
+//Post Call to the controller for data insertion 
+function addSectorData(Data) {
+    $.ajax({
+        type: "POST",
+        url: "/Sector/AddSector", //Controller and Method(/Controller/Method)
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("XSRF-TOKEN",
+                $('input:hidden[name="__RequestVerificationToken"]').val());
+        },
+        data: Data,
+        contentType: false, // Not to set any content header
+        processData: false, // Not to process data
+        success: function (res) {
+            var SECTORID = getUrlVars()["ID"];
+            if (SECTORID != undefined) {
+                bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                    window.location.href = "/Sector/ViewSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                });
+            }
+            else {
+                bootbox.alert(res, function () { //Alert showing through bootbox for a better look and fill
+                    window.location.href = "/Sector/AddSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                    //window.location.reload();
+                });
+            }
+        },
+        failure: function (response) {
+            console.log(response.responseText);
+        },
+        error: function (response) {
+            console.log(response.responseText);
+        }
+    });
+}
+//Sending the data to the add page for updating purpose
+function bindSectorById(secId) {
+    $.ajax({
+        url: "/Sector/SectorGateById?SectorId=" + secId,
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json;charset=UTF-8",
+        success: function (data) { //Filling the values in appropriate field for updating purpose
+            $('#ddlDepartment').val(data[0].Deptid);
+            $('#hdnSectorId').val(data[0].SECTORID);
+            $('#txtSectorName').val(data[0].SECTORNAME);                    
+            $('#fuUploadPocPrev')[0].innerText = data[0].CSSCLASS;
+        },
+        error: function (error) {
+            jsonValue = jQuery.parseJSON(error.responseText);
+            bootbox.alert("Error : " + jsonValue);
+        }
+    });
+}
+//Resetting all the fields
+$('#btnCancel').click(function () {
+    var secId = getUrlVars()["ID"];
+    if (secId != undefined) {
+        location.href = "/Sector/ViewSector?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    } else {
+        $('#txtSectorName').val("");
+        $('#ddlDepartment').val("0");
+        $('#fuUploadPocPrev').text("Choose file");
+        $('#txtcssclass').val("");
+        $('#btnConfirm').show();
+    }
+    
+});
+//================View And Delete Sector===================
+
+// Data table required for so many purposes like pagination,searching printing the data showing in the grid etc.
+function getDataTable() {
+    $('#tblSector').DataTable({
+        "searching": true,
+        //"bStateSave": true,
+        "dom": 'Bfrtip',
+        "autoWidth": false,
+        "buttons": [
+            //{
+            //    extend: 'print',
+            //    title: 'Manage Block',
+            //    exportOptions: {
+            //        columns: [0, 1, 2, 3, 4]
+            //    },
+            //    customize: function (win) { $(win.document.body).css('font-size', '10pt').prepend('<img src="' + origin + '/images/t5-logo-white.png"  style="position:absolute; top:0; left:0;" />'); $(win.document.body).find('table').addClass('compact').css('font-size', 'inherit'); }
+
+            //}
+            ,
+            {
+                extend: 'pageLength'
+
+            }
+        ],
+        "lengthMenu": [
+            [10, 25, 50, 100, 1000 - 1],
+            ['10 rows', '25 rows', '50 rows', '100 rows', '1000 rows', 'Show all']
+        ]
+
+    });
+}
+//Deleting record through id(primary key)
+function deleteSector(id) {
+    bootbox.confirm({
+        size: "medium",
+        message: "Are you sure you want to delete ?",
+        callback: function (result) {
+
+            if (result === true) {
+                $.ajax({
+                    url: "/Sector/DeleteSector?id=" + id,
+                    type: "POST",
+                    dataType: "json",
+                    contentType: "application/json;charset=UTF-8",
+                    success: function (data) {
+                        if (data == "3") {
+                            bootbox.alert("Sector Deleted Successfully", function () {
+                                //window.location.href = "/Sector/ViewSector";
+                                window.location.reload();
+                            });
+
+                        }
+                        else if (data == "4") {
+                            bootbox.alert("Sector Already In Use!", function () {
+                                //window.location.href = "/Sector/ViewSector";
+                                window.location.reload();
+                            });
+
+                        }
+                        else { }
+                    },
+                    error: function (error) {
+                        jsonValue = jQuery.parseJSON(error.responseText);
+                        bootbox.alert("Error : " + jsonValue);
+                    }
+                });
+            }
+        }
+    });
+}
+</script>
+

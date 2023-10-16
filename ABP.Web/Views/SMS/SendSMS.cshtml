@@ -1,0 +1,256 @@
+﻿@model ABP.Domain.SMS.SMS
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "SendSMS";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="SendSMSAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="SendSMSView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-text-input">Template<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="templateid" asp-items="@(new SelectList(ViewBag.Template, "TEMPLATEID", "TEMPLATETITLE" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-radio">Send Method<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="radio" id="type1" name="method" value="Specific User" onclick="SpecificUser()">
+                        <label for="type1">Specific User</label>  &nbsp;&nbsp;
+                        <input type="radio" id="type2" name="method" onclick="Mobileno()" value="Mobile No">
+                        <label for="type2">Mobile No.</label><br>
+                    </div>
+                </div>
+                <div class="form-group row" style="display:none" id="Usertype">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">User Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddluser">
+                            <option value="0">---Select---</option>
+                            <option value="1">Collector</option>
+                            <option value="2">BDO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row" style="display:none" id="divDistrict">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">District<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlDist" name="DistrictId" asp-for="DistrictId" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                </div>
+
+
+                <div class="form-group row" style="display:none" id="divBlock">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Block<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlBlock" name="BlockId">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row" style="display:none" id="divmobile">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-text-input">Mobile No.s<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="text" id="txtmobilenos" class="form-control">
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Send SMS</button>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="/js/CharacterCheck.js"></script>
+<script src="~/js/indicator.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("SendSMSAdd").href = "../SMS/SendSMS";
+        document.getElementById("SendSMSView").href = "../SMS/ViewSendSMS";
+        loadNavigation('Send SMS', 'gldata', 'plbdodata', 'SMS', 'Send SMS', 'Send SMS');
+        $(".js-select3").select2({
+            closeOnSelect: false,
+            placeholder: "Select User",
+            // allowHtml: true,
+            allowClear: true,
+            tags: true // создает новые опции на лету
+        });
+        $('#ddlhide').hide();
+
+
+    });
+
+    $("#ddlMonth").change(function () {
+        debugger
+        var selected = $("#ddlMonth option:selected");
+        var message = "";
+        var arrSelected = [];
+        selected.each(function () {
+            arrSelected.push($(this).val());
+            // message += "'" + $(this).text() + "'" + ", ";
+            message += $(this).text() + ", ";
+        });
+
+        $("#ddlcontain").val(message);
+        // alert(message);
+    });
+
+    function BindMonth(id) {
+        $.ajax({
+            url: "/Home/GetMonth?id=" + $('#ddlsector').val(),
+            type: "GET",
+            success: function (data) {
+
+                var Ghtml = '';
+                console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].frequencyno + '">' + data[i].frequencyvalue + '</option>'
+                }
+                $('#ddlMonth').html(Ghtml);
+                //  BindDataPointData();
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>
+<script>
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDist').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---Select---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDist').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---All---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+    function SpecificUser() {
+        $("#Usertype").show();
+        $("#divDistrict").hide();
+        $("#divBlock").hide();
+        $("#divmobile").hide();
+
+    }
+    function Mobileno() {
+        $("#Usertype").hide();
+        $("#divDistrict").hide();
+        $("#divBlock").hide();
+        $("#divmobile").show();
+    }
+    $("#ddluser").change(function () {
+        var user = $("#ddluser").val();
+        if (user == "1") {
+            $("#divDistrict").show();
+            $("#divBlock").hide();
+            $("#divmobile").hide();
+        }
+        else if (user == "2") {
+            $("#divDistrict").show();
+            $("#divBlock").show();
+            $("#divmobile").hide();
+        }
+        else {
+            $("#divDistrict").hide();
+            $("#divBlock").hide();
+            $("#divmobile").hide();
+        }
+    });
+</script>
+

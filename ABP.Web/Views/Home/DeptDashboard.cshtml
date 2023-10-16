@@ -1,0 +1,309 @@
+﻿@model ABP.Domain.Department.Department
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewBDOData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listdata = ViewBag.Result as Task<IEnumerable<ABP.Domain.DataPoint.DataPoint>>;
+}
+
+<style>
+    #tblNewApplication {
+        max-height: calc(100% - 120px);
+        overflow-y: scroll;
+    }
+</style>
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+                <li class="breadcrumb-item"><a href="../Home/Dashboard" title="Home"><i class="fa fa-home"></i></a></li>
+                <li class="breadcrumb-item">Approved Indicators </li>
+                <li class="breadcrumb-item font-weight-bold">Approved Indicators</li>
+            </ol>
+        </nav>
+       
+    </div>
+
+</div>
+
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BDODataView">
+                        Department View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- Search Panel -->
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="blocksearch">
+                        <input type="hidden" id="hdnsectorid" value="" />
+                        <input type="hidden" id="hdnfrequency" value="" />
+                        <input type="hidden" id="hdnstatus" value="" />
+                        <div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2">
+                                <label class="control-label" for="demo-email-input">Sector Name</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME"))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2 col-xl-2">
+                                <label class="control-label" for="demo-email-input">Frequency</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlFrequency" asp-for="Frequency" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2" id="annually">
+                                <label class="control-label" for="demo-email-input">Year</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                                <select class="form-control" id="ddlYear" asp-for="Year">
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-2">
+                                <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                            @*<div class="col-12 col-md-2 col-xl-2" id="halfyearly">
+                                    <label class="control-label" for="demo-email-input">Half Year</label>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-3" id="halfyearlyinput">
+                                    <select class="form-control" id="ddlHalfyear">
+                                        <option value="0">---All---</option>
+                                        <option value="H1">H1</option>
+                                        <option value="H2">H2</option>
+                                    </select>
+                                </div>*@
+
+
+
+                        </div>
+                        @*<div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2" id="quarterly">
+                                <label class="control-label" for="demo-email-input">Quarter</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3" id="quarterlyinput">
+
+                                <select class="form-control" id="ddlQuarter">
+                                    <option value="0">---All---</option>
+                                    <option value="Q1">Q1</option>
+                                    <option value="Q2">Q2</option>
+                                    <option value="Q3">Q3</option>
+                                    <option value="Q4">Q4</option>
+                                </select>
+                            </div>*@
+                        @*<div class="col-12 col-md-2 col-xl-2" id="monthly">
+                                    <label class="control-label" for="demo-email-input">Month</label>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-3" id="monthlyinput">
+                                    <select class="form-control" id="ddlMonth">
+                                        <option value="0">---All---</option>
+                                        <option value="Jan">Jan</option>
+                                        <option value="Feb">Feb</option>
+                                        <option value="Mar">Mar</option>
+                                        <option value="Apr">Apr</option>
+                                        <option value="May">May</option>
+                                        <option value="Jun">Jun</option>
+                                        <option value="Jul">Jul</option>
+                                        <option value="Aug">Aug</option>
+                                        <option value="Sep">Sep</option>
+                                        <option value="Oct">Oct</option>
+                                        <option value="Nov">Nov</option>
+                                        <option value="Dec">Dec</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-2">
+                                    <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                                </div>
+                            </div>*@
+                    </form>
+                </div>
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+            <!-- Search Panel -->
+            <div class="card-body">
+                @if (listdata!=null && listdata.Result.ToList().Count > 0)
+                {
+                    <div class="row" id="table">
+                        <div class="table-responsive col-sm-12">
+                            <table data-toggle="table" id="tblViewBDOData" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Sl#</th>
+                                        <th>Year</th>
+                                        <th>District Name</th>
+                                        <th>Block Name</th>
+                                        <th>Department Name</th>
+                                        <th>Sector Name</th>
+                                        <th>Frequency</th>
+                                        <th>Month/QTR/HLF/Year</th>
+                                        <th>Number of DataPoints</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody">
+                                    @{int Count = 1; }
+
+                                    @foreach (var item in listdata.Result)
+                                    {
+                                        <tr>
+                                            <td>@Count</td>
+                                            <td>@item.YEAR</td>
+                                            <td>@item.DistrictName</td>
+                                            <td>@item.BlockName</td>
+                                            <td>@item.DepartmentName</td>
+                                            <td>@item.SECTORNAME</td>
+                                            <td>@item.FREQUENCY</td>
+                                            <td>@item.FREQUENCYVALUE</td>
+                                            <td class="text-center">
+                                                <a class="Static" href="javascript:;" data-toggle="modal" data-target="#successmodal" onclick="sethdnsector(@item.SECTORID, @item.FREQUENCYNO,@item.STATUS)">@item.DATAPOINTCOUNT</a>
+                                            </td>
+                                        </tr>
+                                        Count++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModal" aria-hidden="true" style="padding-right: 9px;">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width : 150%">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="exampleModalLabel" style="color:black">
+                    Datapoints
+                </h5>
+                <a href="javascript:;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </a>
+            </div>
+            <div id="datapointpopup"></div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //document.getelementbyid("bdodataadd").href = "../bdodata/addbdodata?glink=" + decodeuri(geturlvars()["glink"]) + "&plink=" + decodeuri(geturlvars()["plink"]);
+        //document.getelementbyid("bdodataview").href = "../bdodata/viewbdodata?glink=" + decodeuri(geturlvars()["glink"]) + "&plink=" + decodeuri(geturlvars()["plink"]);
+        //loadnavigation('addbdodata', 'gldata', 'plbdodata', 'datapoint entry', 'add datapoint value', 'view bdodata');
+        if (@HttpContextAccessor.HttpContext.Session.GetInt32("_HRMSSTATUS")== 0) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Do you want to change your Password?",
+
+                callback: function (result) {
+                    if (result == true) {
+                        window.location.href = "/Login/ChangePasswordReq?Hid=@HttpContextAccessor.HttpContext.Session.GetString("_EncryptUserName")";
+
+                    }
+                }
+            });
+        }
+        var currentYear = new Date().getFullYear();
+        var start = currentYear;
+        var end = 2020;
+        var options = "";
+        options += "<option value='0'>---All---</option>";
+        for (var year = start; year >= end; year--) {
+            options += "<option value=" + year + ">" + year + "</option>";
+        }
+        document.getElementById("ddlYear").innerHTML = options;
+
+         if ('@ViewBag.yr' == "0")
+        {
+
+        }
+
+        else
+        {
+           $("#ddlYear").val(@ViewBag.yr);
+
+        }
+        //$('.norecord').hide();
+        //$.ajax({
+        //    url: "/Home/AllDeptDashboard",
+        //    type: "get",
+        //    contentType: "application/json;charset=utf-8",
+        //    dataType: "json",
+        //    success: function (res) {
+        //        if (res.length != 0) {
+        //            $('#table').show();
+        //            var html = '';
+        //            var count = 1;
+        //            $.each(res, function (key, item) {
+        //                html += '<tr>';
+        //                html += '<td>' + count + '</td>';
+        //                html += '<td>' + item.YEAR + '</td>';
+        //                html += '<td>' + item.DistrictName + '</td>';
+        //                html += '<td>' + item.BlockName + '</td>';
+        //                html += '<td>' + item.DepartmentName + '</td>';
+        //                html += '<td>' + item.SECTORNAME + '</td>';
+        //                html += '<td>' + item.FREQUENCY + '</td>';
+        //                html += '<td>' + item.FREQUENCYVALUE + '</td>';
+
+        //                html += '<td><a style="color: #1f05fb" href="javascript:;" data-toggle="modal" data-target="#successmodal" onclick="sethdnsector(' + item.SECTORID + ',' + item.FREQUENCYNO + ',' + item.STATUS + ')"> ' + item.DATAPOINTCOUNT + '</a></td> ';
+        //                html += '</tr>';
+        //                count++;
+        //            });
+        //            $('#tbody').html(html);
+        //            //getdatatable();
+        //        }
+        //        else {
+        //            $('.norecord').show();
+        //        }
+        //    }
+        //});
+    });
+</script>
+
+<script>
+    function sethdnsector(id, freq, sts) {
+        $("#successModal").modal('show');
+        $("#hdnsectorid").val(id);
+        $("#hdnfrequency").val(freq);
+        $("#hdnstatus").val(sts);
+        $.ajax({
+            url: "/BDOData/GetDatapoints?sectorid=" + $("#hdnsectorid").val() + "&frequency=" + $("#hdnfrequency").val() + "&Status=" + sts,
+            type: "GET",
+
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+                $('#datapointpopup').html(data);
+
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+        });
+    }
+
+</script>

@@ -1,0 +1,126 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewSMSTemplates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.SMS.SMSData>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="SMSTEMPAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="SMSTEMPView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (ListData.Result.ToList().Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table data-toggle="table" id="tblIndicator" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>
+                                    <th>Event Name</th>
+                                    <th>Template</th>
+                                    <th>Job Title</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Hour</th>
+                                    <th>Minute</th>
+                                    <th>User Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int Count = 1; }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td>@item.EVENTNAME</td>
+                                        <td>@item.TEMPLATETITLE</td>
+                                        <td>@item.JOBTITLE</td>
+                                        <td>
+                                            @if (item.TEMPLATETYPE == 1)
+                                            {
+                                                <span>Hourly</span>
+                                            }
+                                            else if (item.TEMPLATETYPE == 2)
+                                            {
+                                                <span>Daily</span>
+                                            }
+                                            else if (item.TEMPLATETYPE == 3)
+                                            {
+                                                <span>Weekly</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Monthly</span>
+                                            }
+                                        </td>
+                                        @*<td>@item.TEMPDATE.Day</td>*@<td>@item.TEMPDATE.ToShortDateString()</td>
+                                        <td>@item.TEMPDATE.Hour</td>
+                                        <td>@item.TEMPDATE.Minute</td>
+                                        <td>@item.USERTYPE</td>
+                                        <td>
+                                            <a href="/SMS/SMSConfiguration?ID=@Convert.ToString(item.ID)" class="text-primary mr-3" data-toggle="tooltip" data-original-title="Edit">
+                                                <i class="icon-edit1"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    Count++;
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("SMSTEMPAdd").href = "../SMS/SMSConfiguration?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("SMSTEMPView").href = "../SMS/ViewSMSTemplates?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('SMSConfiguration', 'gldata', 'plbdodata', 'SMS Config', 'SMS Config', 'SMS Config');
+    });
+</script>
+

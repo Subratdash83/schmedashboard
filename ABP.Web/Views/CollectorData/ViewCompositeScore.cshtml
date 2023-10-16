@@ -1,0 +1,138 @@
+﻿@model ABP.Domain.CollectorData.CompositeScore
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewCompositeScore";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.Result as Task<IEnumerable<ABP.Domain.CollectorData.CompositeScore>>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <!-- Search Panel-->
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="compSearch">
+                        <div class="form-group row">
+                            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">District</label>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlDistrict" asp-for="DISTRICT_CODE" asp-items="@(new SelectList(ViewBag.District, "DISTRICT_CODE", "DISTRICT_NAME" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Block</label>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlBlock" asp-for="BLOCK_CODE" asp-items="@(new SelectList(ViewBag.Block, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector</label>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "SECTORID", "SECTORNAME" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+
+            <!-- Search Panel -->
+            <!--===================================================-->
+            <div class="card-body ">
+                @if (ResultData.Result.Count() > 0)
+                {
+                    <div class="table-responsive">
+                        <table data-toggle="table" id="tblCompScore" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="60px">Sl#</th>
+                                    <th>District</th>
+                                    <th>Block</th>
+                                    <th>Sector</th>
+                                    <th>CompositeScore</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int count = 1;}
+                                @foreach (var list in ResultData.Result)
+                                {
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>@list.DISTRICT_NAME</td>
+                                        <td>@list.BLOCK_NAME</td>
+                                        <td>@list.SECTORNAME</td>
+                                        <td>@list.COMPSCORE</td>
+                                    </tr>
+                                    count++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                <div class="clearfix col-sm-12"></div>
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+      
+        document.getElementById("compSearch").href = "../CollectorData/ViewCompositeScore?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewCompositeScore', 'gldata', 'plbdodata', 'Dashboard', 'Explore CompositeScore', 'Explore CompositeScore');
+        getDataTable();
+        $.ajax({
+            url: "/CollectorData/GetLoggedInDist",
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                $('#ddlDistrict').val(res);
+            }
+        });
+        if ($('#ddlDistrict option:selected')) {
+            $('#ddlDistrict').prop('disabled', 'true');
+        }
+    });
+    // Data table required for so many purposes like pagination,searching printing the data showing in the grid etc.
+    function getDataTable() {
+        $('#tblCompScore').DataTable({
+            "searching": true,
+            "dom": 'Bfrtip',
+            "autoWidth": false,
+            "buttons": [
+                {
+                    extend: 'pageLength'
+
+                }
+            ],
+            "lengthMenu": [
+                [10, 25, 50, 100, 1000 - 1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', '1000 rows', 'Show all']
+            ]
+
+        });
+    }
+</script>

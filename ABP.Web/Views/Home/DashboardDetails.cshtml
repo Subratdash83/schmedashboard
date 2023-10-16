@@ -1,0 +1,123 @@
+﻿@model ABP.Domain.DashboardModel.DashboardModel
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                
+                @*<div class="indicatorslist">
+                    <a id="printicon" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"><i class="icon-printer1"></i></a>
+                    <a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>
+                </div>*@
+            </div>
+           
+            <!--===================================================-->
+            <div class="card-body">
+                @if (ListData.Result.ToList().Count > 0)
+                {
+
+                    <div class="form-group row">
+                        <label class="col-12 col-md-2 col-xl-1 control-label" for="demo-textarea-input">Sector Name:-</label>
+                        <label class="col-12 col-md-4 col-xl-4 control-label" for="demo-textarea-input">@ListData.Result.ToList()[0].SECTORNAME</label>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="tblDashboard" data-toggle="table">
+                            <thead>
+                                <tr>
+                                    <th width="50px"></th>
+                                    <th width="50px">Sl#</th>
+                                    <th width="500px">Block Name</th>
+                                    <th width="500px">DataPoint Value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int Count = 1; }
+                                @foreach (var item in ListData.Result.Select(x => new { x.BLOCKNAME, x.DATAPOINTAVG,x.SECTORID}).Distinct().ToList())
+                                {
+                                    <tr>
+                                        <td colspan="3">
+                                            <table class="chartertable table collapsebtn collapsed" id="tbl_@Count" data-toggle="collapse" onclick="OpenComponent(@Count)">
+                                                <tbody>
+                                                    <tr>
+                                                        <td class="text-center" width="50px">
+                                                            <i class="fa fa-angle-double-down" data-toggle="tooltip" title="" data-original-title="View Component"></i>
+                                                        </td>
+                                                        <td width="50px">@Count</td>
+                                                        <td width="500px">@item.BLOCKNAME</td>
+                                                        <td width="500px">@item.DATAPOINTAVG</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                            <div class="compbg collapse" id="collapseExample_@Count">
+                                                <div class="clearfix"></div>
+                                                <div class="clearfix"></div>
+                                                <table class="table comp-table " id="comp">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>DataPoint </th>
+                                                            <th width="100px">Value<span class="text-danger">*</span></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="tbodyDatapoint" id="tbody-datapoint-@Count">
+                                                        @foreach (var action in ListData.Result.Where(w => w.SECTORID == item.SECTORID).Select((x, i) => new { Data = x, Index = i + 1 }))
+                                                        {
+                                                            <tr>
+                                                                <td>@action.Data.DATAPOINTNAME</td>
+                                                                <td>@action.Data.DATAPOINTVALUE</td>
+                                                            </tr>
+                                                        }
+                                                        </tbody>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    
+                                    Count++;
+                                }
+                            </tbody>
+                        </table>
+                        
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+
+                <div class="clearfix col-sm-12"></div>
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script>
+    function OpenComponent(id) {
+    if ($("#tbl_" + id + "")[0].className == "chartertable table collapsebtn collapsed") {
+        $("#tbl_" + id + "").attr('class', 'chartertable table collapsebtn tableactive');
+        $("#collapseExample_" + id + "").attr('class', 'compbg collapse show');
+    }
+    else {
+        $("#tbl_" + id + "").attr('class', 'chartertable table collapsebtn collapsed');
+        $("#collapseExample_" + id + "").attr('class', 'compbg collapse');
+    }
+}
+</script>
+
+

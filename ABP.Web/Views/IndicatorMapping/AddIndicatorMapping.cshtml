@@ -1,0 +1,200 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddIndicatorMapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var Indicator = ViewBag.Indicator as Task<IEnumerable<ABP.Domain.Indicator.Indicator>>;
+}
+<style>
+    input[type=radio] {
+        border: 1px solid #fff;
+        padding: 0.5em;
+        -webkit-appearance: none;
+    }
+
+        input[type=radio]:checked {
+            background: url(data:image/gif;base64,R0lGODlhAQABAPAAAP///////yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==) no-repeat center center;
+            background-size: 9px 9px;
+        }
+
+        input[type=radio]:focus {
+            outline-color: transparent;
+        }
+
+    .checkbox label {
+        display: block !important;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="IndicatorMapping" asp-action="AddIndicatorMapping">Add</a>
+                        <a class="nav-item nav-link " asp-controller="IndicatorMapping" asp-action="ViewIndicatorMapping">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndMapAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="IndMapView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnIMId" hidden="hidden" value="0" class="form-control">
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlSector" name="Sector" asp-items="@(new SelectList(ViewBag.Sector, "SECTORID", "SECTORNAME" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Indicator Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlIndicator" name="Sector">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">Is Census</label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="checkbox" name="checkResp" id="iscensus" /><label for="iscensus"></label>
+                    </div>
+                </div>
+                <div class="form-group row pad-ver" id="data">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">DataPoint Mapping <br /></label>
+                    <div class="col-12 col-md-4 col-xl-4">
+                        <div class="checkbox" id="mainDivN1">
+                            
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row pad-ver" id="data1">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">DataPoint Mapping <br /><small>(Numerator)</small><span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-4 col-xl-4">
+                        <div class="checkbox" id="mainDivN">
+                            <!-- Inline Checkboxes
+                <input id="demo-form-inline-checkbox" class="magic-checkbox" type="checkbox">
+                <label for="demo-form-inline-checkbox">Option 1 </label> <br>
+                <input id="demo-form-inline-checkbox-2" class="magic-checkbox" type="checkbox">
+                <label for="demo-form-inline-checkbox-2">Option 2</label> <br>
+                <input id="demo-form-inline-checkbox-3" class="magic-checkbox" type="checkbox">
+                <label for="demo-form-inline-checkbox-3">Option 3</label> <br>-->
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <div class="form-group row pad-ver" id="data2">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">DataPoint Mapping <br /><small>(Denominator)</small><span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="checkbox" id="mainDivD">
+                            <!-- Inline Checkboxes
+                <input id="demo-form-inline-checkbox" class="magic-checkbox" type="checkbox">
+                <label for="demo-form-inline-checkbox">Option 1 </label> <br>
+                <input id="demo-form-inline-checkbox-2" class="magic-checkbox" type="checkbox">
+                <label for="demo-form-inline-checkbox-2">Option 2</label> <br>
+                <input id="demo-form-inline-checkbox-3" class="magic-checkbox" type="checkbox">
+                <label for="demo-form-inline-checkbox-3">Option 3</label> <br>-->
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row" style="display:none;">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Formula</label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <textarea id="txtFormula" rows="4" class="form-control" placeholder="Your content here.."></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        @*<button class="btn btn-primary mb-1" id="btnSubmit">Submit</button>*@
+                        <button id="btnConfirm" onclick="sendOTP()" class="btn btn-success show-otp">Submit</button>
+                        @*<button class="btn btn-danger mb-1">Cancel</button>*@
+                        <button id="btnCancel" class="btn btn-danger  ">Reset</button>
+                    </div>
+                </div>
+                @*</form>*@
+
+                <div class="form-group row pad-ver otp-box bg-light pt-3">
+
+                    <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                        Enter OTP
+                    </label>
+                    <div class="col-lg-4">
+                        <input type="number" id="txtotp" class="form-control" />
+                        <input type="hidden" id="hdnotp" class="form-control" />
+                        <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+                    </div>
+                    <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+                    <label class="col-xl-12  col-xl-12 control-label"></label>
+                    <label class="col-12  col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <button id="btnSubmit" class="btn btn-primary mb-1">Submit</button>
+                        <button id="btnCancel1" class="btn btn-danger mb-1">Reset</button>
+                    </div>
+                </div>
+
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/indicatormapping.js"></script>
+
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndMapAdd").href = "../IndicatorMapping/AddIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("IndMapView").href = "../IndicatorMapping/ViewIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('AddIndicatorMapping', 'gldata', 'plbdodata', 'Manage Master', 'Manage IndicatorMapping', 'Add IndicatorMapping');
+        $("#data").hide();
+    });
+    var imId = getUrlVars()["ID"];
+    if (imId != undefined) {
+        $("#btnSubmit").html("Update");
+        $("#btnCancel").html("Cancel");
+        bindIndicatorMappingsById(imId);
+    }
+    $('#btnCancel1').click(function () {
+       
+            $('#hdnIMId').val("0");
+            $('#ddlSector').val("0");
+            $('#ddlIndicator').val("0");
+            $('#txtFormula').val("");
+            $('#mainDivD').empty();
+            $('#mainDivN').empty();
+            $('#btnConfirm').show();
+            $(".otp-box").hide();
+            $('#btnCancel').show();
+        
+
+    });
+</script>
+

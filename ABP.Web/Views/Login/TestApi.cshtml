@@ -1,0 +1,65 @@
+﻿@model ABP.Domain.Login.Login
+
+@{
+    Layout = null;
+    var callbackdata = ViewBag.Callback1 as List<ABP.Domain.Login.LoginResponse>;
+}
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<div class="container">
+    @using (Html.BeginForm("TestApi", "Login", FormMethod.Post, new { @class = "form-horizontal" }))
+    {
+
+        <div class="form-group">
+            <label class="">User Name</label>
+            @Html.TextBoxFor(m => m.VCHUSERNAME, new { @class = "form-control", id = "txtuname" })
+            @Html.ValidationMessageFor(m => m.VCHUSERNAME)
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1" class="">Password</label>
+            @Html.TextBoxFor(m => m.vchpassword, new { @class = "form-control", id = "txtpwd" })
+            @Html.ValidationMessageFor(m => m.vchpassword)
+        </div>
+        <div class="form-group">
+            <label for="exampleInputPassword1" class="">API</label>
+            <select class="form-control" id="ddlAPI" name="ddlAPI">
+                <option value="2">Both API</option>
+                <option value="1">Only First API</option>
+            </select>
+            @Html.TextBoxFor(m => m.ROLEID, new { @class = "form-control", id = "hdnApi",style="display:none" })
+        </div>
+        <button type="submit" class="btn btn-block login-btn mt-4">Sign in</button>
+    }
+    <div class="container">
+        @if (ViewBag.Callback1 != null)
+        {
+            <ul style="list-style:none;">
+                <li> <label>accountnonexpired:</label>@ViewBag.Callback1.accountnonexpired  </li>
+                <li> <label>linkid:</label> @ViewBag.Callback1.linkid  </li>
+                <li> <label>accountnonlocked:</label>  @ViewBag.Callback1.accountnonlocked  </li>
+                <li> <label>enable:</label>  @ViewBag.Callback1.enable  </li>
+                <li> <label>lastlogin:</label> @ViewBag.Callback1.lastlogin  </li>
+                <li> <label>usertype:</label>@ViewBag.Callback1.usertype  </li>
+                <li> <label>noofloginfailed:</label> @ViewBag.Callback1.noofloginfailed </li>
+                <li> <label>securitykey:</label> @ViewBag.Callback1.securitykey  </li>
+                <li> <label>message:</label> @ViewBag.Callback1.message  </li>
+                <li> <label>credentialsnonexpired:</label>@ViewBag.Callback1.credentialsnonexpired  </li>
+                <li> <label>userid:</label> @ViewBag.Callback1.userid  </li>
+                <li> <label>lastloginfailed:</label> @ViewBag.Callback1.lastloginfailed  </li>
+                <li> <label>usercredentials:</label> @ViewBag.Callback1.usercredentials  </li>
+            </ul>
+        }
+        @if (ViewBag.Callback2 != null)
+        {
+            @ViewBag.Callback2
+        }
+
+    </div>
+</div>
+<script>
+     $(document).ready(function () {
+       $("#hdnApi").val($("#ddlAPI").val());
+     });
+    $("#ddlAPI").change(function (){
+        $("#hdnApi").val($("#ddlAPI").val());
+    });
+</script>

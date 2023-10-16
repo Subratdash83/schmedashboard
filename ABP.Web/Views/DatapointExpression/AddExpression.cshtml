@@ -1,0 +1,301 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "DataPointMapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var Indicator = ViewBag.Indicator as Task<IEnumerable<ABP.Domain.Indicator.Indicator>>;
+}
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+<link href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css"
+      rel="Stylesheet" type="text/css" />
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="IndicatorMapping" asp-action="AddIndicatorMapping">Add</a>
+                        <a class="nav-item nav-link " asp-controller="IndicatorMapping" asp-action="ViewIndicatorMapping">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndMapAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="IndMapView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnExpressionId" hidden="hidden" value="0" class="form-control">
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlSector" name="Sector" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Expression<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        @*<select class="form-control chosen-select" id="ddlDataPoint" name="Sector"  asp-items="@(new SelectList(ViewBag.DataPoint, "CONTROLID", "DISPLAYNAME1" ))"  multiple>
+                    <option value="0">---Select---</option>
+                </select>*@
+
+                        <textarea id="txtDatapointName" class="form-control" style="width:700px"  ></textarea>
+                    </div>
+                </div>
+                <div class="form-group row pad-ver bg-light pt-3">
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <button id="btnSubmit" class="btn btn-primary mb-1">Submit</button>
+                        <button id="btnCancel1" class="btn btn-danger mb-1">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndMapAdd").href = "../DatapointExpression/AddExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("IndMapView").href = "../DatapointExpression/ViewExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('AddIndicatorMapping', 'gldata', 'plbdodata', 'Manage Master', 'Add Expression', 'Add Expression');
+        var ExpressionId = getUrlVars()["ID"];
+        //var indicatorId = 4;
+        if (ExpressionId != undefined) {
+
+            $("#btnSubmit").html("Update");
+            $("#btnCancel").html("Cancel");
+            bindExpressionById(ExpressionId);
+        }
+    });
+</script>
+
+<script>
+    $(document).on('keydown', '#txtDatapointName', function () {
+        if ((event.keyCode >= 48 && event.keyCode <= 57)) {
+           // bootbox.alert("Please enter only char");
+            return false;
+        }
+    });
+   
+    $(document).on('keyup', '#txtDatapointName', function () {
+      
+        
+       // if ((event.keyCode > 64 && event.keyCode < 91) || (event.keyCode > 96 && event.keyCode < 123) || event.keyCode == 8)
+       // {
+            $("#txtDatapointName").autocomplete({
+
+                // source: availableTags
+                source: function (request, response) {
+                    var Sectorid = $("#ddlSector").val();
+
+                    $.ajax({
+                        url: "../DatapointExpression/BindControles",
+                        type: "POST",
+                        dataType: "json",
+                        data: {
+                            "Sectorid": Sectorid
+                        },
+                        success: function (data) {
+                            var out = $.parseJSON(data);
+
+                            response($.map(out, function (item) {
+                                return { label: item.DISPLAYNAME, value: item.DISPLAYNAME };
+                            }))
+
+                        }
+                    })
+                },
+                multiselect: true,
+                focus: function () {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function (event, ui) {
+                    var op = '';
+                    op = this.value.substr(-1);
+
+                    var terms = split(this.value, op);
+
+
+
+                    terms.pop();
+                    var test = ui.item.value;
+                    terms.push(test);
+                    op = op + '';
+
+                    if (terms[0] != "") {
+                        this.value = terms.join(op);
+                    }
+                    else { this.value = terms.join(''); }
+                    return false;
+
+                }
+
+            });
+       
+       
+
+        function split(val, separator) {
+
+            return val.split(RegExp('\\' + separator + '\\s*'));
+
+
+        }
+
+
+
+
+      
+        //  $(this).find("td").eq(4).find("#txtKFO").value = KFOvalue;
+    });
+
+
+    $('#btnSubmit').click(function () {
+        if (validate()) {
+            var DATAPOINTID = getUrlVars()["ID"];
+            if (DATAPOINTID != undefined) {
+                msg = "Are you sure ,you want to Update?";
+            } else {
+                msg = "Are you sure ,you want to Submit?";
+            }
+            bootbox.confirm({
+                size: "medium",
+                message: msg,
+                callback: function (result) {
+                    if (result === true) {
+
+                      
+                        var fileData = new FormData();
+                        fileData.append("ExpressionId", $('#hdnExpressionId').val());
+                        fileData.append("ExpressionNAME", $('#txtDatapointName').val());
+                        fileData.append("SECTORID", $('#ddlSector').val());
+
+
+
+                        addDataPointData(fileData);
+                    }
+                }
+            });
+        }
+
+    });
+    //Validations for the fields in the form
+    function validate() {
+        //var d = new Date();
+        //var currentDate = d.toShortFormat();
+        if ($('#ddlSector').val() == "0") {
+            bootbox.alert("Please select sector!");
+            $('#ddlSector').focus();
+            return false;
+        }
+        else if ($('#txtDatapointName').val() == "") {
+            bootbox.alert("Please Enter Expression!");
+            $('#ddlDataPoint').focus();
+            return false;
+        }
+
+        else {
+            $("#btnCancel").hide();
+            return true;
+        }
+    }
+    //Post Call to the controller for data insertion
+    function addDataPointData(Data) {
+        $.ajax({
+            type: "POST",
+            url: "/DatapointExpression/AddExpression",//Controller and Method(/Controller/Method)
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            data: Data,
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
+            success: function (res) {
+                var DATAPOINTID = getUrlVars()["ID"];
+                if (DATAPOINTID != undefined) {
+                    bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                        window.location.href = "/DatapointExpression/AddExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                    });
+                }
+                else {
+                    bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                        window.location.href = "/DatapointExpression/AddExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                    });
+                }
+
+            },
+            failure: function (response) {
+                console.log(response.responseText);
+            },
+            error: function (response) {
+                console.log(response.responseText);
+            }
+        });
+    }
+    function bindExpressionById(ExpressionId) {
+
+        $.ajax({
+            url: "/DatapointExpression/ExpressionGateById?ExpressionId=" + ExpressionId,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {
+
+                //Filling the values in appropriate field for updating purpose
+
+                $('#hdnExpressionId').val(data[0].ExpressionID);
+               
+                $('#ddlSector').val(data[0].SECTORID);
+                $('#txtDatapointName').val(data[0].ExpressionNAME);
+               
+               
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+    $('#btnCancel1').click(function () {
+        var indicatorId = getUrlVars()["ID"];
+        if (indicatorId != undefined) {
+            location.href = "/DatapointExpression/ViewExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        }
+        else {
+           
+            $('#hdnExpressionId').val("0");
+            $('#ddlSector').val("0");
+            $('#txtDatapointName').val("");
+            
+            $('#btnConfirm').show();
+
+           
+        }
+    });
+</script>

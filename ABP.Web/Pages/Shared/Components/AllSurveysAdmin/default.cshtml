@@ -1,0 +1,131 @@
+﻿@model IEnumerable<ABP.Domain.LinkAccess>
+@using Microsoft.AspNetCore.Http
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@using Microsoft.Extensions.Configuration
+@inject IConfiguration Configuration
+
+@{
+    //int count = 0;
+    <li class="nav-item dshbord active" id="lidshbord">
+        @if (HttpContextAccessor.HttpContext.Session.GetString("_nvchaliasname") == "BDO")
+        {
+            <a class="nav-link dshbordlnk" href="../../Dashboard/BlockDashboard">
+                <i class="icon-airplay"></i><span>Dashboard</span>
+            </a>
+        }
+        else if (HttpContextAccessor.HttpContext.Session.GetString("_nvchaliasname") == "COL")
+        {
+            <a class="nav-link dshbordlnk" href="../../Dashboard/DistrictDashboard">
+                <i class="icon-airplay"></i><span>Dashboard</span>
+            </a>
+        }
+        else if (HttpContextAccessor.HttpContext.Session.GetString("_nvchaliasname") == "Admin")
+        {
+            <a class="nav-link dshbordlnk" href="../../Dashboard/DepartmentDashboard?DepId=@HttpContextAccessor.HttpContext.Session.GetInt32("_DeptId")">
+                <i class="icon-airplay"></i><span>Dashboard</span>
+            </a>
+        }
+        else
+        {
+            <a class="nav-link dshbordlnk" href="../../Dashboard/DepartmentDashboard?DepId=@HttpContextAccessor.HttpContext.Session.GetInt32("_DeptId")">
+            <i class="icon-airplay"></i><span>Dashboard</span>
+            </a>
+        }
+    </li>
+    foreach (var link in Model.Select(x => new { x.nvchglinkname, x.vchiconclass, x.intglinkid, x.Aglinkid, x.Aplinkid }).Distinct().ToList())
+    {
+        <input type="hidden" id="hdnid" value="@link.Aglinkid" />
+        var liclass = ""; var divclass = ""; int Gid = 0;
+        if (link.Aglinkid == 0)
+        {
+            //if (TempData["glink"] != null)
+            //{
+            //    Gid = Convert.ToInt32(TempData["Glink"].ToString());
+            //}
+        }
+        else
+        {
+            Gid = link.Aglinkid;
+        }
+        if (link.intglinkid == Gid)
+        {
+            //count = 1;
+            liclass = "nav-item dropdown glmaster" + link.intglinkid + "&nbsp; show";
+            divclass = "dropdown-menu " + link.intglinkid + " show";
+            //divclass = "dropdown-menu " + link.intglinkid;
+
+        }
+        else
+        {
+
+            //liclass = "nav-item dropdown " + link.intglinkid + " show";
+            //divclass = "dropdown-menu " + link.intglinkid + " show";
+            liclass = "nav-item dropdown glmaster" + link.intglinkid;
+            divclass = "dropdown-menu " + link.intglinkid;
+        }
+
+        <li class="nav-item dropdown glmaster" id="primarylink">
+            <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false"><i class="@link.vchiconclass"></i><span>@link.nvchglinkname</span></a>
+            <div class="@divclass" aria-labelledby="navbarDropdownMenuLink">
+                @foreach (var primarylist in Model.Where(w => w.nvchglinkname == link.nvchglinkname).Select((x, i) => new { Data = x, Index = i + 1 }))
+                {
+                    var ancclass = ""; int Pid = 0; divclass = "";
+                    if (link.Aglinkid == 0)
+                    {
+                        //if (TempData["Plink"] != null)
+                        //{
+                        //    Pid = Convert.ToInt32(TempData["Plink"].ToString());
+                        //}
+                    }
+                    else
+                    { Pid = link.Aplinkid; }
+                    if (primarylist.Data.intplinkid == Pid)
+                    {
+                        //<input type="hidden" id="pid" value="@Pid" />
+                        ancclass = "dropdown-item " + primarylist.Data.intplinkid + " active";
+                        //divclass= "dropdown-menu " + link.intglinkid + " show";
+                        //ancclass = "dropdown-item " + primarylist.Data.intplinkid;
+                    }
+                    else
+                    {
+                        ancclass = "dropdown-item " + primarylist.Data.intplinkid;
+                    }
+                    var data = primarylist.Data.nvchplinkname.Split(" ");
+                    // var first = "<i class='fa fa-long-arrow-right' aria-hidden='true'></i>";
+                    //if (data.Length > 1)
+                    //{
+                    //    first = data[0].Substring(0, 1) + data[1].Substring(0, 1);
+
+                    <a href="/@primarylist.Data.vchfilename?Glink=@primarylist.Data.intglinkid&Plink=@primarylist.Data.intplinkid" class=" @ancclass"> <span class="submenu"></span> @primarylist.Data.nvchplinkname </a>
+                }
+            </div>
+        </li>
+        //count = count + 1;
+    }
+}
+<script>
+    $(document).ready(function () {
+        var id = document.getElementById("hdnid").value;
+
+        if (id > 0) {
+            document.getElementById("lidshbord").classList.remove("active");
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var msg = '@ViewBag.MSG';
+        if (msg == "OUT") {
+            window.location.href = '@Url.Action("Login","Login")';
+        }
+        else {
+
+        }
+    });
+            //window.onload = function () {
+            //    if (results[0].MSG = "OUT") {
+            //        window.location.href("Login", "Login");
+            //    }
+            //}
+</script>

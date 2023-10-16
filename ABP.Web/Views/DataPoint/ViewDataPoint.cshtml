@@ -1,0 +1,366 @@
+﻿@model ABP.Domain.DataPoint.DataPoint
+
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewDataPoint";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var SectorResultData = ViewBag.SectorResult as List<ABP.Domain.Sector.sector>;
+    var DatapointResultData = ViewBag.DatapointResult as List<ABP.Domain.DataPoint.DataPoint>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link " asp-controller="DataPoint" asp-action="AddDataPoint">Add</a>
+                    <a class="nav-item nav-link active" asp-controller="Indicator" asp-action="ViewDataPoint">View</a>*@
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="DatapointAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="DatapointView">
+
+                        View
+                    </a>
+                </ul>
+                @*<div class="indicatorslist">
+                <a id="printicon" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"><i class="icon-printer1"></i></a>
+                <a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>
+                </div>*@
+            </div>
+            <!-- Search Panel-->
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="datapointsearch">
+                        <div class="form-group row">
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <label class="control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                                <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <label class="control-label" for="demo-email-input">Frequency<span class="text-danger">*</span></label>
+                                <select class="form-control" id="ddlFrequency" name="Frequency" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY",ViewBag.frequencyid ))">
+                                    <option value="0">---Select---</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <button id="btnSearch" class="btn btn-primary search mt-xl-4 mt-2"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>
+
+
+
+                    </form>
+                </div>
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+            <!-- Search Panel -->
+            <!--===================================================-->
+            <div class="card-body  pt-1">
+                @if (DatapointResultData.ToList().Count > 0)
+                {
+                    <form id="frmCreatePrimaryLink" data-parsley-validate novalidate method="post" asp-action="MarkAsInactive" asp-controller="DataPoint" onsubmit="return validateForm()">
+                        <div class="mb-2">
+                            <a href="javascript:generateExcel();void(0)" title="Export to Excel" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-excel-file"></i></a>
+
+                            <a href="javascript:PrintPagePF();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-printer1"></i></a>
+
+                        </div>
+
+                        <div class="table-responsive" id="printtable1">
+                            <table data-toggle="table" id="tblDataPoint" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        @*<th width="10px"><input type="checkbox" id="checkBoxAll" onclick="check_uncheck_checkbox(this.checked)" /></th>*@
+                                        <th width="60px" class="align-top text-center">Sl#</th>
+                                        <th width="60px" class="align-top">Primary Serial.No</th>
+                                        <th class="align-top">Sector</th>
+                                        <th class="align-top">Department Name</th>
+                                        <th class="align-top">Provider Name</th>
+                                        <th class="align-top">Data Point</th>
+                                        <th style="display:none;" class="align-top">Description</th>
+                                        <th class="align-top">Frequency</th>
+                                        <th class="align-top">Unit</th>
+                                        <th class="align-top">Month</th>
+                                        <th class="align-top">Type</th>
+
+                                        <th class="align-top">Collection Mode</th>
+                                        <th width="150px" class="align-top" style="display:none;">Effective Date</th>
+                                        <th width="100px" class="align-top">Action</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                    @{
+                                        int count = 1;
+                                    }
+                                    @foreach (var list in DatapointResultData)
+                                    {
+                                        <tr>
+                                            <td class="text-center">@count</td>
+                                            <td>
+                                                <input type="text" class="form-control text-center form-control-sm"
+                                                       id="SLNO" value="@list.SERIALNO" name="SLNO" autocomplete="off" maxlength="3" />
+                                            </td>
+
+                                            <td>@list.SECTORNAME</td>
+                                            <td>@list.DepartmentName</td>
+                                            <td>@list.PROVIDERNAME</td>
+                                            <td>@list.DATAPOINTNAME</td>
+                                            <td style="display:none;">@list.DESCRIPTION</td>
+                                            <td> <span class="Static mr-0"> @list.FREQUENCY </span> </td>
+                                            <td>@list.UNIT</td>
+                                            @if (string.IsNullOrEmpty(list.MONTHNAME))
+                                            {
+                                                <td>NA</td>
+                                            }
+                                            else
+                                            {
+                                                <td>@list.MONTHNAME</td>
+                                            }
+
+                                            <td>
+                                                @if (list.TYPE == 0)
+                                                {
+                                                    <span class="Static">Static </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="Static">Dynamic </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (list.YEARTYPE == 1)
+                                                {
+                                                    <a class=" ">Calender Year </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class=" ">Financial Year </a>
+                                                }
+                                            </td>
+                                            <td style="display:none;">@list.DATAPOINTDATE</td>
+                                            <td class="d-flex">
+                                                <a href="/DataPoint/AddDataPoint?ID=@Convert.ToString(list.DATAPOINTID)&Glink=@Glink&Plink=@Plink" class="text-primary mr-3" title="" data-original-title="Edit"><i class="icon-edit1"></i></a>
+                                                <a onclick="deleteDataPoint('@list.DATAPOINTID');" class="text-danger" title="" data-original-title="Delete"><i class="icon-trash-21"></i></a>
+                                            </td>
+                                            <td><input type="hidden" id="controlid" value="@list.DATAPOINTID" /></td>
+                                        </tr>
+                                        count++;
+                                    }
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                <div class="clearfix col-sm-12">
+                    <div class="form-group row">
+                        <button class="btn btn-success btn-sm" id="Modify">Modify Primary Serial #</button>
+                        <button type="button" class="btn btn-danger" title="Reset"><span class="localize" data-key="Reset">Reset</span></button>
+                    </div>
+                </div>
+
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script src="~/js/datapoint.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+
+    function generateExcel() {
+        var clonedTable = $("#tblDataPoint").clone();
+
+        clonedTable.table2excel({
+            name: getReportname(),
+
+        });
+        getvisible();
+    }
+
+    function getReportname(name) {
+        return "ViewDataPoint";
+    }
+
+</script>
+<script>
+    function getvisible() {
+        var vtable = [];
+        var headrow = $('#printtable1 thead').find('tr').clone();
+        var headCells = $(headrow).find('th');
+        headCells.eq(13).remove();
+        headCells.eq(1).remove();
+        var heading = headrow[0].outerHTML;
+
+        vtable.push(heading);
+        $('#printtable1 tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            $(this).find("td").each(function (index) {
+                if (index !== 13 && index !== 1) {
+                    temprow += '<td>' + $(this).html() + '</td>';
+                }
+            });
+
+            vtable.push('<tr>' + temprow + '</tr>');
+        });
+
+        return vtable;
+    }
+
+
+</script>
+<script>
+    //print function work
+    function PrintPagePF() {
+        var windowName = "PrintPageP";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+
+        // Clone the table and remove column 13 from the cloned table
+        var cloneTable = $("#tblDataPoint").clone();
+        cloneTable.find('tr').each(function () {
+            $(this).find('td:eq(13), th:eq(13)').remove();
+        });
+
+        // Replace form elements with their values
+        cloneTable.find('input[type=text], select, textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType === 'SELECT') {
+                var textVal = $(this).find("option:selected").text();
+                $(this).replaceWith('<label>' + textVal + '</label>');
+            } else {
+                var textVal = $(this).val();
+                $(this).replaceWith('<label>' + textVal + '</label>');
+            }
+        });
+
+        // Create a new window for printing
+        var wWinPrint = window.open("/", windowName, wOption);
+        wWinPrint.document.write('\x3Cscript type="text/javascript" src="../../js/print.js">\x3C/script>');
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme</h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();PrintableContent(\"printContent\");$(this).show();'>Print</a></h4></div></div>");
+        wWinPrint.document.write("<div id ='printContent'><strong style='margin-left: 19px;font-size: 17px;color:#000'>Data Point List</strong><div style=''><br/>");
+        wWinPrint.document.write("<div><button class='btn btn-primary' onclick=PrintableContent('printContent'); style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div></div>");
+        wWinPrint.document.write(cloneTable.prop('outerHTML') + '</div>');
+
+        //wWinPrint.document.write(cloneTable.prop('outerHTML'));
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+
+        wWinPrint.document.write("</body></html>");
+
+
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+    }
+
+
+
+</script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("DatapointAdd").href = "../DataPoint/AddDataPoint?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("DatapointView").href = "../DataPoint/ViewDataPoint?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewDataPoint', 'gldata', 'plbdodata', 'Manage Master', 'Manage DataPoint', 'View DataPoint');
+        getDataTable();
+    });
+</script>
+
+<script>
+    function validateIndicator() {
+        var rowcount = 0; var rowcount1 = 0; var currentValues = [];
+        $('#tblDataPoint tbody tr').each(function (index) {
+            if (currentValues.indexOf($(this).find("td").eq(1).find("#SLNO").val()) !== -1) {
+                rowcount1++;
+                return true;
+            }
+            currentValues.push($(this).find("td").eq(1).find("#SLNO").val());
+            if ($(this).find("td").eq(1).find("#SLNO").val() != "") {
+                rowcount++;
+                return true;
+            }
+            else if ($(this).find("td").eq(1).find("#SLNO").val() != "") {
+                rowcount++;
+                return true;
+            }
+        });
+        if (rowcount > 0) {
+            if (rowcount1 == 0) {
+                return true;
+            }
+            else {
+                bootbox.alert({
+                    size: "medium",
+                    message: "Duplicate Serial No Exist",
+                    callback: function () { }
+                })
+                return false;
+            }
+            return true;
+        }
+        else {
+            bootbox.alert("Please Enter  Serial No.");
+            $(this).focus();
+            return false;
+        }
+
+    }
+    $("#Modify").click(function () {
+        var linkDetails = new Array();
+        var fileData = new FormData();
+        $('#tblDataPoint tbody tr').each(function (index) {
+            var slno = $(this).find("td").eq(1).find("#SLNO").val();
+            var conlno = $(this).find("td").eq(12).find("#controlid").val();
+            var linkDetail = {};
+            linkDetail.SERIALNO = parseInt(slno);
+            linkDetail.CONTROLID = parseInt(conlno);
+            linkDetails.push(linkDetail);
+        });
+        fileData.append("Elements", JSON.stringify(linkDetails));
+        if (validateIndicator()) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Are you sure  want to update serial no ?",
+                callback: function (result) {
+                    if (result === true) {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("UpdateSerialNo", "DataPoint")",
+                            data: fileData,
+                            contentType: false,
+                            processData: false,
+                            success: function (data) {
+                                window.location.reload();
+                            }
+                        });
+                    }
+                }
+
+            });
+        }
+    });
+</script>
+
+
+

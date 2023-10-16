@@ -1,0 +1,176 @@
+﻿@model ABP.Domain.SMS.SMSData
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewBDOData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.sms as Task<IEnumerable<ABP.Domain.SMS.SMSData>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="SMSView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="dashsearch">
+
+                    <div class="row">
+                        <div class="col-12 col-md-6 col-lg-3 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Date<span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control datepicker" id="txtDate" asp-for="SMSDATE" aria-label="Default" aria-describedby="inputGroup-sizing-default" autocomplete="off">
+                                <div class="input-group-append">
+                                    <span class="input-group-text" id="inputGroup-sizing-default"><i class="icon-calendar1"></i></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <label class="control-label" for="demo-email-input"></label>
+                            <button id="btnSearch" class="btn btn-primary search mt-md-4"> <i class="fa fa-search"></i> Search</button>
+                        </div>
+                        </div>
+
+
+
+
+
+
+
+
+</form>
+                <br />
+                <a href="javascript:PrintPage5();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-2"><i class="icon-printer1"></i></a>
+                <a href="javascript:generateExcel();void(0)" title="Export to Excel" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-0"><i class="icon-excel-file"></i></a>
+                <br />
+                @if (ListData != null)
+                {
+                    <div class="table-responsive mt-4" id="printtable1">
+                        <table data-toggle="table" id="tblIndicator" class="table">
+                            <thead>
+                                <tr>
+                                    <th width="70">Sl No.</th>
+                                    <th>District Name</th>
+                                    <th>Block Name</th>
+                                    <th>Mobile No</th>
+                                    <th width="230">SMS Sent Date</th>
+                                    <th width="121">Send Status</th>
+                                    <th>SMS Status</th>
+                                    @*<th>Action</th>*@
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int Count = 1; }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td>@item.DISTNAME</td>
+                                        <td>@item.BLOCKNAME</td>
+                                        <td>@item.MOBNO</td>
+                                        <td>@item.SMSDATE</td>
+                                        <td>@item.SENDSTATUS</td>
+                                        <td>@item.SMSSTATUS</td>
+
+                                    </tr>
+                                    Count++;
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        //document.getElementById("TEMPAdd").href = "../SMS/AddSMSTemplate";
+        document.getElementById("SMSView").href = "../SMS/ViewAllSmsTemplate?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('ViewAllSmsTemplate', 'gldata', 'plbdodata', 'MIS Report', 'SMS Sent Report', 'SMS Sent Report');
+    });
+</script>
+<script>
+    function generateExcel() {
+
+        $("#tblIndicator").table2excel();
+        getvisible();
+    }
+    function getReportname(name) {
+        return "BMPDistrictsMapData";
+    }
+</script>
+<script>
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtable1 thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtable1 tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+</script>
+<script>
+    function PrintPage5() {
+        var windowName = "PrintPage5";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable1").clone();
+        //var head = $('#tblIndicator thead tr');
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("/", windowName, wOption);
+        wWinPrint.document.write('\x3Cscript type="text/javascript" src="../../js/print.js">\x3C/script>');
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();PrintableContent(\"printContent\");$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<strong style='margin-left: 19px;font - size: 17px;color:#000'>View All Sms</strong><div style=''><br/>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>" + "</div>" + "<div><button class='btn btn-primary'onclick=PrintableContent('printContent'); style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+</script>

@@ -1,0 +1,307 @@
+﻿@model ABP.Domain.Login.Login
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "MonthlyDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.DashboardList as Task<IEnumerable<ABP.Domain.Login.Login>>;
+
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+                <li class="breadcrumb-item">Login</li>
+                <li class="breadcrumb-item font-weight-bold">Master Login</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="post" id="search">
+
+                    <div id="alldiv">
+                        <div class="form-group row">
+                            <input type="hidden" value="@ViewBag.Roleid" id="hdnroleid" />
+                            <label class="col-12 col-md-2 col-xl-2 control-label">User Type<span class="text-danger">*</span></label>
+                            <select class="form-control col-12 col-md-6 col-xl-4" id="ddlusertype" asp-for="ROLEID">
+                                <option value="0">select</option>
+                                <option value="1">Department User</option>
+                                <option value="2">BDO</option>
+                                <option value="3">Collector</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div id="deptdiv">
+                        <div class="form-group row ">
+                            <label class="col-12 col-md-2 col-xl-2 control-label" id="lbldepartment">Department<span class="text-danger">*</span></label>
+                            <select class="form-control col-12 col-md-6 col-xl-4" id="ddlDepartment" asp-for="nvchlevelname" onchange="bindDesg()" asp-items="@(new SelectList(ViewBag.Department, "DEPTID", "DEPTNAME"))">
+                                <option value="0">select</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group row ">
+                            <label class="col-12 col-md-2 col-xl-2 control-label" id="lbldepartment">Designation<span class="text-danger">*</span></label>
+                            <select class="form-control col-12 col-md-6 col-xl-4" id="ddldesg" onchange="bindDesg">
+                                <option value="0">select</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div id="bdodiv">
+                        <div class="form-group row">
+                            <label class="col-12 col-md-2 col-xl-2 control-label">District<span class="text-danger">*</span></label>
+                            <select class="form-control col-12 col-md-6 col-xl-4" onchange="bindBlock()" asp-for="dist" id="ddldistrict" asp-items="@(new SelectList(ViewBag.district, "DistrictId", "DISTRICT_NAME"))">
+                                <option value="0">select</option>
+                            </select>
+                        </div>
+
+
+                        <div class="form-group row">
+                            <label class="col-12 col-md-2 col-xl-2 control-label">Block<span class="text-danger">*</span></label>
+                            <input type="text" asp-for="VCHUSERNAME" onchange="bindBlock()" id="hdnUserName" hidden="hidden" value="0" class="form-control">
+                            <select class="form-control col-12 col-md-6 col-xl-4"  id="ddlblock">
+                                <option value="0">select</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div id="coltdiv">
+                        <div class="form-group row">
+                            <label class="col-12 col-md-2 col-xl-2 control-label">District Name<span class="text-danger">*</span></label>
+                            <select class="form-control col-12 col-md-6 col-xl-4" id="ddldisttcol" asp-items="@(new SelectList(ViewBag.district, "DistrictId", "DISTRICT_NAME"))">
+                                <option value="0">select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <button id="btnSearch" onclick="checkForm()" onsubmit="return checkForm();" asp-controller="Login" formmethod="post" class="btn btn-primary  mt-xl-4 mt-2"> Login</button>
+                            @*<button id="btnSearch" onclick="checkForm()" class="btn btn-primary  mt-xl-4 mt-2"> Login</button>*@
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function () {
+        
+        $("#deptdiv").hide();
+        $("#bdodiv").hide();
+        $("#coltdiv").hide();
+        $("#divpsw").hide();
+
+        if ("@ViewBag.msg" != null) {
+           bootbox.alert("@ViewBag.msg");
+            $('#ddlusertype').trigger("change");
+            if ($("#hdnroleid").val()==2){
+                bindBlock();
+            }
+            else if ($("#hdnroleid").val() == 1) {
+                bindDesg();
+            }
+            else{
+
+            }
+            
+        }
+        
+    });
+
+</script>
+<script>
+    $("#ddlusertype").on("change", function () {
+        
+        var usertype="";
+        if ($("#ddlusertype").val()==null){
+            usertype = $("#hdnroleid").val();
+        }
+        else{
+            usertype = $("#ddlusertype").val();
+        }
+        
+
+        if (usertype == "0") {
+            $("#deptdiv").hide();
+            $("#bdodiv").hide();
+            $("#coltdiv").hide();
+            $("#divpsw").hide();
+        }
+        if (usertype == "1") {
+            /* function pl() { window.location.href = '/Login/DeptLogin' } pl(); return false;*/
+            $("#deptdiv").show();
+            $("#bdodiv").hide();
+            $("#coltdiv").hide();
+            $("#divpsw").show();
+
+            $("#ddlDepartment").val("0");
+            $("#ddldesg").val("0");
+
+        }
+        else if (usertype == "2") {
+            $("#deptdiv").hide();
+            $("#bdodiv").show();
+            $("#coltdiv").hide();
+            $("#divpsw").show();
+
+            $("#ddldistrict").val("0") ;
+            $("#ddlblock").val("0");
+
+
+            /* function pl() { window.location.href = '/Login/NewLogin' } pl(); return false;*/
+        }
+        else if (usertype == "3") {
+            $("#deptdiv").hide();
+            $("#bdodiv").hide();
+            $("#coltdiv").show();
+            $("#divpsw").show();
+
+            $("#ddldisttcol").val("0");
+
+            // function pl() { window.location.href = '/Login/Login' } pl(); return false;
+        }
+        else {
+            "Invalid user";
+        }
+
+    });
+    $(".allow_numeric").on("input", function (evt) {
+        var self = $(this);
+        self.val(self.val().replace(/\D/g, ""));
+        if ((evt.which < 48 || evt.which > 57)) {
+            evt.preventDefault();
+        }
+    });
+    function SubmitsEncry(strCntrol) {
+        var strData = $('#' + strCntrol).val();
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encryptedlogin = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(strData), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+        $('#' + strCntrol).val(encryptedlogin);
+    }
+    function checkForm() {
+        //if ($('#ddlusertype').val() == 0) {
+        //    bootbox.alert("Please enter User type!");
+        //    return false;
+        //}
+
+        //if ($('#ddlDepartment').is(':visible')) {
+        //    if ($('#ddlDepartment').val() == 0) {
+        //        bootbox.alert("Please enter Department.");
+        //        return false;
+        //    }
+        //}
+        // if ($('#ddldesg').is(':visible')) {
+        //    if ($('#ddldesg').val() == 0) {
+        //        bootbox.alert("Please enter Designation.");
+        //        return false;
+        //    }
+        //}
+        // if ($('#ddldistrict').is(':visible')) {
+        //    if ($('#ddldistrict').val() == "0") {
+        //        bootbox.alert("Please enter District.");
+        //        return false;
+        //    }
+        //}
+        //if($('#ddlblock').is(':visible')) {
+        //    if ($('#ddlblock').val() == 0) {
+        //        bootbox.alert("Please enter Block.");
+        //        return false;
+        //    }
+        //}
+        
+            SubmitsEncry('hdnUserName');
+        
+       
+    }
+        
+    //$('#btnSearch').click(function () {
+    //    $.ajax({
+    //        url: "/Login/MasterLogin",
+    //        type: "POST",
+    //        contentType: "application/json; charset=utf-8",
+    //        datatype: "json",
+    //        data:model,
+    //        success: function (model) {
+    //        },
+    //        error: function () {
+    //            alert("Content load failed.");
+    //        }
+    //    });
+    //});
+    function bindBlock() {
+        var id = $('#ddldistrict').val();
+        $.getJSON("/Login/Blocklist", { did: id }, function (data) {
+            var row = '<option value="0">Select</option>';
+            console.log(data);
+            $("#ddlblock").empty();
+            for (var i = 0; i < data.length; i++) {
+                row += '<option value=' + data[i].username + '>' + data[i].blocK_NAME + '</option>';
+            }
+            $("#ddlblock").append(row);
+        })
+    }
+    function bindDesg() {
+        var id = $('#ddlDepartment').val();
+        $.getJSON("/Login/Desglist", { deptid: id }, function (data) {
+            var row = '<option value="0">Select</option>';
+            console.log(data);
+            $("#ddldesg").empty();
+            for (var i = 0; i < data.length; i++) {
+                row += '<option value=' + data[i].username + '>' + data[i].desG_NAME + '</option>';
+            }
+            $("#ddldesg").append(row);
+        })
+    }
+    $('#ddlblock').change(function () {
+        $("#hdnUserName").val($('#ddlblock').val());
+    });
+    $('#ddldesg').change(function () {
+        $("#hdnUserName").val($('#ddldesg').val());
+    });
+    $('#ddldisttcol').change(function () {
+        var id = $('#ddldisttcol').val();
+        $.getJSON("/Login/DistlistColwise", { did: id }, function (data) {
+
+            console.log(data);
+
+            $('#hdnUserName').val(data[0].username);
+            // $('#hdnUserName').val(username)
+            /*  alert(JSON.stringify(data[0].username));*/
+        });
+
+    });
+</script>
+
+
+
+

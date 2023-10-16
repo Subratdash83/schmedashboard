@@ -1,0 +1,217 @@
+﻿@model ABP.Domain.Report.Report
+@{
+    ViewData["Title"] = "BlockDataEntry";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    var ResultData = ViewBag.Result as List<ABP.Domain.Panel.ControlPanel>;
+    var SectorData = ViewBag.Sector as Task<IEnumerable<ABP.Domain.Panel.Panel>>;
+    var script = ViewBag.Script as string;
+}
+@*<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>*@
+<style>
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 900px;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            
+            <div class="card-body">
+                    <div class="form-group row ml-2">
+
+                        <input type="hidden" asp-for="Year" class="form-control"  />
+                        <input type="hidden"  asp-for="Month" class="form-control"  />
+                        <input type="hidden" asp-for="Districtname" class="form-control" />
+                        <input type="hidden"  asp-for="BLOCKNAME" class="form-control" />
+                        <div class="indicatorslist w-100 mb-2">
+                            <p id="datDurationMSG" class="text-danger pull-left mr-5"></p>
+                        </div>
+                        <div class="clearfix"></div>
+                    @if (SectorData != null && SectorData.Result.ToList().Count > 0)
+                    {
+                        <div class="d-flex justify-content-between mb-3 w-100">
+                            <ul class="nav nav-tabs custom-tab mb-0 mt-3 mt-md-0">
+                                @* <a asp-controller="Home" asp-action="AnnualWiseReport" id="btnBackto" class="back-btn" data-toggle="tooltip" data-placement="top" title="Back To Previous"><i class="fa fa-arrow-left"></i></a>*@
+                            </ul>
+                            <ul class="nav nav-tabs custom-tab mb-0 mt-3 mt-md-0">
+                                <a href="javascript:PrintPage();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-printer1"></i></a>
+                            </ul>
+                        </div>
+                        <div id="accordion">
+                            <span></span>
+                            <span id="spnFromToDate"><b class="w-100">Date : <label id="lblFromDate"></label> To <label id="lblToDate"></label></b></span>
+                            @if (SectorData.Result != null)
+                            {
+                                @foreach (var items in SectorData.Result)
+                                {
+                                    <div class="card w-100">
+                                        <div class="card-header" id="headingOne">
+                                            <h5 class="mb-0">
+                                                <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.PANELID" aria-expanded="true" aria-controls="collapse-@items.PANELID">
+                                                    @items.DISPLAYNAME
+                                                </a>
+                                            </h5>
+                                        </div>
+                                        @if (ResultData.Where(u => u.PANELID == items.PANELID).Count() != 0 && ResultData[0].DataEntryEligibility)
+                                        {
+                                            <div id="collapse-@items.PANELID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                                <div class="card-body p-0 pt-0">
+                                                    <div class="table-responsive">
+                                                        <table data-toggle="table" class="table table-bordered mb-0">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="60px">Sl#</th>
+                                                                    <th style="display:none;"></th>
+                                                                    <th>DataPoint </th>
+                                                                    <th width="100px">Value<span class="text-danger">*</span></th>
+                                                                    <th width="100px">Unit<span class="text-danger"></span></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="tbody-@items.PANELID">
+                                                                @if (ResultData != null)
+                                                                {
+                                                                    int count = 1;
+                                                                    @foreach (var list in ResultData.Where(u => u.PANELID == items.PANELID))
+                                                                    {
+                                                                        <tr>
+                                                                            <td>@count</td>
+                                                                            <td style="display:none;">@list.CONTROLID</td>
+                                                                            <td>
+                                                                                @list.DISPLAYNAME @if (list.DESCRIPTION != null)
+                                                                                {
+                                                                                    <i class="fa fa-info-circle text-success" style="cursor:help" aria-hidden="true" data-toggle="tooltip" data-placement="top" data-original-title="@list.DESCRIPTION"></i>
+                                                                                }
+                                                                            </td>
+                                                                            <td width="150px">
+                                                                                @if (list.CONTROLVALUE.ToString() == "")
+                                                                                {
+                                                                                    <label class="text-danger font-weight-bold">
+                                                                                        Data Not Entered
+                                                                                    </label>
+                                                                                }
+
+                                                                                else
+                                                                                {
+
+                                                                                    <label> @list.CONTROLVALUE.ToString()</label>
+                                                                                }
+
+                                                                            </td>
+                                                                            <td style="display:none;">@list.CONTROLNAME</td>
+                                                                            <td style="display:none;">@list.PANELID</td>
+                                                                            <td style="display:none;">@list.FROMDATE</td>
+                                                                            <td style="display:none;">@list.TODATE</td>
+                                                                            <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                            <td style="display:none;">@list.PANELNAME</td>
+                                                                            <td style="display:none;">@list.FREQUENCYID</td>
+                                                                            <td>@list.UNIT</td>
+                                                                        </tr>
+                                                                        count++;
+                                                                    }
+                                                                }
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="norecord"><p id="errorMessage">Please Select Year And Month</p></div>
+                    }
+                    </div>
+         
+            </div>
+        </div>
+    </div>
+</div>
+<script src="~/js/Common.js"></script>
+<script>
+    var gl = null;
+    var pl = null;
+    var lblFrequencyId = '';
+    var lblFrequencyNo = '';
+    var Year = '';
+    var lblFrequencyText = '';
+    $(document).ready(function () {
+        lblFrequencyId = getUrlVars()["FreqId"];
+        lblFrequencyNo = getUrlVars()["FreqNo"];
+        Year = getUrlVars()["Year"];
+        $("#spnFromToDate").hide();
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("BDODataViewTemp").href = "../BLOCKData/BlockDataEntryTemp?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("BDODataViewTemp").href = "../BLOCKData/ViewBlockData?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Datapoint Entry', 'Block Data Entry', 'View BDOData');
+        if (getUrlVars()["FreqId"] == "3") {
+            $("#quarter-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "4") {
+            $("#halfyear-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "5") {
+            $("#annual-tab").addClass("active")
+        } else {
+            $("#month-tab").addClass("active")
+            //location.href="/BDOData/ViewBDOData?FreqId=2&Glink=" + gl + "&Plink=" + pl"
+        }
+        if (lblFrequencyNo != undefined) {
+            $("#ddlMonth").val(lblFrequencyNo);
+        }
+        if (Year != undefined) {
+            $("#ddlYear").val(Year);
+        }
+     
+    });
+
+</script>
+<script>
+    // print function
+    function PrintPage() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#accordion").clone();
+        var head = $('#accordion thead tr');
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../css/bootstrap.min.css' rel='stylesheet'><link href='../css/print.css' rel='stylesheet'><link href='../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div><div class='float-left year'>Year:" + $("#Year").val() + "</div><div class='float-left year'>Month:" + $("#Month").val() + "</div><div class='float-left year'>District: " + $("#Districtname").val() + "</div><div class='float-left year'>Block:" + $("#BLOCKNAME").val() + "</div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+</script>
+
+
+

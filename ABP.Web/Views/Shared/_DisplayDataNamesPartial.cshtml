@@ -1,0 +1,150 @@
+﻿@{
+    var IndicatorResultData = ViewBag.IndicatorResult as List<ABP.Domain.Indicator.Indicator>;
+    var DatPointResultData = ViewBag.DPResult as List<ABP.Domain.Panel.ControlPanel>;
+}
+<div id="accordion">
+    
+        @if (IndicatorResultData != null)
+        {   
+            @if (IndicatorResultData.ToList().Count > 0)
+            {
+                @foreach (var items in IndicatorResultData.Select(x => new { x.SECTORNAME, x.SECTORID }).Distinct().ToList())
+                {
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h5 class="mb-0">
+                                <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.SECTORID" aria-expanded="true" aria-controls="collapse-@items.SECTORID">
+                                    @items.SECTORNAME<span class="text-danger">*</span>
+                                </a>
+                            </h5>
+                        </div>
+
+                        @if (IndicatorResultData.Where(u => u.SECTORID == items.SECTORID).Count() != 0)
+                        {
+                            int count = 1;
+                            string remark = "";
+                            <div id="collapse-@items.SECTORID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                <div class="card-body p-3">
+                                    <div class="table-responsive  indicators-table" id="tblsSectoWise">
+                                        <table data-toggle="table" class="table">
+                                            <thead>
+                                                <tr>
+                                                    <th class="text-center" width="40px"></th>
+                                                    <th class="br-left text-left" width="35px">Sl#</th>
+                                                    <th style="display:none;"></th>
+                                                    <th>Indicators</th>
+                                                    <th width="162px">Value(%)<span class="text-danger">*</span></th>
+                                                    <th style="display:none;"></th>
+                                                    <th style="display:none;"></th>
+                                                    <th style="display:none;"></th>
+                                                    <th style="display:none;"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="tbodySector" id="tbody-sector-@items.SECTORID">
+                                                @foreach (var list in IndicatorResultData.Where(u => u.SECTORID == items.SECTORID))
+                                                {
+                                                    int AccordianCount = Convert.ToInt32(@count) + Convert.ToInt32(@list.INDICATORID) + Convert.ToInt32(@items.SECTORID);
+                                                    remark = @list.COLLECTORREMARK;
+                                                    <tr>
+                                                        <td colspan="10" class="ctabletop pt-2 px-0">
+                                                            <table class="chartertable table collapsebtn collapsed mb-0" id="tbl_@list.INDICATORID" data-toggle="collapse" onclick="OpenComponent(@list.INDICATORID)">
+                                                                <tbody class="tbodyIndicator" id="tbody-indicator-@list.INDICATORID-@items.SECTORID">
+
+                                                                    <tr>
+                                                                        <td class="text-center" width="40px">
+                                                                            <i class="fa fa-angle-double-down" data-toggle="tooltip" title="" data-original-title="View Component"></i>
+                                                                        </td>
+
+                                                                        <td class="br-left text-left" width="35px">@count</td>
+
+                                                                        <td style="display:none;">@list.INDICATORID</td>
+                                                                        <td>@list.INDICATORNAME</td>
+                                                                        @if (@list.INDICATORVALUE == -99)
+                                                                        {
+                                                                            <td width="162px"><input type="text" value="Not Calculated" style="color:forestgreen" disabled="disabled" id="demo-text-input" class="form-control"></td>
+
+                                                                        }
+                                                                        else if (@list.LASTVALUE == 0)
+                                                                        {
+                                                                            <td width="162px"><input type="text" value="@list.INDICATORVALUE" disabled="disabled" id="demo-text-input" class="form-control"></td>
+                                                                        }
+                                                                        else if (@list.INDICATORVALUE > @list.LASTVALUE)
+                                                                        {
+                                                                            <td width="162px"><input type="text" value="@list.INDICATORVALUE" style="color:forestgreen" disabled="disabled" id="demo-text-input" class="form-control"></td>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <td width="162px"><input type="text" value="@list.INDICATORVALUE" style="color:red" disabled="disabled" id="demo-text-input" class="form-control"></td>
+                                                                        }
+                                                                        <td style="display:none;">@list.FROMDATE</td>
+                                                                        <td style="display:none;">@list.TODATE</td>
+                                                                        <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                        <td style="display:none;">@list.FREQUENCYNO</td>
+                                                                    </tr>
+
+                                                                </tbody>
+                                                            </table>
+                                                            <!--- DataPoint Table--->
+                                                            <div class="compbg collapse" id="collapseExample_@list.INDICATORID">
+                                                                <div class="clearfix"></div>
+                                                                <div class="clearfix"></div>
+                                                                <table class="table comp-table " id="comp">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th>Datapoint </th>
+                                                                            <th width="162px">Value<span class="text-danger">*</span></th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody class="tbodyDatapoint" id="tbody-datapoint-@list.INDICATORID">
+                                                                        @foreach (var v in DatPointResultData.Where(u => u.INDICATORID == list.INDICATORID).ToList())
+                                                                        {
+                                                                            <tr>
+                                                                                <td style="display:none;">0</td>
+                                                                                <td>@v.DISPLAYNAME</td>
+                                                                                <td>
+                                                                                    @if (v.CONTROLVALUE != null)
+                                                                                    {
+                                                                                        <input type="text" value="@v.CONTROLVALUE" disabled="disabled" onclick="hideAcceptButton();" id="demo-text-input" class="form-control">
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <input type="text" value="Data Not Entered" disabled="disabled" onclick="hideAcceptButton();" style="color:red" id="demo-text-input" class="form-control">
+                                                                                    }
+
+                                                                                </td>
+                                                                            </tr>
+                                                                        }
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                            <!-- end -->
+                                                        </td>
+
+                                                    </tr>
+                                                    count++;
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+        }
+    </div>
+<script>
+     function OpenComponent(id) {
+        if ($("#tbl_" + id + "")[0].className == "chartertable table collapsebtn collapsed") {
+            $("#tbl_" + id + "").attr('class', 'chartertable table collapsebtn tableactive');
+            $("#collapseExample_" + id + "").attr('class', 'compbg collapse show');
+        }
+        else {
+            $("#tbl_" + id + "").attr('class', 'chartertable table collapsebtn collapsed');
+            $("#collapseExample_" + id + "").attr('class', 'compbg collapse');
+        }
+    }
+</script>
+
+

@@ -1,0 +1,159 @@
+﻿@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@model ABP.Domain.SMS.SMS;
+
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "TaskDetailDisplay";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var SMSData = ViewBag.SMSDetails as Task<IEnumerable<ABP.Domain.SMS.SMS>>;
+
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            @Html.AntiForgeryToken()
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" data-toggle="tooltip" data-original-title="View" title="" id="AnchView">
+                            View
+                        </a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="AnchAdd" data-original-title="Add" title="">
+                        Send SMS
+                    </a>
+                    @*<a class="nav-item nav-link" data-toggle="tooltip" data-original-title="Edit Task" title="" id="AnchEdit">
+                            Edit Task
+                        </a>*@
+                </ul>
+            </div>
+            <input type="hidden" id="hfglink" value="@Glink" />
+            <input type="hidden" id="hfplink" value="@Plink" />
+
+            <div class="card-body">
+                <div class="table-responsive">
+
+                    @if (SMSData.Result.ToList().Count > 0)
+                    {
+                        <table data-toggle="table" class="table table-padding" id="ViewTask" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width:100px">Sl#</th>
+                                    <th style="width:300px">Designation</th>
+                                    <th style="width:200px">Mobile Number</th>
+                                    <th style="width:300px">Email</th>                                    
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int Count = 1; }
+                                @foreach (var item in SMSData.Result)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td>@item.vchfullname
+                                            <input type="hidden" id="hdndesg" value="@item.intdesignationid" />
+                                            <input type="hidden" id="hdndlevel" value="@item.intleveldetailid" />
+                                        </td>
+                                        <td>
+                                            @item.vchmobtel
+                                            <input type="hidden" id="hdnmob" value="9437307915" />
+                                        </td>
+                                        <td>@item.vchemail</td>                                                                           
+                                    <td><a onclick="Send(@item.intleveldetailid,@item.intdesignationid,'9437307915')" id="btnsend" class="btn btn-success mb-2">Send SMS</a> </td>
+                                </tr>
+                                Count++;
+                            }
+
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <div class="norecord"> No Record Found</div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+    $(document).ready(function () {
+        getUrlVars();
+        document.getElementById("AnchAdd").href = "../SMS/SendReminder?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('Send SMS', 'gldata', 'plbdodata', 'Manage SMS', 'Manage SMS', 'Send SMS');
+    });
+</script>
+
+<script>
+    function Send(level,desig,mob) {        
+        bootbox.confirm({
+            size: "medium",
+            message: "Are you sure , you want to send sms?",
+            callback: function (result) {
+                //SendSMS();
+                if (result == true) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("SendReminder", "SMS")",
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader("XSRF-TOKEN",
+                                $('input:hidden[name="__RequestVerificationToken"]').val());
+                        },
+                        data: { desigid: desig,levelid: level, mobno: mob },
+                        success: function (res) {
+                            $("#image").hide();
+                            if (res=='1')
+                            {
+                                bootbox.alert("Reminder Sent Successfully", function () {
+                                      var GLINKID = $("#hfglink").val();
+                                      var Plink = $("#hfplink").val();
+                                     window.location.href = "/SMS/SendReminder";
+                                });
+                            }
+                            else {
+                                 bootbox.alert(res);
+                                   return false;
+                            }
+                       },
+                        failure: function (response) {
+                           console.log(response.responseText);
+                       },
+                        error: function (response) {
+                            console.log(response.responseText);
+                        }
+                    });
+                }                
+            }
+        });
+    };
+    //function SendSMS() {
+    //    var desig = $('#hdndesg').val();
+    //    var level = $('#hdndlevel').val();
+    //    var mob = $('#hdnmob').val();
+        
+    //}
+</script>
+

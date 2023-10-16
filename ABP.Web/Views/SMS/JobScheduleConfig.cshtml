@@ -1,0 +1,157 @@
+﻿@model ABP.Domain.SMS.SMSData
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    ViewData["Title"] = "JobScheduleConfig";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="JobScheduleAdd">
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="JobScheduleView">
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Job Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddltype">
+                            <option value="0">---Select---</option>
+                            <option value="1">Hourly</option>
+                            <option value="2">Daily</option>
+                            <option value="3">Weekly</option>
+                            <option value="4">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Indicator Job Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlindijob">
+                            <option value="0">---Select---</option>
+                            <option value="2">Monthly</option>
+                            <option value="5">Yearly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-readonly-input">Start Date<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="input-group">
+                            <input type="datetime-local" class="form-control" id="txtDate" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Save</button>
+                    </div>
+                </div>
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("JobScheduleAdd").href = "../SMS/JobScheduleConfig?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("JobScheduleView").href = "../SMS/ViewJobScheduleConfig?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('JobScheduleConfig', 'gldata', 'plbdodata', 'Manage Master', 'Job Schedule Config', 'Job Schedule Config');
+    });
+    $('#btnSubmit').click(function () {
+        if (validate()) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Are you sure ,you want to Save?",
+                callback: function (result) {
+                    if (result === true) {
+                        var fileData = new FormData();
+                        fileData.append("JOBTYPEID", $('#ddltype').val());
+                        fileData.append("INDJOBTYPEID", $('#ddlindijob').val());
+                        fileData.append("JOBDATE", $('#txtDate').val());
+                        addIndJobConfig(fileData);
+                    }
+                }
+            });
+        }
+
+    });
+    //Validations for the fields in the form
+    function validate() {
+        if ($('#ddltype').val() == "0") {
+            bootbox.alert("Please Select Job Type!");
+            $('#ddltype').focus();
+            return false;
+        }
+        else if ($('#ddlindijob').val() == "0") {
+            bootbox.alert("Please Select Indicator Job Type!");
+            $('#ddlindijob').focus();
+            return false;
+        }
+        else if ($('#txtDate').val() == "") {
+            bootbox.alert("Please Select Start Date!");
+            $('#txtDate').focus();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    //Post Call to the controller for data insertion
+    function addIndJobConfig(Data) {
+        $.ajax({
+            type: "POST",
+            url: "/SMS/JobScheduleConfig",//(/Controller/Method)
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            data: Data,
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
+            success: function (res) {
+                bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                    window.location.href = "/SMS/ViewJobScheduleConfig";
+                });
+            },
+            failure: function (response) {
+                console.log(response.responseText);
+            },
+            error: function (response) {
+                console.log(response.responseText);
+            }
+        });
+    };
+    
+</script>

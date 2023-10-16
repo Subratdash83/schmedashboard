@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.19.60" />
+    <PackageReference Include="Serilog" Version="2.11.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ABP.Domain\ABP.Domain.csproj" />
+    <ProjectReference Include="..\ABP.Repository.Contract\ABP.Repository.Contract.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="AdminConsole\" />
+  </ItemGroup>
+
+</Project>

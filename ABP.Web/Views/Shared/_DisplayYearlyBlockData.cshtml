@@ -1,0 +1,157 @@
+﻿@model ABP.Domain.Report.Report
+@{
+    var ResultData = ViewBag.Result1 as List<ABP.Domain.Panel.ControlPanel>;
+    var SectorData = ViewBag.Sector1 as Task<IEnumerable<ABP.Domain.Panel.Panel>>;
+
+    var script = ViewBag.Script as string;
+}
+<style>
+    #blink {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2d38be;
+        transition: 0.2s;
+    }
+</style>
+
+@*<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>*@
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                  
+                </ul>
+             
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <div class="form-group row">
+
+
+                    <label class="col-12 col-md-2 col-xl-1 control-label" for="demo-email-input" id="lblYear"><span class="text-danger">*</span></label>
+                  
+
+                </div>
+             
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="hidden" id="hdnAppNo" class="form-control" value="@ViewBag.AppNo" />
+                <div class="indicatorslist w-100 mb-2">
+                    <p id="datDurationMSG" class="text-danger pull-left mr-5"></p>
+                </div>
+                <div class="clearfix"></div>
+                <a href="javascript:PrintPage();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-printer1"></i></a>
+                @if (SectorData != null && SectorData.Result.ToList().Count > 0)
+                {
+                    <div class="d-flex justify-content-between mb-3">
+                        <h5 class=" ">
+                            Enter Datapoint Values
+                        </h5>
+                        <ul class="nav nav-tabs custom-tab mb-0 mt-3 mt-md-0">
+                        </ul>
+                    </div>
+                    <div id="accordion">
+                        <span></span>
+                        <span id="spnFromToDate"><b class="w-100">Year : <label id="lblFromDate"></label> @Html.Raw(ViewBag.Year) <label id="lblToDate"></label></b></span>
+                        @if (SectorData.Result != null)
+                        {
+                            @foreach (var items in SectorData.Result)
+                            {
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.PANELID" aria-expanded="true" aria-controls="collapse-@items.PANELID">
+                                                @items.DISPLAYNAME
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    @if (ResultData.Where(u => u.PANELID == items.PANELID).Count() != 0 && ResultData[0].DataEntryEligibility)
+                                    {
+                                        <div id="collapse-@items.PANELID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                            <div class="card-body p-0 pt-0">
+                                                <div class="table-responsive">
+                                                    <table data-toggle="table" class="table table-bordered mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>DataPoint </th>
+                                                                <th width="100px">Value<span class="text-danger">*</span></th>
+                                                                <th width="100px">Unit<span class="text-danger"></span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.PANELID">
+                                                            @if (ResultData != null)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in ResultData.Where(u => u.PANELID == items.PANELID))
+                                                                {
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td style="display:none;">@list.CONTROLID</td>
+                                                                        <td>
+                                                                            @list.DISPLAYNAME @if (list.DESCRIPTION != null)
+                                                                            {
+                                                                                <i class="fa fa-info-circle text-success" style="cursor:help" aria-hidden="true" data-toggle="tooltip" data-placement="top" data-original-title="@list.DESCRIPTION"></i>
+                                                                            }
+                                                                        </td>
+                                                                        <td width="150px"><input type="number" value="@list.CONTROLVALUE.ToString()" id="demo-text-input" class="form-control" placeholder="Value" style="text-align:right;"></td>
+                                                                        <td style="display:none;">@list.CONTROLNAME</td>
+                                                                        <td style="display:none;">@list.PANELID</td>
+                                                                        <td style="display:none;">@list.FROMDATE</td>
+                                                                        <td style="display:none;">@list.TODATE</td>
+                                                                        <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                        <td style="display:none;">@list.PANELNAME</td>
+                                                                        <td style="display:none;">@list.FREQUENCYID</td>
+                                                                        <td>@list.UNIT</td>
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"><p id="errorMessage">Please Select Year And Month</p></div>
+                }
+                @if (ResultData != null && ResultData.Count > 0 && ResultData[0].DataEntryEligibility == true)
+                {
+                    <div class="form-group row" id="button">
+                        @*     @if (ViewBag.AppNo == null)
+                            {*@
+                        <button id="btnDraft" value="0" class="btn btn-success">Save</button>
+                        @*}*@
+                        @* <button id="btnConfirm" onclick="sendOTP()" class="btn btn-success show-otp">Submit</button>*@
+                    </div>
+                }
+                else { }
+             
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+
+
+
+<a href="D:\ABP\TEST\schemeportal\ABP.Web\Views\Shared\_DisplayDataNamesPartial.cshtml">D:\ABP\TEST\schemeportal\ABP.Web\Views\Shared\_DisplayDataNamesPartial.cshtml</a>

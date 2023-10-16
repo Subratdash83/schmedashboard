@@ -1,0 +1,291 @@
+﻿@{
+    ViewData["Title"] = "BDODataEntry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    var ResultData = ViewBag.Result as List<ABP.Domain.DataPoint.DataPoint>;
+    var SectorData = ViewBag.Sector as Task<IEnumerable<ABP.Domain.Panel.Panel>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BDODataAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="BDODataView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <div class="d-flex justify-content-between border-bottom   mb-3">
+                    <h5 class=" my-0">
+                        Enter Datapoint Values
+                    </h5>
+                    <ul class="nav nav-tabs custom-tab mb-0 mt-3 mt-md-0">
+                        <li class="nav-item">
+                            <a href="/BDOData/BDODataEntry?FreqId=2" class="nav-link" id="month-tab">Monthly</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/BDOData/BDODataEntry?FreqId=3" class="nav-link" id="quarter-tab">Quarterly</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/BDOData/BDODataEntry?FreqId=4" class="nav-link" id="halfyear-tab">Half Yearly</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="/BDOData/BDODataEntry?FreqId=5" class="nav-link" id="annual-tab">Yearly</a>
+                        </li>
+                    </ul>
+                </div>
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+
+
+                <div class="indicatorslist w-100 mb-2">
+                    <p id="datDurationMSG" class="text-danger pull-left mr-5"></p>
+                </div>
+                <div class="clearfix"></div>
+
+                @if (SectorData.Result.ToList().Count > 0)
+                {
+                    <div id="accordion">
+                        @if (SectorData.Result != null)
+                        {
+                            @foreach (var items in SectorData.Result)
+                            {
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.PANELID" aria-expanded="true" aria-controls="collapse-@items.PANELID">
+                                                @items.DISPLAYNAME<span class="text-danger">*</span>
+                                                @if (ResultData.Where(u => u.SECTORID == items.PANELID).Select(u => u.STATUS).FirstOrDefault() == 3)
+                                                {
+                                                    <span class="text-danger pull-right">         Reject Reason :  @ResultData.Select(u => u.COLLECTORREMARK).FirstOrDefault()</span>
+                                                }
+                                            </a>
+
+                                        </h5>
+                                    </div>
+                                    @if (ResultData.Where(u => u.SECTORID == items.PANELID).Count() != 0 && ResultData[0].DataEntryEligibility)
+                                    {
+                                        <div id="collapse-@items.PANELID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                            <div class="card-body pt-2">
+                                                <b class="w-100">Date : @ResultData[0].FROMDATE To @ResultData[0].TODATE</b>
+                                                <div class="table-responsive mt-2">
+                                                    <table data-toggle="table" class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>DataPoint </th>
+                                                                <th width="100px">Value<span class="text-danger">*</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.PANELID">
+                                                            @if (ResultData != null)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in ResultData.Where(u => u.SECTORID == items.PANELID))
+                                                                {
+                                                                 <tr>
+                                                                        <td>@count</td>
+                                                                        <td style="display:none;">@list.DATAPOINTID</td>
+                                                                        <td>@list.DATAPOINTNAME</td>
+                                                                        <td><input type="text" value="0" id="demo-text-input" class="form-control"></td>
+                                                                        <td style="display:none;">@list.INDICATORID</td>
+                                                                        <td style="display:none;">@list.SECTORID</td>
+                                                                        <td style="display:none;">@list.FROMDATE</td>
+                                                                        <td style="display:none;">@list.TODATE</td>
+                                                                        <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                        </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+
+                @if (ResultData.Count>0 && ResultData[0].DataEntryEligibility == true)
+                {
+                    <div class="form-group row" id="button">
+            <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+            <div class="col-12 col-md-6 col-xl-4">
+                <input type="submit" id="btnSubmit" class="btn btn-success mb-1" value="Save As Draft" />
+                <button class="btn btn-danger mb-1">Accept</button>
+                </div>
+                    </div>
+                }
+                else { }
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/Common.js"></script>
+<script>
+    var gl = null;
+    var pl = null;
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl= decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("BDODataAdd").href = "../BDOData/BDODataEntry?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("BDODataView").href = "../BDOData/ViewBDOData?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Datapoint Entry', 'BDO Data Entry', 'View BDOData');
+        if (getUrlVars()["FreqId"] == "3") {
+            $("#quarter-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "4") {
+            $("#halfyear-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "5") {
+            $("#annual-tab").addClass("active")
+        } else {
+            $("#month-tab").addClass("active")
+            //location.href="/BDOData/ViewBDOData?FreqId=2&Glink=" + gl + "&Plink=" + pl"
+        }
+    });
+
+    $('#btnSubmit').click(function () {
+        if (isValidOTP()) {
+        if (getUrlVars()["FreqId"] == undefined) {
+            FreqId = 2;
+        }
+        else {
+            FreqId = parseFloat(getUrlVars()["FreqId"]);
+        }
+        var currentDate = new Date();
+        var months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var prev = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        var viewingMonth = months[prev.getMonth()];
+        //Getting all ids of all the tbodys to get all the row data for the insertion
+        var Ids = []; //array declaring to store the ids of all the tbodys
+        $('tbody').each(function () {
+            var itm = {};
+            itm.id = $(this).attr('id');
+            Ids.push(itm)
+        });
+        var Items = []; //array declaring to store the records to send it to controller
+        for (var j = 0; j < Ids.length; j++) {
+            var tbl = document.getElementById(Ids[j].id);
+            for (var i = 0; i < tbl.rows.length; i++) {
+                var item1 = {};
+                item1.FREQUENCYID = FreqId;
+                item1.DATAPOINTID = parseInt(tbl.rows[i].children[1].textContent);
+                item1.DATAPOINTVALUE = parseFloat(tbl.rows[i].children[3].children[0].value);
+                item1.INDICATORID = parseFloat(tbl.rows[i].children[4].textContent);
+                item1.SECTORID = parseFloat(tbl.rows[i].children[5].textContent);
+                item1.FROMDATE = tbl.rows[i].children[6].textContent;
+                item1.TODATE = tbl.rows[i].children[7].textContent;
+                item1.FREQUENCYVALUE = tbl.rows[i].children[8].textContent;
+                Items.push(item1);
+            }
+        }
+        //checking wheither for all the villages the source village have been selected or not
+            if (Items.length == 0) {
+                bootbox.alert("Plese enter values against every data points!");
+                return false;
+            } else {
+                bootbox.confirm({
+                    size: "medium",
+                    message: "Are you sure , you want to Save As Draft?",
+
+                    callback: function (result) {
+                        if (result == true) {
+                            $(".my-loader").show();
+                            $.ajax({
+                                url: "/BDOData/AddBDOData",
+                                data: JSON.stringify(Items),
+                                beforeSend: function (xhr) {
+                                    xhr.setRequestHeader("XSRF-TOKEN",
+                                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                                },
+                                type: "POST",
+                                contentType: "application/json;charset=utf-8",
+                                dataType: "json",
+                                success: function (result) {
+                                    $(".my-loader").hide();
+                                    if (result.status == '1') {
+                                        bootbox.alert(result.msg, function () {
+                                            if ($('#hdnBDODATAID').val() == 0 || $('#hdnBDODATAID').val() == 'undefined') {
+                                                window.location.href = "/BDOData/BDODataSubmission?Glink=" + gl + "&Plink=" + pl;
+
+                                            }
+                                            else {
+                                                window.location.href = "/BDOData/ViewBDOData?Glink=" + gl + "&Plink=" + pl;
+
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        bootbox.alert(result.msg, function () {
+                                            if ($('#hdnBDODATAID').val() == 0 || $('#hdnBDODATAID').val() == undefined) {
+                                                window.location.href = "/BDOData/AddBDOData?Glink=" + gl + "&Plink=" + pl;
+
+                                            }
+                                            else {
+                                                window.location.href = "/BDOData/ViewBDOData?Glink=" + gl + "&Plink=" + pl;
+
+                                            }
+                                        });
+                                    }
+                                },
+                                error: function (result) {
+                                    $(".my-loader").hide();
+                                    bootbox.alert(result);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
+
+    function GetFromAndToDate() { }
+
+    function isLeapYear(year) {
+        return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+</script>
+

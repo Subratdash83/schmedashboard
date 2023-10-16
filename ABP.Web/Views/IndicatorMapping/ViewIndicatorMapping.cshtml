@@ -1,0 +1,150 @@
+﻿@model ABP.Domain.Sector.sector
+
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewIndicatorMapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.Result as Task<IEnumerable<ABP.Domain.Indicator.IndicatorMapping>>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link " asp-controller="IndicatorMapping" asp-action="AddIndicatorMapping">Add</a>
+                    <a class="nav-item nav-link active" asp-controller="IndicatorMapping" asp-action="ViewIndicatorMapping">View</a>*@
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="IndMapAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndMapView">
+
+                        View
+                    </a>
+                </ul>
+                @*<div class="indicatorslist">
+                    <a id="printicon" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"><i class="icon-printer1"></i></a>
+                    <a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>
+                </div>*@
+            </div>
+             @*Search Panel*@
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="indmapsearch">
+                        <div class="form-group row">
+                            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "SECTORID", "SECTORNAME" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Indicator Name@*<span class="text-danger">*</span>*@</label>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlIndicator" asp-for="INDICATORID">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <div class="col-lg-2">
+                                <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>                        
+                    </form>
+                </div>
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+             @*Search Panel*@ 
+            <!--===================================================-->
+        <div class="card-body">
+            @if (ResultData.Result.ToList().Count > 0)
+            {
+                <div class="table-responsive">
+                    <table data-toggle="table" id="tblIndicatorMapping" class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th width="60px">Sl#</th>
+                                <th>Sector Name</th>
+                                <th>Indicator Name</th>
+                                @*<th>Datapoints Mapped</th>*@
+                                <th>Numerator/Denominator</th>
+                                <th width="120px">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int count = 1;}
+                            @foreach (var list in ResultData.Result)
+                            {
+                                <tr>
+                                    <td>@count</td>
+                                    <td>@list.SECTORNAME</td>
+                                    <td>@list.INDICATORNAME</td>
+                                    <td>(@list.NDATAPOINTNAME)/(@list.DDATAPOINTNAME)</td>
+                                    <td>
+                                        <a href="/IndicatorMapping/AddIndicatorMapping?ID=@Convert.ToString(list.INDICATORMAPPINGID)&Glink=@Glink&Plink=@Plink" class="text-primary mr-3" title="" data-original-title="Edit"><i class="icon-edit1"></i></a>
+                                        <a onclick="deleteIndicatorMapping('@list.INDICATORMAPPINGID');" class="text-danger" title="" data-original-title="Delete"><i class="icon-trash-21"></i></a>
+                                    </td>
+                                </tr>
+                                count++;
+                            }
+
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="norecord"> No Record Found</div>
+            }
+            <div class="clearfix col-sm-12"></div>
+
+        </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script src="~/js/indicatormapping.js"></script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndMapAdd").href = "../IndicatorMapping/AddIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("IndMapView").href = "../IndicatorMapping/ViewIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("indmapsearch").href = "../IndicatorMapping/ViewIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewIndicatorMpping', 'gldata', 'plbdodata', 'Manage Master', 'Manage IndicatorMapping', 'View IndicatorMapping');
+        getDataTable();
+    });
+
+</script>
+<script>
+    $(document).ready(function () {    
+    if (@ViewBag.sectorid != null) {
+        $.ajax({
+            url: "/IndicatorMapping/GetIndicatorAndDataPointsBySectorId?SectorId=" + @ViewBag.sectorid,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                var item = "<option value='0'>---All---</option>";
+                $("#ddlIndicator").empty();
+                $.each(res.indicators, function (i, data) {
+                    if (data.INDICATORID == @ViewBag.indicatorid) {
+                        item += '<option value="' + data.INDICATORID + '" selected>' + data.INDICATORNAME + '</option>'
+                    }
+                    else {
+                        item += '<option value="' + data.INDICATORID + '">' + data.INDICATORNAME + '</option>'
+                    }                    
+                });
+                $("#ddlIndicator").html(item);                
+            }
+        });
+    }
+})
+</script>

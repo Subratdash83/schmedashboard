@@ -1,0 +1,95 @@
+﻿@using System.Data
+@using System.Linq
+
+@model DataTable
+<environment include="Development">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+</environment>
+<environment exclude="Development">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
+          asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
+          crossorigin="anonymous"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
+</environment>
+<style>
+    table {
+        font-size: 12px;
+    }
+</style>
+@*@model IList<dynamic>*@
+@{
+    ViewBag.Title = "Table";
+    //var grid = new WebGrid(Model);
+}
+@Html.ActionLink("Back", "AnalyticReport", "Reports", new {code= ViewBag.dmlcode })
+@*<button id="btnExport" class="btn btn-success btn-sm rightSide" onclick="fnExcelReport();"> Export to excel </button>*@
+@*@grid.GetHtml()*@
+<table cellpadding="0" cellspacing="0" class="table table-bordered " id="resultDataTable">
+    <tr>
+        @foreach (DataColumn col in Model.Columns)
+        {
+            <th>@col.ColumnName</th>
+        }
+
+    </tr>
+    @foreach (DataRow row in Model.Rows)
+    {
+        <tr>
+            @foreach (DataColumn col in Model.Columns)
+            {
+                <td>@row[col.ColumnName]</td>
+            }
+        </tr>
+    }
+</table>
+<iframe id="txtArea1" style="display:none" title="TextArea"></iframe>
+<script src="~/lib/jquery/dist/jquery.js"></script>
+<script src="~/js/aes.js"></script>
+<script type="text/javascript">
+    
+    function SubmitsEncry(strCntrol) {
+        var strData = $('#' + strCntrol).val();
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encryptedtext = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(strData), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+        return encryptedtext;
+    }
+    function fnExcelReport() {
+        var tab_text = "<table border='2px'><tr bgcolor='#87AFC6'>";
+        var textRange; var j = 0;
+        tab = document.getElementById('resultDataTable'); // id of table
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+            //tab_text=tab_text+"</tr>";
+        }
+
+        tab_text = tab_text + "</table>";
+        tab_text = tab_text.replace(/<A[^>]*>|<\/A>/g, "");//remove if u want links in your table
+        tab_text = tab_text.replace(/<img[^>]*>/gi, ""); // remove if u want images in your table
+        tab_text = tab_text.replace(/<input[^>]*>|<\/input>/gi, ""); // reomves input params
+
+        var ua = window.navigator.userAgent;
+        var msie = ua.indexOf("MSIE ");
+
+        if (msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))      // If Internet Explorer
+        {
+            txtArea1.document.open("txt/html", "replace");
+            txtArea1.document.write(tab_text);
+            txtArea1.document.close();
+            txtArea1.focus();
+            sa = txtArea1.document.execCommand("SaveAs", true, "Say Thanks to query.xls");
+        }
+        else                 //other browser not tested on IE 11
+            sa = window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+
+        return (sa);
+    }
+</script>

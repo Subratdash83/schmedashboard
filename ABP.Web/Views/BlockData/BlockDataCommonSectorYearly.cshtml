@@ -1,0 +1,380 @@
+﻿@model ABP.Domain.BlockData.BlockData
+@{
+    ViewData["Title"] = "BlockDataCommonSectorYearly";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    var ResultData = ViewBag.Result as List<ABP.Domain.Panel.ControlPanel>;
+    var SectorData = ViewBag.Sector as Task<IEnumerable<ABP.Domain.Panel.Panel>>;
+    var script = ViewBag.Script as string;
+
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="CommonDataAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="CommonDataView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <div class="form-group row mt-2">
+                    <div class="col-12 col-md-2 col-xl-1">
+                        <label class="control-label" for="demo-email-input">District</label>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <select class="form-control" id="ddlDist" asp-for="DISTRICTID" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE","BLOCK_NAME"))">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 col-xl-1" id="annually">
+                        <label class="control-label" for="demo-email-input">Block</label>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                      
+                        <select class="form-control" asp-for="BLOCKID" onchange="bindDatapoints1()" id="ddlBlock" name="Blockid">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 col-xl-1" id="annually">
+                        <label class="control-label" for="demo-email-input">Year</label>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                        <select class="form-control" asp-for="YEAR" id="ddlYear" asp-items="@(new SelectList(ViewBag.Year, "FREQUENCYVALUE", "FREQUENCYVALUE" ))">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+
+                </div>
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="hidden" id="hdnAppNo" class="form-control" value="@ViewBag.AppNo" />
+                <div class="indicatorslist w-100 mb-2">
+                    <p id="datDurationMSG" class="text-danger pull-left mr-5"></p>
+                </div>
+                <div class="clearfix"></div>
+
+                @if (SectorData != null && SectorData.Result.ToList().Count > 0)
+                {
+                    <div id="accordion">
+                        @if (SectorData.Result != null)
+                        {
+                            @foreach (var items in SectorData.Result)
+                            {
+                                <div class="card">
+                                    @*@if (ResultData.Where(u => u.PANELID == items.PANELID).Count() != 0 && ResultData[0].DataEntryEligibility)*@
+                                    @if (ResultData.Where(u => u.PANELID == items.PANELID).Count() != 0)
+                                    {
+                                        <div id="collapse-@items.PANELID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                            <div class="card-body pt-2">
+                                                <b class="w-100">Date : @ResultData[0].FROMDATE To @ResultData[0].TODATE</b>
+                                                <div class="table-responsive mt-2">
+                                                    <table data-toggle="table" class="table table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>DataPoint </th>
+                                                                <th width="100px">Value<span class="text-danger">*</span></th>
+                                                                <th width="100px">UNIT<span class="text-danger"></span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.PANELID">
+                                                            @if (ResultData != null)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in ResultData.Where(u => u.PANELID == items.PANELID))
+                                                                {
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td style="display:none;">@list.CONTROLID</td>
+                                                                        <td>@list.DISPLAYNAME <i class="fa fa-info-circle text-success" style="cursor:help" aria-hidden="true" data-toggle="tooltip" data-placement="top" data-original-title="@list.DESCRIPTION"></i></td>
+                                                                        <td><input type="number" value="@list.CONTROLVALUE" id=@list.CONTROLNAME class="form-control"></td>
+
+
+                                                                        <td style="display:none;">@list.CONTROLNAME</td>
+                                                                        <td style="display:none;">@list.PANELID</td>
+                                                                        <td style="display:none;">@list.FROMDATE</td>
+                                                                        <td style="display:none;">@list.TODATE</td>
+                                                                        <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                        <td style="display:none;">@list.PANELNAME</td>
+                                                                        <td style="display:none;">@list.FREQUENCYID</td>
+                                                                        <td>@list.UNIT</td>
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+
+                <button id="btnSubmit" value="2" class="btn btn-success ">Submit</button>
+                @*<div class="form-group row pad-ver otp-box bg-light pt-3">
+                        <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                            Enter OTP
+                        </label>
+                        <div class="col-lg-4">
+                            <input type="number" id="txtotp" class="form-control" />
+                            <input type="hidden" id="hdnotp" class="form-control" />
+                            <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+                        </div>
+                        <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+                        <label class="col-xl-12  col-xl-12 control-label"></label>
+                        <label class="col-12  col-xl-2 control-label"></label>
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <button id="btnSubmit" value="2" class="btn btn-success  ">Submit</button>
+                            <button id="btnCancel1" class="btn btn-danger  ">Reset</button>
+                        </div>
+                    </div>*@
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/Common.js"></script>
+<script>
+    var gl = null;
+    var pl = null;
+    var Year = '';
+    var Dist = '';
+    var Block = '';
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+        Year = getUrlVars()["year"];
+        Dist = getUrlVars()["dist"];
+        Block = getUrlVars()["block"];
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        loadNavigation('BlockDataCommonSectorYearly', 'gldata', 'plbdodata', 'Datapoint Entry', 'Common Datapoints Entry', 'BlockDataCommonSectorYearly');
+        if (getUrlVars()["FreqId"] == "3") {
+            $("#quarter-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "4") {
+            $("#halfyear-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "5") {
+            $("#annual-tab").addClass("active")
+        } else {
+            $("#month-tab").addClass("active")
+            //location.href="/BDOData/ViewBDOData?FreqId=2&Glink=" + gl + "&Plink=" + pl"
+        }
+
+        if (Year != undefined) {
+            $("#ddlYear").val(Year);
+        }
+        if (Dist != undefined) {
+            $("#ddlDist").val(Dist);
+            BindBlockData(Block);
+            if (Block != undefined) {
+                $("#ddlBlock").val(Block);
+            }
+        }
+
+    });
+    //$('#btnDraft').click(function () {
+    //    submitData($('#btnDraft').val());
+    //});
+    $('#btnSubmit').click(function () {
+       // bootbox.alert("hi");
+       submitData($('#btnSubmit').val());
+
+
+    });
+    $('#ddlYear').change(function () {
+        var dist = $('#ddlDist').val();
+        var block = $('#ddlBlock').val();
+        var year = $('#ddlYear').val();
+        if (dist == '0') {
+            bootbox.alert("Please Select District!", function () { });
+        }
+        else if (block == '0') {
+            bootbox.alert("Please Select Block!", function () { });
+        }
+        else {
+            bindDatapoints(dist, block, year);
+        }
+
+    });
+
+function submitData(status) {
+
+    if ((status == '2' && isValidOTP() || status == '0')) {
+        var currentDate = new Date();
+        var months = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var prev = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+        var viewingMonth = months[prev.getMonth()];
+        //Getting all ids of all the tbodys to get all the row data for the insertion
+        var Ids = []; //array declaring to store the ids of all the tbodys
+        $('tbody').each(function () {
+            var itm = {};
+            itm.id = $(this).attr('id');
+            Ids.push(itm)
+        });
+        var Items = []; //array declaring to store the records to send it to controller
+        for (var j = 0; j < Ids.length; j++) {
+            var tbl = document.getElementById(Ids[j].id);
+            for (var i = 0; i < tbl.rows.length; i++) {
+                var item1 = {};
+                item1.FREQUENCYID = parseInt(tbl.rows[i].children[10].textContent);;
+                item1.CONTROLID = parseInt(tbl.rows[i].children[1].textContent);
+                item1.CONTROLVALUE = parseFloat(tbl.rows[i].children[3].children[0].value);
+                item1.CONTROLNAME = tbl.rows[i].children[4].textContent;
+                item1.PANELID = parseFloat(tbl.rows[i].children[5].textContent);
+                item1.FROMDATE = tbl.rows[i].children[6].textContent;
+                item1.TODATE = tbl.rows[i].children[7].textContent;
+                item1.FREQUENCYVALUE = $('#ddlYear').val();
+                item1.DISTID = $('#ddlDist').val();
+                item1.BLOCKID = $('#ddlBlock').val();
+                item1.PANELNAME = tbl.rows[i].children[9].textContent;
+                item1.APPLICATIONO = $('#hdnAppNo').val();
+                item1.status = status;
+                Items.push(item1);
+            }
+        }
+        //checking wheither for all the villages the source village have been selected or not
+        if (Items.length == 0) {
+            bootbox.alert("Plese enter values against every data points!");
+            return false;
+        } else {
+            var message = "";
+            if (status == '0') {
+                message = "Are you sure , you want to Save As Draft?";
+            }
+            else {
+                message = "Are you sure , you want to Submit?";
+            }
+            bootbox.confirm({
+                size: "medium",
+                message: message,
+
+                callback: function (result) {
+                    if (result == true) {
+                        $(".my-loader").show();
+                        $.ajax({
+                            url: "/BlockData/BlockDataCommonSectorYearly",
+                            data: JSON.stringify(Items),
+                            beforeSend: function (xhr) {
+                                xhr.setRequestHeader("XSRF-TOKEN",
+                                    $('input:hidden[name="__RequestVerificationToken"]').val());
+                            },
+                            type: "POST",
+                            contentType: "application/json;charset=utf-8",
+                            dataType: "json",
+                            success: function (result) {
+                                $(".my-loader").hide();
+                                bootbox.alert(result.msg, function () {
+                                    window.location.href = "/BlockData/BlockDataCommonSectorYearly?FreqId=" + result.freqid + "&Glink=" + gl + "&Plink=" + pl;
+                                });
+                            },
+                            error: function (result) {
+                                $(".my-loader").hide();
+                                bootbox.alert(result);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+    }
+    function htmlDecode(str) {
+        const doc = new DOMParser().parseFromString(str, "text/html");
+        return doc.documentElement.textContent;
+    }
+    function validate() {
+         @Html.Raw(System.Web.HttpUtility.HtmlDecode(script));
+        //if ($('#CONTROL_99').val() > $('#CONTROL_12').val()) {
+        //    if ($('#CONTROL_116').val() < $('#CONTROL_110').val()) {
+        //        if ($('#CONTROL_115').val() == $('#CONTROL_110').val()) { if (1 == 1) { return true; } }
+        //        else { bootbox.alert('No of persons tested Malaria positive in the month "N" of current year Should equals to Total number of children aged 9-11 months fully immunized'); };
+
+
+        //    }
+        //    else { bootbox.alert('No of persons tested Malaria positive in the month "N" of last year Should be less than Total number of children aged 9-11 months fully immunized'); };
+        //}
+        //else {  bootbox.alert(' No of SAM children admitted to Nutritional Rehabilitation Center (NRC)during the month  Should be greater than Total number of live births with a birth weight of  less than 2500 gm during the month'); };
+
+
+
+        }
+function GetFromAndToDate() { }
+
+function isLeapYear(year) {
+    return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDist').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---Select---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDist').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---Select---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+    function bindDatapoints1() {
+        var dist = $('#ddlDist').val();
+        var block = $('#ddlBlock').val();
+        var year = $('#ddlYear').val();
+        if ($('#ddlYear').val() != 0) {
+            bindDatapoints(dist, block, year);
+        }
+    }
+    function bindDatapoints(dist,block,year) {
+        location.href = "@Url.Action("BlockDataCommonSectorYearly", "BlockData")?dist=" + dist + "&block=" + block + "&year=" + year + "&FreqNo=" + year;
+    }
+</script>

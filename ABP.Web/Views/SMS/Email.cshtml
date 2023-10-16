@@ -1,0 +1,220 @@
+﻿
+@{
+    @model ABP.Domain.SMS.SMS
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddIndicator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var TaskReportingData = ViewBag.TaskDetails as Task<IEnumerable<FTP.Domain.TaskReporting.TaskReporting>>;
+}
+
+
+<script src="https://cdn.ckeditor.com/4.16.1/standard/ckeditor.js"></script>
+
+
+<div class="col-md-12 col-sm-12">
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+                <a class="nav-item nav-link active">Send Email</a>
+            </ul>
+            <div class="indicatorslist">
+                <p class="ml-2 text-danger">(*) Indicates mandatory </p>
+            </div>
+        </div>
+        <div class="card-body uploadmeeting col-xl-12">
+
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select District<span class="text-danger">*</span></label>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <select class="form-control" id="ddlDist" name="DistrictId" asp-for="DistrictId" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                        <option value="0">---Select---</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select Block<span class="text-danger">*</span></label>
+                <div class="col-12 col-md-6 col-xl-4">
+                  
+                    <select class="form-control" asp-for="BLOCKID" id="ddlBlock" name="Blockid">
+                        <option value="0">---All---</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Email <span class="text-danger">*</span></label>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <span class="colon">:</span>
+                    <input type="email" id="emailsend" class="form-control" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Subject <span class="text-danger">*</span></label>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <span class="colon">:</span>
+                    <input type="text" id="subject" class="form-control" />
+                </div>
+
+            </div>
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Body <span class="text-danger">*</span></label>
+                <div class="col-12 col-md-6 col-xl-6">
+                    <span class="colon">:</span>
+                    <textarea rows="6" cols="23" name="body" id="txtbody" class="form-control"></textarea>
+                    <script>
+                        CKEDITOR.replace('body');
+                    </script>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-readonly-input"></label>
+                <div class="col-12 col-md-6 col-xl-4">
+                    <button class="btn btn-success mb-1" id="btnSubmit">Send mail</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $("#btnSubmit").click(function () {
+        if (validate()) {
+            bootbox.confirm({
+            size: "medium",
+            message: "Are you sure , you want to send mail?",
+                callback: function (result) {
+                    if (result === true) {
+                        var txtdata = CKEDITOR.instances.txtbody.getData();
+                        //var element = $(txtdata);    
+                        //element.find("p").remove();      
+                        //var newString = element.html();
+                        var emailid = $("#emailsend").val();
+                        var subject = $("#subject").val();
+                        var result = txtdata.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                        var newresult1 = result.replace(/[&]nbsp[;]/gi, " ").replace(/[<]br[^>]*[>]/gi, "");
+                        var final1 = newresult1.replace(/[&]quot[;]/gi, "'").replace(/(\r\n|\n|\r)/gm, "");
+                        var final = final1.replace(/     /g, "");
+                        var finalResult = final.replace(/  /g, "");
+                        var body = finalResult;
+                        $.ajax({
+                            method: "post",
+                            url: '@Url.Content("~/Login/Email")',
+                            data: { tomail: emailid, sub: subject, bodyy: body },
+                            datatype: "json",
+                            success: function (data) {
+                                alert(data);
+                                //return false;
+                                location.href = "/Login/Email";
+                            }
+                        });
+                    }
+                 }
+            });
+
+        }
+        function validate() {
+            var textdata = CKEDITOR.instances.txtbody.getData();
+            if ($("#emailsend").val() == "") {
+                bootbox.alert("Please enter Email ID");
+                return false;
+            }
+            else if ($("#subject").val() == "") {
+                bootbox.alert("Please enter Subject");
+                return false;
+            }
+            //else if ($("#body").val() == "") {
+            //    bootbox.alert("Please enter Body");
+            //    return false;
+            //}
+            else if (textdata=="" || textdata=='')
+            {
+                bootbox.alert("Please enter Body");
+                return false;
+            }
+            else {
+                return true;
+
+            }
+        }
+    })
+</script>
+<script>
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDist').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---Select---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDist').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---Select---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>
+
+
+@*<script>
+        $('#btnsend').click(function () {
+            bootbox.confirm({
+                size: "medium",
+                message: "Are you sure , you want to send reminder?",
+                callback: function (result) {
+                    SendSMS();
+                }
+            });
+        });
+        function SendSMS() {
+            debugger;
+            var pend = $('#hdnpend').val();
+            var email = $('#txtemail').val();
+            var subject = $('#txtsubject').val();
+            var body = $('#txtbody').val();
+            var data1 = "<table cellspacing='1' cellpadding='5' border='1' bordercolor='#ccc' bgcolor='#FFFFFF' width='100%' style='font-size: 14px;'><thead><tr><th>Sl. No.</th><th align = 'left'> No. of pending </th><th align = 'left'> Website</th></tr></thead><tbody><tr><th>1</th><td>" + pend + "</td><td></td><td>https://5t.odisha.gov.in/</td></tr></tbody></table>";
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("Email", "Login")",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: { pending: pend, tomail: email, sub: subject, bodyy: body ,data:data1},
+                success: function (res) {
+                    $("#image").hide();
+                    if (res=='1')
+                    {
+                        bootbox.alert("Reminder Sent Successfully", function () {
+                              var GLINKID = $("#hfglink").val();
+                              var Plink = $("#hfplink").val();
+                             window.location.href = "/Login/Email";
+                        });
+                    }
+                    else {
+                         bootbox.alert(res);
+                           //return false;
+                        window.location.href = "/Login/Email";
+                    }
+               },
+               failure: function (response) {
+                   console.log(response.responseText);
+               },
+                error: function (response) {
+                    console.log(response.responseText);
+                }
+            });
+        }
+    </script>*@

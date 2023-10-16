@@ -1,0 +1,210 @@
+.sum-row {
+    /*background: #eeeeee !important;*/
+    color: #000;
+}
+
+.indicatoe-legend {
+    display: flex;
+    list-style: none;
+    margin-top: 27px;
+    margin-bottom: 25px;
+}
+
+    .indicatoe-legend li {
+        margin-right: 1.5rem;
+        font-size: 17px;
+    }
+
+        .indicatoe-legend li:last-child {
+            margin-right: 0;
+        }
+
+.legend-box a:first-child{
+    margin-left: 0 !important;
+}
+
+.success-text {
+    color: #70a560;
+}
+
+.warning-text {
+    color: #e2a101;
+}
+
+.info-text {
+    color: #2496d4;
+}
+
+.legend-section .legend-box {
+    text-align: right;
+    float: left !important;
+}
+
+.primary-text {
+    color: #3a61cc;
+}
+
+.danger-text {
+    color: #e16772;
+}
+
+
+
+.success-bg {
+    background: #f1f6e9 !important;
+}
+
+.warning-bg {
+    background: #fff8e5 !important;
+}
+
+.info-bg {
+    background: #e8f4fb !important;
+}
+
+.primary-bg {
+    background: #f0f4ff !important;
+}
+
+.danger-bg {
+    background: #fdf1f1 !important;
+}
+
+table thead th {
+    background: transparent !important;
+    vertical-align: middle !important;
+}
+
+.fillinfo-bg {
+    fill: #2496d4 !important;
+}
+
+.fillwarnning-bg {
+    fill: #e2a101 !important;
+}
+
+.fillsuccess-bg {
+    fill: #70a560;
+}
+
+.filldanger-bg {
+    fill: #e16772;
+}
+
+.fillprimary-bg {
+    fill: #3a61cc;
+    height: 46px;
+}
+
+table svg {
+    margin-right: 0.4rem;
+    height: 31px;
+}
+
+.month-row {
+    /*background: #ebebeb !important;*/
+    color: #000;
+}
+
+.main-table {
+    margin-top: 2rem;
+}
+
+.table tr th div {
+    display: flex !important;
+}
+.width-332{
+    width:332px;
+}
+@media screen and (max-width: 1680px) {
+}
+
+@media screen and (max-width: 1440px) {
+    .indicatoe-legend li {
+        margin-right: 0.8rem;
+        font-size: 15px;
+    }
+}
+
+@media screen and (max-width: 1366px) {
+    table svg {
+        margin-right: 6px;
+        height: 35px;
+    }
+
+    .fillinfo-bg {
+        fill: #2496d4 !important;
+        width: 45px;
+    }
+
+    .fillsuccess-bg {
+        fill: #70a560;
+        height: 43px;
+    }
+
+    table thead tr th span {
+        font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+}
+
+@media screen and (max-width: 1024px) {
+    .table tr th div {
+        display: block !important;
+        text-align: center;
+    }
+    .width-332 {
+        width: 200px;
+    }
+    table thead tr th span {
+        display: block;
+    }
+    .sector-table .table tr td, .sector-table .table tr th {
+        text-align: center;
+    }
+    .filldanger-bg {
+        fill: #e16772;
+        width: 31px;
+    }
+
+    .fillprimary-bg {
+        fill: #3a61cc;
+        height: 39px;
+    }
+
+    .fillsuccess-bg {
+        fill: #70a560;
+        height: 35px;
+    }
+
+    .fillinfo-bg {
+        fill: #2496d4 !important;
+        width: 35px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+}
+
+@media screen and (max-width: 630px) {
+    .control-label {
+        margin-top: 1rem;
+    }
+}
+
+@media screen and (max-width: 576px) {
+}
+
+@media screen and (max-width: 530px) {
+}
+
+@media screen and (max-width: 480px) {
+}
+
+@media screen and (max-width: 430px) {
+}
+
+@media screen and (max-width: 375px) {
+}

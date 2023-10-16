@@ -1,0 +1,52 @@
+﻿@{
+    var ListData = ViewBag.BlocksData as Task<IEnumerable<ABP.Domain.BlockData.BlockDataAlert>>;
+}
+<div class="card-body"> 
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Sl#</th>
+                    <th>Year</th>
+                    <th>Frequency</th>
+                    <th>Month</th>
+                    <th>Remarks</th>
+                    @*<th class="text-right">Not Entered</th>
+        <th class="text-right">Remarks</th>
+        <th class="text-center" >Action</th>*@
+
+                </tr>
+            </thead>
+            <tbody class="tbodySector" id="tbody">
+                @if (ListData != null)
+                {
+
+                    int rwcount = 0;
+                    int Count = 1;
+
+
+                    @foreach (var item in ListData.Result)
+                    {
+                <tr>
+                    <td>@Count</td>
+                    <td>@item.YEAR</td>
+                    <td>@item.FREQUENCY</td>
+                    <td>@item.FREQUENCYVALUE</td>
+                    <td>@item.Remarks</td>
+                    @*<td>@item.NONZERODPCOUNT</td>
+        <td>@item.HNDPCOUNT</td>
+        <td>@item.Remarks</td>
+        <td class="text-wrap">    <a href="/BlockData/BlockDataEntryTempYearly?Year=@Convert.ToString(item.YEAR)" class='btn btn-success btn-sm' title="" data-original-title="Proceed for data entry">Proceed for datapointentry</a></td>*@
+                </tr>
+                        Count++;
+                    }
+                     rwcount= Count - 1;
+            <tr><td colspan="9" style="text-align:end;font:bold;">Required month data to submit :- @rwcount</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+

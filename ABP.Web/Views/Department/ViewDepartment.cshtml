@@ -1,0 +1,127 @@
+﻿@model ABP.Domain.Sector.sector
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewDepartment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.Result as Task<IEnumerable<ABP.Domain.Department.Department>>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link " asp-controller="Department" asp-action="AddDepartment">Add</a>
+                    <a class="nav-item nav-link active" asp-controller="Department" asp-action="ViewDepartment">View</a>*@
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="DeptAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="DeptView">
+
+                        View
+                    </a>
+                </ul>
+                @*<div class="indicatorslist">
+                    <a id="printicon" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"><i class="icon-printer1"></i></a>
+                    <a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>
+                </div>*@
+            </div>
+            <!-- Search Panel-->
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="deptsearch">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Department Name<span class="text-danger">*</span></label>
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <select class="form-control" id="ddlDepartment" asp-for="Deptid" asp-items="@(new SelectList(ViewBag.Department, "DEPTID", "DEPTNAME" ))">
+                                        <option value="0">---All---</option>
+                                        @*<option value="1">---All---</option>*@
+                                    </select>
+                                </div>
+                                <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name</label>
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+                                        <option value="0">---All---</option>                                        
+                                    </select>
+                                </div>
+                                <div class="col-lg-2">
+                                    <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+            <!-- Search Panel -->
+            <!--===================================================-->
+            <div class="card-body">
+                @if (ResultData.Result.ToList().Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table id="tblDepartment" data-toggle="table" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>
+                                    <th>Department </th>
+                                    <th>Sector</th>
+                                    <th>Description </th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{ int count = 1;}
+                                @foreach (var list in ResultData.Result)
+                                {
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>@list.DEPTNAME</td>
+                                        <td>@list.SECTORNAME</td>
+                                        <td>@list.DESCRIPTION</td>
+                                        <td>
+                                            <a href="/Department/AddDepartment?ID=@Convert.ToString(list.ID)&Glink=@Glink&Plink=@Plink" class="text-primary mr-3" title="" data-original-title="Edit"><i class="icon-edit1"></i></a>
+                                            <a onclick="deleteDepartment('@list.ID');" class="text-danger" title="" data-original-title="Delete"><i class="icon-trash-21"></i></a>
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                <div class="clearfix col-sm-12"></div>
+
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script src="~/js/department.js"></script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("DeptAdd").href = "../Department/AddDepartment?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("DeptView").href = "../Department/ViewDepartment?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("deptsearch").href = "../Department/ViewDepartment?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewDepartment', 'gldata', 'plbdodata', 'Manage Master', 'Manage Department', 'View Department');
+        getDataTable();
+    });
+
+</script>

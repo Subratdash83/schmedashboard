@@ -1,0 +1,261 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddDataPoint";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="DataPoint" asp-action="AddDataPoint">Add</a>
+                        <a class="nav-item nav-link " asp-controller="DataPoint" asp-action="ViewDataPoint">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="DatapointAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="DatapointView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnDATAPOINTID" hidden="hidden" value="0" class="form-control">
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Department Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlDepartment" asp-items="@(new SelectList(ViewBag.Department, "DEPTID", "DEPTNAME" ))">
+                            <option value="0">---Select Department---</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Data Provider<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlProvider" asp-items="@(new SelectList(ViewBag.Provider, "PROVIDERID", "PROVIDERNAME" ))">
+                            <option value="0">---Select DataProvider---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlSector" name="Sector" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-text-input">Data Point Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        @*<input id="txtDATAPOINTNAME" type="text" class="form-control">*@
+                        <textarea id="txtDATAPOINTNAME" onkeypress="return inputLimiter(event,'NameCharactersymbol')" class="form-control" maxlength="500"></textarea>
+                        <small class="text-danger"> (Max 500 Character(s) Allow.)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-input">Description</label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <textarea id="txtDescription" rows="4" class="form-control" onkeypress="return inputLimiter(event,'NameCharactersymbol')" maxlength="1000"></textarea>
+                        <small class="text-danger"> (Max 1000 Character(s) Allow.)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-textarea-radio">Collection Mode<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="radio" id="type1" name="YEARTYPE" value="1">
+                        <label for="type1">Calender Year</label>  &nbsp;&nbsp;
+                        <input type="radio" id="type2" name="YEARTYPE" value="2">
+                        <label for="type2">Financial Year</label><br>
+                    </div>
+                </div>
+                <div class="form-group row" id="divFrequencyYear">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Frequency<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <select class="form-control" id="ddlFrequency" name="Frequency" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row" id="divFrequencyMon">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Start Month<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <select class="form-control" id="ddlFrequencyM" name="FrequencyM" asp-items="@(new SelectList(ViewBag.Frequency1, "FREQUENCYNO", "FREQUENCYVALUE" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Unit<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <select class="form-control" id="ddlUnit" name="UNIT">
+                            <option value="Select">---Select---</option>
+                            <option value="Number">Number</option>
+                            <option value="Ha">Ha</option>
+                            <option value="Rs">Rs</option>
+                            <option value="Kg">Kg</option>
+                            <option value="q">q</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlIndicatorType" name="IndicatorType">
+                            <option value="">---Select---</option>
+                            <option value="0">Static</option>
+                            <option value="1">Dynamic</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-readonly-input">Effective Date<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <div class="input-group">
+
+                            <input type="text" class="form-control datepicker" id="txtDATAPOINTDATE" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="inputGroup-sizing-default"><i class="icon-calendar1"></i></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @*<div class="form-group row">
+            <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-readonly-input">Is Census</label>
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="input-group">
+                    <input type="checkbox" id="iscensus" name="census"style="color:black;">
+                </div>
+            </div>
+        </div>*@
+
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Submit</button>
+                        @*<button id="btnConfirm" onclick="sendOTP()" class="btn btn-success show-otp">Submit</button>*@
+                        <button class="btn btn-danger mb-1">Cancel</button>
+                        @*<button id="btnCancel" class="btn btn-danger">Reset</button>*@
+                    </div>
+                </div>
+                @*</form>*@
+
+                @*<div class="form-group row pad-ver otp-box bg-light pt-3">
+
+            <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                Enter OTP
+            </label>
+            <div class="col-lg-4">
+                <input type="number" id="txtotp" class="form-control" />
+                <input type="hidden" id="hdnotp" class="form-control" />
+                <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+            </div>
+            <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+            <label class="col-xl-12  col-xl-12 control-label"></label>
+            <label class="col-12  col-xl-2 control-label"></label>
+            <div class="col-12 col-md-6 col-xl-4">
+
+                <button id="btnSubmit" class="btn btn-primary">Submit</button>
+                <button id="btnCancel1" class="btn btn-danger">Reset</button>
+            </div>
+        </div>*@
+
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="/js/CharacterCheck.js"></script>
+
+<script src="~/js/datapoint.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $("#divFrequencyMon").hide();
+        document.getElementById("DatapointAdd").href = "../DataPoint/AddDataPoint?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("DatapointView").href = "../DataPoint/ViewDataPoint?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewDataPoint', 'gldata', 'plbdodata', 'Manage Master', 'Manage DataPoint', 'View DataPoint');
+        $(document).on('focus', ".datepicker", function () {
+            $(this).datepicker({
+                format: "dd-M-yyyy",
+                todayBtn: "linked",
+                autoclose: true,
+                //startDate: '-30d',
+                endDate: new Date(),
+                todayHighlight: true
+            });
+        });
+        var DATAPOINTID = getUrlVars()["ID"];
+        if (DATAPOINTID != undefined) {
+            $("#btnSubmit").html("Update");
+            $("#btnCancel").html("Cancel");
+            bindDataPointById(DATAPOINTID);
+        }
+    });
+
+    $('#btnCancel1').click(function () {
+
+        $('#hdnDATAPOINTID').val("0");
+        $('#ddlIndicatorType').val("0");
+        $('#type1').val("0");
+        $('#ddlSector').val("0");
+        $('#txtDATAPOINTNAME').val("");
+        $('#ddlFrequency').val("0");
+        $('#txtDATAPOINTDATE').val("");
+        $('#btnConfirm').show();
+        $('#txtotp').val("");
+        $(".otp-box").hide();
+        $('#btnCancel').show();
+
+        //if($('#ddlfrequency').val()== "5")
+        //{
+        //    $("#ddlFrequencyM").show();
+        //}
+
+        //else {
+        //    $("#ddlFrequencyM").hide();
+        //     }
+
+       
+    });
+    $("#ddlFrequency").change(function () {
+        var freq = $("#ddlFrequency").val();
+        if (freq == "5") {
+            $("#divFrequencyMon").show();
+        }
+        else {
+
+            $("#divFrequencyMon").hide();
+
+        }
+
+    })
+
+</script>

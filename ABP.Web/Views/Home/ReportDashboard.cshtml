@@ -1,0 +1,226 @@
+﻿@model ABP.Domain.Report.Report
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+    //var RData = ViewBag.RejectResultCount as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+    var ListData = ViewBag.DatapointData as Task<IEnumerable<ABP.Domain.Report.Report>>;
+}
+
+
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="dashsearch">
+                    <div class="form-group row">
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlYear" name="Year" asp-for="Year">
+                                <option value="0">---Select---</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <label class="control-label" for="demo-email-input">District</label>
+                            <select class="form-control" id="ddlDistrict" name="DistrictId" asp-for="DistrictId" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4 mt-4">
+                            <button id="btnSearch" class="btn btn-primary"> Search</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                    </div>
+                    <a href="javascript:PrintPage();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-5"><i class="icon-printer1"></i></a>
+                </form>
+                <br />
+                @if (ListData != null)
+                {
+                    @*<div class="legend-box">
+                        <a href="#">  <i class="fa fa-check text-secondary"></i> - Saved </a>
+                        <a href="#">  <i class="fa fa-check text-success"></i> - Approved </a>
+                        <a href="#">  <i class="fa fa-check text-warning"></i> - Pending </a>
+                        <a href="#">  <i class="fa fa-check text-danger"></i> - Rejected </a>
+                        <a href="#">  <i class="fa fa-times"></i> - Not Applied </a>
+                        </div>*@
+
+                    @*<div class="legend-box">
+                        <a href="#" class="text-success">  <span class="back-green"></span> <strong>100% Completed </strong> </a>
+                        <a href="#" class="text-warning">  <span class="back-yellow"></span>  <strong> &gt;50% Completed</strong> </a>
+                        <a href="#" class="text-danger">  <span class="back-red"></span>  <strong>&lt; 50% Completed </strong></a>
+                        </div>*@
+                }
+                <div class="clearfix"></div>
+                <div class="table-responsive mt-3" id="printtable">
+                    <table class="table " style="width:100%;">
+                        <thead>
+                            <tr>
+                                @if (ListData != null)
+                                {
+                                    <th width="50px">Sl No. </th>
+                                    <th width="150px">Data For Month Of </th>
+                                    <th width="150px">District Name</th>
+                                    <th width="150px">Block Name</th>
+                                    <th width="150px">Data Submitted</th>
+                                    <th width="150px">Status</th>
+                                    <th width="150px">Date of Data Submission</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var count = 1;
+                                string issubmitted = string.Empty;
+                                string status = string.Empty;
+                                string cssclass = string.Empty;
+                            }
+                            @if (ListData != null)
+                            {
+                                @foreach (var item1 in ListData.Result)
+                                {
+
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>@item1.dataformonthof</td>
+                                        <td>@item1.Districtname</td>
+                                        <td>
+                                            @item1.BLOCKNAME
+                                        </td>
+                                        @if (@item1.status != null && @item1.status != "")
+                                        {
+                                            issubmitted = "yes";
+                                        }
+                                        else
+                                        {
+                                            issubmitted = "No";
+                                        }
+                                        @if (@item1.status == "0")
+                                        {
+                                            status = "Entered";
+                                            cssclass = "green-Static";
+                                        }
+                                        else if (@item1.status == "2")
+                                        {
+                                            status = "Pending";
+                                            cssclass = "orange-Static";
+                                        }
+                                        else if (@item1.status == "1")
+                                        {
+                                            status = "Approved";
+                                            cssclass = "green-Static";
+                                        }
+                                        else if (@item1.status == "3")
+                                        {
+                                            status = "Rejected";
+                                            cssclass = "red-Static";
+                                        }
+                                        else
+                                        {
+                                            status = "Not Entered";
+                                            cssclass = "red-Static";
+                                        }
+                                        <td>@issubmitted</td>
+                                        <td><span class="@cssclass">@status </span></td>
+                                        @if (@item1.DATSUBMITTED != null)
+                                        {
+                                            <td>@item1.DATSUBMITTED</td>
+                                        }
+                                        else
+                                        {
+                                            <td>N/A</td>
+                                        }
+                                    </tr>
+                                    count = count + 1;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Home', 'Dashboard', 'Dashboard');
+        document.getElementById("dashsearch").href = "../Home/ReportDashboard?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    });
+</script>
+<script>
+      $('#btnSearch').click(function(){
+        if($('#ddlYear').val()==0){
+            bootbox.alert('Please Select any year!');
+            return false;
+        }
+    })
+    // print function
+    function PrintPage() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable").clone();
+        var head = $('#printtable thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div><div class='float-left'>For the Year:- " + $("#ddlYear").val()+"</div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+</script>
+
+

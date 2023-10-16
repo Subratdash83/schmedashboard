@@ -1,0 +1,177 @@
+﻿@model ABP.Domain.CollectorData.CollectorDataAlert
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+
+    var DistBlockData = ViewBag.Blocksdata as Task<IEnumerable<ABP.Domain.BlockData.BlockData>>;
+    var CollectorDataAlert = ViewBag.Result1 as List<ABP.Domain.CollectorData.CollectorDataAlert>;
+
+}
+<style>
+    #blink {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2d38be;
+        transition: 0.2s;
+    }
+</style>
+<div class="row">
+    @*<div class="col-md-12 col-sm-12">
+        <div class="card">
+
+
+            <div class="card-body">
+
+
+
+                <div class="clearfix"></div>
+
+                @if (DistBlockData != null && DistBlockData.Result.ToList().Count > 0)
+                {
+
+                    <div id="accordion">
+
+
+                        @if (DistBlockData.Result != null)
+                        {
+                            @foreach (var items in DistBlockData.Result)
+                            {
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.BLOCKID" aria-expanded="true" aria-controls="collapse-@items.BLOCKID">
+                                                @items.BLOCKNAME
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    @if (CollectorDataAlert.Where(u => u.BLOCKID == items.BLOCKID).Count() != 0)
+                                    {
+                                        <div id="collapse-@items.BLOCKID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                            <div class="card-body p-0 pt-0">
+                                                <div class="table-responsive">
+                                                    <table data-toggle="table" class="table table-bordered mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>Year </th>
+                                                                <th width="100px">Block Name</th>
+                                                                <th width="100px">Frequency</th>
+                                                                <th width="100px">Total Datapoint</th>
+                                                                <th width="100px">Entered Datapoint</th>
+                                                                <th width="100px">Not Entered Datapoint</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.BLOCKID">
+                                                            @if (CollectorDataAlert != null)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in CollectorDataAlert.Where(u => u.BLOCKID == items.BLOCKID))
+                                                                {
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td style="display:none;">@list.BLOCKID</td>
+                                                                        <td>@list.YEAR</td>
+                                                                        <td>@list.BLOCKNAME</td>
+                                                                        <td>@list.FREQUENCY</td>
+                                                                        <td>@list.DPCOUNT</td>
+                                                                        <td>@list.DPENTERED</td>
+                                                                        <td>@list.NOTENTERED</td>
+
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"><p id="errorMessage">Please Select Year And Month</p></div>
+                }
+
+
+            </div>
+
+        </div>
+    </div>*@
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+
+
+            <div class="card-body">
+
+
+
+                <div class="clearfix"></div>
+
+             
+
+                    <div id="accordion">
+
+
+                      
+                                 
+                                      
+
+                                            <div class="card-body p-0 pt-0">
+                                                <div class="table-responsive">
+                                                    <table data-toggle="table" class="table table-bordered mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>Year </th>
+                                                                <th width="100px">Block Name</th>
+                                                                <th width="100px">Frequency</th>
+                                                                <th width="100px">Remark</th>
+                                                                @*<th width="100px">Entered Datapoint</th>
+                                                                <th width="100px">Not Entered Datapoint</th>*@
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody">
+                                                            @if (CollectorDataAlert != null)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in CollectorDataAlert.Where(u => u.BLOCKID !=0))
+                                                                {
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td style="display:none;">@list.BLOCKID</td>
+                                                                        <td>@list.YEAR</td>
+                                                                        <td>@list.BLOCKNAME</td>
+                                                                        <td>@list.FREQUENCY</td>
+                                                                        <td>@list.REMARKS</td>
+                                                                        @*<td>@list.DPENTERED</td>
+                                                                        <td>@list.NOTENTERED</td>*@
+
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                       
+                                
+                              
+                    </div>
+                
+
+
+            </div>
+
+        </div>
+    </div>
+</div>

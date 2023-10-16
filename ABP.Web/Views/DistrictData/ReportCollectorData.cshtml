@@ -1,0 +1,203 @@
+﻿@model ABP.Domain.DataPoint.DataPoint
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ApprovedData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DataPoint.DataPoint>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    @*<p class="ml-2">(*) Indicates mandatory </p>*@
+                </div>
+            </div>
+            <!-- Search Panel -->
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="blocksearch">
+                        <input type="hidden" id="hdnsectorid" value="" />
+                        <input type="hidden" id="hdnfrequency" value="" />
+                        <input type="hidden" id="hdnstatus" value="" />
+                        <div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2">
+                                <label class="control-label" for="demo-email-input">Sector Name</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlSector" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME"))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2 col-xl-2">
+                                <label class="control-label" for="demo-email-input">Frequency</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlFrequency" asp-for="FREQUENCYNO" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2" id="annually">
+                                <label class="control-label" for="demo-email-input">Year</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                                <select class="form-control" asp-for="YEAR" id="ddlYear">
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6 col-xl-2">
+                                <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </form>
+
+
+
+
+                </div>
+
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+            <!-- Search Panel -->
+            <div class="card-body">
+                <div class="row" id="table">
+                    <div class="table-responsive col-sm-12">
+                        <table data-toggle="table" id="tblViewBDOData" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>@*<th>Sector Name</th>*@
+                                    <th>Year</th>
+                                    <th>Frequency</th>
+                                    <th>Month/QTR/HLF/Year</th>
+                                    
+                                    <th>Block Name</th>
+                                    <th>Number of DataPoints</th>
+
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+
+                                @{int Count = 1; }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                <tr>
+                                    <td>@Count</td>
+                                    @*<td>@item.PANELNAME</td>*@
+                                    <td>@item.YEAR</td>
+                                    <td>@item.FREQUENCY</td>
+                                    <td> @item.FREQUENCYVALUE </td>
+                                    <td>@item.BLOCKNAME</td>
+                                    <td><a style="color: #1f05fb" href="javascript:;" data-toggle="modal" data-target="#successModal" onclick="sethdnsector(@item.APPLICATIONNO)"> @item.DATAPOINTCOUNT </a></td>
+
+                                </tr>
+                                    Count++;
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @*<div class="norecord"> No Record Found</div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModal" aria-hidden="true" style="padding-right: 9px;">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width : 150%">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="exampleModalLabel" style="color:black">
+                    Datapoints
+                </h5>
+                <a href="javascript:;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </a>
+            </div>
+            <div id="datapointpopup"></div>
+            @*<table class="table table-bordered cus-tble-font cutom-tbl-responsive" id="tblNewApplication">
+                    <thead>
+                        <tr>
+                            <th width="30px">Sl#</th>
+                            <th>Datapoint Name</th>
+                            <th>Datapoint Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datapointpopup">
+                    </tbody>
+                </table>*@
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        document.getElementById("AddCollectorInd").href = "../CollectorData/CollectorDataIndicator?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("ViewCollectorInd").href = "../CollectorData/ViewCollectorData?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+
+
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Datapoint Entry', 'Add Datapoint Value', 'View BDOData');
+        var currentYear = new Date().getFullYear();
+        var start = currentYear;
+        var end = 2020;
+        var options = "";
+        options += "<option value='0'>--All--</option>";
+        for (var year = start; year >= end; year--) {
+            options += "<option value=" + year + ">" + year + "</option>";
+        }
+        document.getElementById("ddlYear").innerHTML = options;
+
+        $('#table').show();
+
+        if ("@ViewBag.yr" == "0")
+        {
+
+        }
+
+        else
+        {
+            $("#ddlYear").val(@ViewBag.yr);
+
+        }
+
+
+
+
+    });
+</script>
+
+
+<script>
+    function sethdnsector(AppNo) {
+        $.ajax({
+            url: "/BlockData/GetDatapoints?AppNo=" + AppNo + "&Status=1",
+            type: "GET",
+
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+                $('#datapointpopup').html(data);
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+        });
+    }
+</script>
+

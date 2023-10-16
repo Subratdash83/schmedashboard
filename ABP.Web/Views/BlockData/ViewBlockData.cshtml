@@ -1,0 +1,284 @@
+﻿@model ABP.Domain.BlockData.BlockData
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewBDOData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as List<ABP.Domain.BlockData.BlockData>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="BDODataAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BDODataView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- Search Panel -->
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="blocksearch">
+                        <input type="hidden" id="hdnsectorid" value="" />
+                        <input type="hidden" id="hdnfrequency" value="" />
+                        <input type="hidden" id="hdnstatus" value="" />
+                        <div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2">
+                                <label class="control-label" for="demo-email-input">Sector Name</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlSector" asp-for="PANELID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-2 col-xl-2">
+                                <label class="control-label" for="demo-email-input">Frequency</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <select class="form-control" id="ddlFrequency" asp-for="FREQUENCYID" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                                    <option value="0">---All---</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-12 col-md-2 col-xl-2" id="annually">
+                                <label class="control-label" for="demo-email-input">Year</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                                <select class="form-control" asp-for="YEAR" id="ddlYear">
+                                </select>
+                            </div>
+                           @* <div class="col-12 col-md-2 col-xl-2" id="annually">
+                                <label class="control-label" for="demo-email-input">Status</label>
+                            </div>
+                            <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                                <select class="form-control" asp-for="STATUS" id="ddlStatus">
+                                    <option value="">---All---</option>
+                                    <option value="0">Saved As Draft</option>
+                                    <option value="2">Pending At Collector</option>
+                                    <option value="1">Approved</option>
+                                    <option value="3">Rejected</option>
+                                </select>
+                            </div>*@
+                            <div class="col-12 col-md-6 col-xl-2">
+                                <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+            <!-- Search Panel -->
+            <div class="card-body">
+                <div class="row" id="table">
+                    <div class="table-responsive col-sm-12">
+                        <table data-toggle="table" id="tblViewBDOData" class="table ">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>
+                                    <th>Year</th>
+                                    <th>Frequency</th>
+                                    <th>Month/Qtr/Half/Year</th>
+                                    <th>Sector Name</th>
+                                    <th class="text-center" width="183px">Number of DataPoints</th>
+                                    <th class="text-center" width="220px">Status</th>
+                                    @if (ViewBag.check == 48)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        <th class="text-center">Edit</th>
+                                    }
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+
+                                @{
+                                    int Count = 1;
+                                }
+
+                                @foreach (var item in ListData)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td>@item.YEAR</td>
+                                        <td>@item.FREQUENCY</td>
+                                        <td>
+                                            @if (item.FREQUENCYID == 2)
+                                            {
+                                                @item.FREQUENCYVALUE
+                                            }
+                                            else
+                                            {
+                                                @item.YRFREQUENCYVALUE
+                                            }
+                                        </td>
+                                        <td> @item.PANELNAME</td>
+                                        <td class="text-center"><a class="Static" href="javascript:;" data-toggle="modal" data-target="#successModal" onclick="sethdnsector('@item.APPLICATIONNO', '@item.TABLENAME',@item.FREQUENCYID,@item.FREQUENCYNO)"> @item.DPCOUNT</a></td>
+                                        <td class="text-center">
+                                            @if (item.STATUS == 0)
+                                            {
+                                                <a href="#" class="btn btn-sm btn-outline-primary">Saved As Draft <i class="fa fa-floppy-o"></i> </a>
+
+                                                @*<td class="text-center"> <a href="#" class="btn btn-sm btn-outline-success block-status">Saved<i class="fa fa-check ml-2"></i> </a> </td>*@
+                                            }
+                                            else if (item.STATUS == 2)
+                                            {
+
+                                                <a href="#" class="btn btn-sm btn-outline-info"> Pending At Collector <i class="fa fa-hourglass-end"></i> </a>
+                                            }
+                                            else if (item.STATUS == 1)
+                                            {
+
+                                                <a href="#" class="btn btn-sm btn-outline-success"> Approved <i class="fa fa-check"></i> </a>
+                                            }
+                                            else if (item.STATUS == 3)
+                                            {
+                                                <a href="#" class="btn btn-sm btn-outline-danger block-status"> Rejected <i class="fa fa-times"></i> </a>
+                                            }
+                                            else { }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (item.STATUS == 0)
+                                            {
+                                                <a href="/BlockData/BlockDataEntryTemp?AppNo=@item.APPLICATIONNO&Year=@item.YEAR&FreqId=@item.FREQUENCYID&FreqNo=@item.FREQUENCYNO&Status=@item.STATUS" ; class="text-primary" title="" data-original-title="Edit"><i class="icon-edit1"></i></a>
+
+                                            }
+                                            else if (item.STATUS == 3)
+                                            {
+                                                <a href="/BlockData/RejectedData?AppNo=@item.APPLICATIONNO" ; class="text-primary" title="" data-original-title="Edit"><i class="icon-edit1"></i></a>
+                                            }
+                                            else { }
+                                        </td>
+                                    </tr>
+                                    Count++;
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @*<div class="norecord"> No Record Found</div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModal" aria-hidden="true" style="padding-right: 9px;">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width : 150%">
+            <div class="modal-header ">
+                <h5 class="modal-title" id="exampleModalLabel" >
+                    Datapoints
+                </h5>
+                <a href="javascript:;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </a>
+            </div>
+                <div id="popupdatapoint"></div>
+            </div>
+        </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        document.getElementById("BDODataAdd").href = "../BlockData/BlockDataEntryTemp?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("BDODataView").href = "../BlockData/ViewBlockData?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewBlockData', 'gldata', 'plbdodata', 'Datapoint Entry', 'Block Data Entry', 'View BDOData');
+        getDataTable();
+        var currentYear = new Date().getFullYear();
+        var start = currentYear;
+        var end = 2020;
+        var options = "";
+        options += "<option value='0'>--All--</option>";
+        for (var year = start; year >= end; year--) {
+            options += "<option value=" + year + ">" + year + "</option>";
+        }
+        document.getElementById("ddlYear").innerHTML = options;
+
+        $('#table').show();
+
+        if ("@ViewBag.year" == "0")
+        {
+
+        }
+
+        else
+        {
+            $("#ddlYear").val(@ViewBag.year);
+
+        }
+
+
+
+
+    });
+</script>
+
+<script>
+    function sethdnsector(AppNo, PanelName,FreqId,FreqNo) {
+        $.ajax({
+            url: "/BlockData/GetAllBlockDataEntered?AppNo=" + AppNo + "&PanelName=" + PanelName + "&FreqId=" + FreqId + "&FreqNo=" + FreqNo,
+            type: "GET",
+
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+                $('#popupdatapoint').html(data);
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+        });
+    }
+    function getDataTable() {
+        $('#tblViewBDOData').DataTable({
+            "searching": true,
+            //"bStateSave": true,
+            "dom": 'Bfrtip',
+            "autoWidth": false,
+            "buttons": [
+                //{
+                //    extend: 'print',
+                //    title: 'Manage Block',
+                //    exportOptions: {
+                //        columns: [0, 1, 2, 3, 4]
+                //    },
+                //    customize: function (win) { $(win.document.body).css('font-size', '10pt').prepend('<img src="' + origin + '/images/t5-logo-white.png"  style="position:absolute; top:0; left:0;" />'); $(win.document.body).find('table').addClass('compact').css('font-size', 'inherit'); }
+
+                //}
+                ,
+                {
+                    extend: 'pageLength'
+
+                }
+            ],
+            "lengthMenu": [
+                [10, 25, 50, 100, 1000,- 1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', '1000 rows', 'Show all']
+            ]
+
+        });
+    }
+</script>

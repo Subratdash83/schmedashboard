@@ -1,0 +1,185 @@
+﻿@model ABP.Domain.BlockData.BlockData
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ApprovedData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DataPoint.DataPoint>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="ViewAppInd">
+                        Not Calculated Indicators
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<p class="ml-2">(*) Indicates mandatory </p>*@
+                </div>
+            </div>
+            <!-- Search Panel -->
+            <div class="search-container">
+
+                <form method="post" id="blocksearch">
+                    <input type="hidden" id="hdnsectorid" value="" />
+                    <input type="hidden" id="hdnfrequency" value="" />
+                    <input type="hidden" id="hdnstatus" value="" />
+                    <div class="form-group row mt-2">
+                        <div class="col-12 col-md-2 col-xl-1"></div>
+                        <div class="col-12 col-md-2 col-xl-1">
+                            <label class="control-label" for="demo-email-input">Frequency</label>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <select class="form-control" id="ddlFrequency" asp-for="FREQUENCYID" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                                <option value="0">---All---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2 col-xl-1">
+                            <label class="control-label" for="demo-email-input">District</label>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <select class="form-control" id="ddlDist" asp-for="DISTRICTID" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE","BLOCK_NAME"))">
+                                <option value="0">---All---</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group row mt-2">
+                        <div class="col-12 col-md-2 col-xl-1"></div>
+                        <div class="col-12 col-md-2 col-xl-1" id="annually">
+                            <label class="control-label" for="demo-email-input">Year</label>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                            <select class="form-control" asp-for="YEAR" id="ddlYear" asp-items="@(new SelectList(ViewBag.Year, "FREQUENCYVALUE", "FREQUENCYVALUE" ))">
+                                <option value="0">---All---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2 col-xl-1" id="annually">
+                            <label class="control-label" for="demo-email-input">Block</label>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3" id="annuallyinput">
+                            <select class="form-control" asp-for="BLOCKID" id="ddlBlock" name="Blockid">
+                                <option value="0">---All---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-2">
+                            <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                        </div>
+
+                    </div>
+                </form>
+
+
+
+
+
+
+
+
+            </div>
+            <!-- Search Panel -->
+            <div class="card-body">
+             
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+    $(document).ready(function () {
+        //document.getElementById("ViewAppInd").href = "../CollectorData/ViewCollectorData?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('Approved Indicators', 'gldata', 'plbdodata', 'Approved Indicators', 'Approved Indicators', 'Approved Indicators');
+        //var currentYear = new Date().getFullYear();
+        //var start = currentYear;
+        //var end = 2021;
+        //var options = "";
+        //options += "<option value='0'>--All--</option>";
+        //for (var year = start; year >= end; year--) {
+        //    options += "<option value=" + year + ">" + year + "</option>";
+        //}
+        //document.getElementById("ddlYear").innerHTML = options;
+
+        //$('#table').show();
+
+        //if ("@ViewBag.yr" == "0") {
+
+        //}
+
+        //else {
+        //    $("#ddlYear").val(@ViewBag.yr);
+
+        //}
+
+        if (@ViewBag.bid != '0') {
+            BindBlockData(@ViewBag.bid);
+        }
+
+
+    });
+</script>
+
+
+<script>
+
+    function sethdnsector(AppNo) {
+        $.ajax({
+            url: "/BlockData/GetAllIndicatorAndDatapoints?AppNo=" + AppNo + "&Status=1",
+            type: "GET",
+
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+                //alert(JSON.stringify(data));
+                // debugger
+                // console.log(data);
+                //var Ghtml;
+                //for (var i = 0; i < data.length; i++) {
+                //    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                //}
+                $('#datapointpopup').html(data);
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+        });
+    }
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDist').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---Select---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDist').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---Select---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>
+

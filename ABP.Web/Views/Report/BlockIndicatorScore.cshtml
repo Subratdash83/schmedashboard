@@ -1,0 +1,407 @@
+﻿
+   
+
+@{
+    ViewData["Title"] = "BlockIndicatorScore";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/css/districtdetails.css" rel="stylesheet" />
+<link href="~/css/icomoon.css" rel="stylesheet" />
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header d-md-flex justify-content-between align-items-center">
+                <div>
+                    <ul class="nav nav-tabs custome-tab" id="myTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="home-tab" data-toggle="tab" data-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Avg Score</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="profile-tab" data-toggle="tab" data-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Sector Wise Score</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="map-data">
+                    <ul class="map-details">
+                        <li>
+                            <div class="mr-2">
+                                <select class="form-control" disabled id="ddlYear" name="Year">
+                                    <option value="2022" selected>2022</option>
+                                    <option value="2022">2021</option>
+                                </select>
+
+                            </div>
+                        </li>
+                        <li>
+                            <div>
+                                <select class="form-control month-select" disabled id="ddlMonth" name="Month">
+                                    <option value="1">Jan</option>
+                                    <option value="2">Feb</option>
+                                    <option value="12" selected>Sep</option>
+                                </select>
+                            </div>
+                        </li>
+                    </ul>
+
+
+                </div>
+                <div class="d-flex align-items-center mt-sm-0 mt-2">
+                    <div class="d-flex align-items-center mr-2">
+                        <span class="bullet bullet-success font-small-3 custome-bullet cursor-pointer"></span>
+                        <span class="text-success"> 100% Completed</span>
+                    </div>
+                    <div class="d-flex align-items-center mr-2">
+                        <span class="bullet bullet-warning font-small-3 custome-bullet cursor-pointer"></span>
+                        <span class="text-warning">> 50% </span>
+                    </div>
+                    <div class="d-flex align-items-center ml-75">
+                        <span class="bullet bullet-danger font-small-3 danger-bullet custome-bullet cursor-pointer"></span>
+                        <span class="text-danger"> < 50% </span>
+                    </div>
+                </div>
+                @*<p class="font-weight-bold">You are viewing data for the month of <span id="lblMonth"></span> (<span id="lblYear"></span>)</p>*@
+            </div>
+            <div class="card-body">
+                <div class="block-score">
+                    <div class="block-list">
+                        <div class="blocklist-data">
+                            <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                <span class="font-weight-bold d-block mt-1 text-black50  fs-17">Blocks</span>
+                                <button class="nav-link active mt-2" id="v-pills-home-tab" data-toggle="pill" data-target="#v-pills-home" type="button" role="tab" aria-controls="v-pills-home" aria-selected="true">
+                                    <div class="text-left mt-2">
+                                        <span class="fw-500 score-percent d-block fs-19">78%</span>
+                                        <span class="score-percent">Naugaon</span>
+                                    </div>
+                                    <div class="score-percent">
+                                        <div class="progress" data-percentage="78">
+                                            <span class="progress-left">
+                                                <span class="progress-bar"></span>
+                                            </span>
+                                            <span class="progress-right">
+                                                <span class="progress-bar success"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </button>
+                                <button class="nav-link" id="v-pills-profile-tab" data-toggle="pill" data-target="#v-pills-profile" type="button" role="tab" aria-controls="v-pills-profile" aria-selected="false">
+                                    <div class="text-left mt-2">
+                                        <span class="fw-500 score-percent d-block fs-19">43%</span>
+                                        <span class="score-percent">Naugaon</span>
+                                    </div>
+                                    <div class="score-percent">
+                                        <div class="progress" data-percentage="20">
+                                            <span class="progress-left">
+                                                <span class="progress-bar"></span>
+                                            </span>
+                                            <span class="progress-right">
+                                                <span class="progress-bar warning"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </button>
+                                <button class="nav-link" id="v-pills-messages-tab" data-toggle="pill" data-target="#v-pills-messages" type="button" role="tab" aria-controls="v-pills-messages" aria-selected="false">
+                                    <div class="text-left mt-2">
+                                        <span class="fw-500 score-percent d-block fs-19">43%</span>
+                                        <span class="score-percent">Naugaon</span>
+                                    </div>
+                                    <div class="score-percent">
+                                        <div class="progress" data-percentage="20">
+                                            <span class="progress-left">
+                                                <span class="progress-bar"></span>
+                                            </span>
+                                            <span class="progress-right">
+                                                <span class="progress-bar danger"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </button>
+                                <button class="nav-link" id="v-pills-settings-tab" data-toggle="pill" data-target="#v-pills-settings" type="button" role="tab" aria-controls="v-pills-settings" aria-selected="false">
+                                    <div class="text-left mt-2">
+                                        <span class="fw-500 score-percent d-block fs-19">43%</span>
+                                        <span class="score-percent">Naugaon</span>
+                                    </div>
+                                    <div class="score-percent">
+                                        <div class="progress" data-percentage="20">
+                                            <span class="progress-left">
+                                                <span class="progress-bar"></span>
+                                            </span>
+                                            <span class="progress-right">
+                                                <span class="progress-bar warning"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="blocklist-content">
+                            <div class="tab-content" id="v-pills-tabContent">
+                                <ul class="blockindicator-detail mb-0">
+                                    <li class="pt-0 pb-1">
+                                        <div class="mr-5 count fs-17 font-weight-bold custome-dnone">#</div>
+                                        <div class="maintext-content map-data ">
+                                            <ul class="map-details">
+                                                <li class="border-bottom-0">
+                                                    <div class="mr-2">
+                                                        <span class="indicator fs-17">Indicators</span>
+
+                                                    </div>
+                                                </li>
+                                                <li class="p-0">
+                                                    <div>
+                                                        <select class="form-control month-select fs-17 font-weight-bold"  name="Month">
+                                                            <option value="1">All Sector</option>
+                                                            <option value="2">Sector 1</option>
+                                                            <option value="2">Sector 1</option>
+                                                        </select>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="ml-5 digits fs-17 font-weight-bold custome-dnone">Score </div>
+                                    </li>
+                                </ul>
+                                    <div class="tab-pane fade show active style-1 scrollbar" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
+                                        <div class="force-overflow">
+                                            <ul class="blockindicator-detail">
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">1</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-success">32% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">2</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">3</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-success">95% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">4</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">5</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        </div>
+                                    <div class="tab-pane fade scrollbar style-1" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+                                        <div class="force-overflow">
+                                            <ul class="blockindicator-detail">
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">1</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-success">32% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">2</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">3</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-success">95% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">4</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">5</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="ml-5 digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade scrollbar style-1" id="v-pills-messages" role="tabpanel" aria-labelledby="v-pills-messages-tab">
+                                        <div class="force-overflow">
+                                            <ul class="blockindicator-detail">
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">1</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-success">32% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">2</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">3</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-success">95% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">4</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">5</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade scrollbar style-1" id="v-pills-settings" role="tabpanel" aria-labelledby="v-pills-settings-tab">
+                                        <div class="force-overflow">
+                                            <ul class="blockindicator-detail">
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">1</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="digits text-success">32% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">2</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class="ml-5 digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">3</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-success">95% <i class="icon-up-arrow text-success"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">4</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                                <li>
+                                                    <div class="mr-5 count custome-dnone">5</div>
+                                                    <div class="maintext-content">
+                                                        <p>
+                                                            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                                                        </p>
+                                                        <span class="catogery">Health &  Education</span>
+                                                    </div>
+                                                    <div class=" digits text-danger">32% <i class="icon-down-arrow text-danger"></i></div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+</div>

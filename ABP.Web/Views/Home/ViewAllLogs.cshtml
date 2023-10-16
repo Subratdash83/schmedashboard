@@ -1,0 +1,96 @@
+﻿@model ABP.Domain.Sector.sector
+
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewAllLogs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.FileDetails as List<ABP.Domain.File.FIleDetails>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="ViewAllLogs">
+                        View
+                    </a>
+                </ul>
+            </div>
+            <!--===================================================-->
+            <div class="card-body ">
+                @if (ResultData != null && ResultData.ToList().Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table data-toggle="table" id="tblDataPoint" class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="30px">Sl#</th>
+                                    <th>Date Created</th>
+                                    <th width="160">Download log file</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int count = 1;
+                                }
+                                @foreach (var list in ResultData)
+                                {
+                                    <tr>
+                                        <td width="40px">@count</td>
+                                        <td>@list.CreationTime</td>
+                                        <td><a href="/logs/@list.FileName"  data-toggle="tooltip" data-placement="top" title="Download " class="Static " download> @list.FileName</a></td>
+                                    </tr>
+                                    count++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                <div class="clearfix col-sm-12"></div>
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        document.getElementById("ViewAllLogs").href = "../Home/ViewAllLogs?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('Viewalllogs', 'gldata', 'plbdodata', 'Log', 'Application Log', 'Application Log');
+        getDataTable()();
+    });
+    function getDataTable() {
+        $('#tblViewPaymentDetails').DataTable({
+            "searching": true,
+            "dom": 'Bfrtip',
+            "autoWidth": false,
+            "buttons": [
+                {
+                    extend: 'pageLength'
+                }
+            ],
+            "lengthMenu": [
+                [10, 25, 50, 100, 1000 - 1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', '1000 rows', 'Show all']
+            ]
+
+        });
+    }
+</script>
+

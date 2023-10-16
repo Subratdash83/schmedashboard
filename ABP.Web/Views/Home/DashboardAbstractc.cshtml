@@ -1,0 +1,704 @@
+﻿@model ABP.Domain.Report.AbstractData
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "MonthlyDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var ListData = ViewBag.DatapointData as Task<IEnumerable<ABP.Domain.Report.AbstractData>>;
+    //var ListDataYr = ViewBag.DatapointDatayearly as Task<IEnumerable<ABP.Domain.Report.Report>>;
+    // var ListDpfall = ViewBag.Monthwisedp as Task<IEnumerable<ABP.Domain.Report.Report>>;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+                <li class="breadcrumb-item"><a href="../Home/MapData" title="Home"><i class="fa fa-home"></i></a></li>
+                <li class="breadcrumb-item">MIS Report Report </li>
+                <li class="breadcrumb-item font-weight-bold">Absract Entry Report</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                @*<form method="post" id="search">*@
+                <div class="form-group row">
+
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                        <select class="form-control" id="ddlYear" asp-for="Year" asp-items="@(new SelectList(ViewBag.Years, "FREQUENCYNO", "FREQUENCYVALUE" ))">
+                            <option value=0>---Select---</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <input type="hidden" id="hdnDistrict" value="" />
+                        <label class="control-label" for="demo-email-input">District</label>
+                        <select class="form-control" id="ddlDistrict" asp-for="DistrictId" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                            <option value=0>---Select---</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <label class="control-label" for="Month">Category</label>
+                        <select class="form-control" id="ddlaspiration" asp-for="Aspirationblock">
+                            <option value=0>All</option>
+                            <option value="1">Aspirational block</option>
+                            <option value="2">Non Aspirational block</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3 col-xl-3">
+                        <br />
+                        <button id="btnSearch" class="btn btn-primary"> Search</button>
+
+                    </div>
+                </div>
+                <div id="divshow">
+                    <div>
+
+                        <div class='legend-box legend-box2 mr-2'>
+                            <div>
+                                <a href='#' class='text-success  mb-lg-0'>  <span class='back-green1'></span> <strong>100% Completed </strong> </a>
+                                <a href='#' class='text-warning mb-lg-0'>  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a>
+                                <a href='#' class='text-danger mb-lg-0'>  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a>
+                            </div>
+                            <div>
+                                <a href="javascript:PrintPageAbs();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mt-3"><i class="icon-printer1"></i></a>
+
+                                <a href="javascript:generateExcelD();void(0)" title="Export to Excel" id="printIconD" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mt-3"><i class="icon-excel-file"></i></a>
+                            </div>
+
+                        </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="table-responsive" id="printtableabs">
+                        <div><a href="/Home/DashboardData">Link</a></div>
+                        <table class="table" style="width:100%;" id="tbldata">
+                            <thead>
+                                <tr>
+                                    <th>SlNo.</th>
+                                    <th width="120px" style="text-align:left">District </th>
+                                    <th>Jan</th>
+                                    <th>Feb</th>
+                                    <th>Mar</th>
+                                    <th>Apr</th>
+                                    <th>May</th>
+                                    <th>Jun</th>
+                                    <th>Jul</th>
+                                    <th>Aug</th>
+                                    <th>Sep</th>
+                                    <th>Oct</th>
+                                    <th>Nov</th>
+                                    <th>Dec</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tblBody">
+                            </tbody>
+                            <tfoot>
+                                <tr class="sum-row">
+                                    <td>Total</td>
+                                    <td></td>
+                                    <td id="sum-jan"></td>
+                                    <td id="sum-feb"></td>
+                                    <td id="sum-mar"></td>
+                                    <td id="sum-apr"></td>
+                                    <td id="sum-may"></td>
+                                    <td id="sum-jun"></td>
+                                    <td id="sum-jul"></td>
+                                    <td id="sum-aug"></td>
+                                    <td id="sum-sep"></td>
+                                    <td id="sum-oct"></td>
+                                    <td id="sum-nov"></td>
+                                    <td id="sum-dec"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+        $(document).ready(function () {
+            $('#divshow').hide();
+        
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+
+       if (@HttpContextAccessor.HttpContext.Session.GetInt32("_HRMSSTATUS") == 0) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Do you want to change your Password?",
+                callback: function (result) {
+                    if (result == true) {
+                        window.location.href = "/Login/ChangePasswordReq?Hid=@HttpContextAccessor.HttpContext.Session.GetString("_EncryptUserName")";
+
+                    }
+                }
+            });
+        }
+
+    });
+
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtableabs thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtableabs tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+    function generateExcelD() {
+        $('#printtableabs').table2excel();
+        getvisible();
+    }
+    function getReportname(name) {
+        if ($('#ddlDistrict').val() != 0) {
+            return "BMPMonthlyDataEntryReport-" + $("#hdnDistrict").val() + "(" + $('#ddlYear').val() + ")";
+        }
+        else {
+            return "BMPMonthlyDataEntryReport(" + $('#ddlYear').val() + ")";
+        }
+    }
+</script>
+<script>
+    //print function work
+    function PrintPageAbs() {
+
+        var windowName = "PrintPageAbs";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtableabs").clone();
+        var head = $('#printtableabs thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+        var selectdist = $("#ddlDistrict").val();
+        var sdata = "";
+        if (selectdist == 0) {
+            sdata = "All";
+
+        }
+        else {
+            sdata = $("#ddlDistrict").find("option:selected").text();
+
+        }
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<strong style='margin-left: 19px;font - size: 17px;color:#000'>Abstract Report</strong><div style='display:flex;align-items:center;'><br/><div class='float-left year mt-0'>For the Year:- " + $("#ddlYear").val() + "</div><div class='float-left year mt-0'>District:-" + sdata + "</div><div class='legend-box float-right' style='    line-height: 2px;'><a href='#' style='text-decoration:none'  class='text-success mb-0'>  <span class='back-green1'></span> <strong>100% Completed </strong> </a><a href='#' style='text-decoration:none' class='text-warning mb-00'>  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a><a href='#' style='text-decoration:none' class='mb-0 text-danger'>  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a></div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>
+<script>
+    function generate() {
+        debugger;
+        var doc = new jsPDF('p', 'pt', 'letter');
+        var htmlstring = '';
+        var tempVarToCheckPageHeight = 0;
+        var pageHeight = 0;
+        var img = new Image();
+        img.src = '../images/Odisha_logo_Black.png';
+        pageHeight = doc.internal.pageSize.height;
+        specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#bypassme': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true
+            }
+        };
+        margins = {
+            top: 150,
+            bottom: 60,
+            left: 40,
+            right: 40,
+            width: 600
+        };
+        var y = 20;
+        var show = $('#printtable').html();
+        doc.setLineWidth(2);
+        doc.addImage(img, 'png', 40, 10, 50, 50);
+        doc.fromHTML("<b style='font-size:25px'>Block Monitoring Programme</b>", 90, 8);
+        // doc.fromHTML("<p style='font-size:20px'>Government of Odisha</p>", 95, 22);
+        // doc.text(50, y = y + 45, show);
+        doc.autoTable({
+            html: '#printtable',
+            startY: 100,
+            theme: 'grid',
+            styles: {
+                minCellHeight: 40
+            }
+        })
+        doc.save('DataEntryPerformance.pdf');
+    }
+    $("input:checkbox").on('click', function () {
+        var $box = $(this);
+        if ($box.is(":checked")) {
+            var group = "input:checkbox[name='" + $box.attr("name") + "']";
+            $(group).prop("checked", false);
+            $box.prop("checked", true);
+        } else {
+            $box.prop("checked", false);
+        }
+    });
+</script>
+<script>
+    $('#btnSearch').click(function () {
+
+        //  $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        if ($('#ddlYear').val() == 0) {
+            bootbox.alert('Please Select  year!');
+            return false;
+        }
+        BindMasterData();
+
+    })
+</script>
+<script>
+    function BindMasterData() {
+        debugger;
+    var Distid = $("#ddlDistrict").val();
+    var Categoryid = $("#ddlaspiration").val();
+    var Yearid = $("#ddlYear").val(); // Corrected variable name
+    $.ajax({
+        data: { Distid: Distid, Categoryid: Categoryid, Yearid: Yearid },
+        url: '@Url.Action("DashboardAbstractc", "Home")',
+        type: "POST",
+        dataType: "json",
+        success: function (response) {
+            //alert(JSON.stringify(response.Result));
+            $('#tblBody').empty();
+            if (response.Result.length == 0) {
+                var tblRow = '<tr>' +
+                    '<td colspan="13" align="center">No record found!</td> ' +
+                    '</tr >';
+                $('#tblBody').append(tblRow);
+            }
+            else {
+                $('#divshow').show();
+                var i = 0;
+                var data = "";
+                for (i = 0; i < response.Result.length; i++) {
+                    debugger;
+                    var pmonth = response.Result[i].JAN;
+                    var ptotal = response.Result[i].TOTALDBLOCK;
+                    //var colpercent = (pmonth * 100) / ptotal
+                    var colpercent = (pmonth * 100) / ptotal;
+                    var colpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (colpercent == 100) {
+                        colpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (colpercent == 0) {
+                        colpercentColor = 'black'; // Less than 50% will be red
+                    }else if (colpercent >= 50 && colpercent < 100) {
+                        colpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (colpercent < 50) {
+                        colpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        colpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    // February;
+                    var fmonth = response.Result[i].FEB;
+                   
+                    //var colpercent = (pmonth * 100) / ptotal
+                    var fcolpercent = (fmonth * 100) / ptotal;
+                    var fcolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (fcolpercent == 100) {
+                        fcolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (fcolpercent == 0) {
+                        fcolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (fcolpercent >= 50 && fcolpercent < 100) {
+                        fcolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (fcolpercent < 50) {
+                        fcolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        fcolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //March
+                    var fmonth = response.Result[i].MAR;
+                    var mcolpercent = (fmonth * 100) / ptotal;
+                    var mcolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (mcolpercent == 100) {
+                        mcolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (mcolpercent == 0) {
+                        mcolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (mcolpercent >= 50 && mcolpercent < 100) {
+                        mcolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (mcolpercent < 50) {
+                        mcolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        mcolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //April
+                    var amonth = response.Result[i].APR;
+                    var acolpercent = (amonth * 100) / ptotal;
+                    var acolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (acolpercent == 100) {
+                        acolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (acolpercent == 0) {
+                        acolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (acolpercent >= 50 && acolpercent < 100) {
+                        acolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (acolpercent < 50) {
+                        acolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        acolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //May
+                    var mymonth = response.Result[i].MAY;
+                    var mycolpercent = (mymonth * 100) / ptotal;
+                    var mycolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (mycolpercent == 100) {
+                        mycolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (mycolpercent == 0) {
+                        mycolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (mycolpercent >= 50 && mycolpercent < 100) {
+                        mycolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (mycolpercent < 50) {
+                        mycolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        mycolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //June
+                    var jmonth = response.Result[i].JUN;
+                    var jcolpercent = (mymonth * 100) / ptotal;
+                    var jcolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (jcolpercent == 100) {
+                        jcolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (jcolpercent == 0) {
+                        jcolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (jcolpercent >= 50 && jcolpercent < 100) {
+                        jcolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (jcolpercent < 50) {
+                        jcolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        jcolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //July
+                    var jumonth = response.Result[i].JUL;
+                    var jucolpercent = (jumonth * 100) / ptotal;
+                    var jucolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (jucolpercent == 100) {
+                        jucolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (jucolpercent == 0) {
+                        jucolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (jucolpercent >= 50 && jucolpercent < 100) {
+                        jucolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (jucolpercent < 50) {
+                        jucolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        jucolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //August
+                    var agmonth = response.Result[i].AUG;
+                    var agcolpercent = (jumonth * 100) / ptotal;
+                    var agcolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (agcolpercent == 100) {
+                        agcolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (agcolpercent == 0) {
+                        agcolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (jucolpercent >= 50 && jucolpercent < 100) {
+                        agcolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (agcolpercent < 50) {
+                        agcolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        agcolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //Septmber
+                    var smonth = response.Result[i].SEP;
+                    var scolpercent = (smonth * 100) / ptotal;
+                    var scolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (scolpercent == 100) {
+                        scolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (scolpercent == 0) {
+                        scolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (scolpercent >= 50 && scolpercent < 100) {
+                        scolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (scolpercent < 50) {
+                        scolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        scolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //October
+                    var omonth = response.Result[i].OCT;
+                    var ocolpercent = (omonth * 100) / ptotal;
+                    var ocolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (ocolpercent == 100) {
+                        ocolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (ocolpercent == 0) {
+                        ocolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (ocolpercent >= 50 && ocolpercent < 100) {
+                        ocolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (ocolpercent < 50) {
+                        ocolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        ocolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //November
+                    var nmonth = response.Result[i].NOV;
+                    var ncolpercent = (nmonth * 100) / ptotal;
+                    var ocolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (ncolpercent == 100) {
+                        ncolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (ncolpercent == 0) {
+                        ncolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (ncolpercent >= 50 && ocolpercent < 100) {
+                        ncolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (ncolpercent < 50) {
+                        ncolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        ncolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    //December
+                    var dmonth = response.Result[i].DEC;
+                    var dcolpercent = (dmonth * 100) / ptotal;
+                    var dcolpercentColor;
+                    //var numeratorColor;
+                    // Set the colpercentColor based on the percentage range
+                    if (dcolpercent == 100) {
+                        dcolpercentColor = 'green'; // 100% and above will be green
+                    }
+                    else if (dcolpercent == 0) {
+                        dcolpercentColor = 'black'; // Less than 50% will be red
+                    } else if (dcolpercent >= 50 && dcolpercent < 100) {
+                        dcolpercentColor = 'Yellow'; // 50% to 89.99% will be orange
+                    } else if (dcolpercent < 50) {
+                        dcolpercentColor = 'red'; // Less than 50% will be red
+                    }
+                    else {
+                        dcolpercentColor = 'black'; // Handle any other cases as needed
+                    }
+                    var row = "<tr>";
+                    row += '<td>' + (i + 1) + '</td>';
+                    row += '<td>' + response.Result[i].NVCHLEVELNAME + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + colpercentColor + '" >' + pmonth + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + fcolpercentColor + '">' + response.Result[i].FEB + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + mcolpercentColor + '" >' + response.Result[i].MAR + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + acolpercentColor + '">' + response.Result[i].APR + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + mycolpercentColor + '">' + response.Result[i].MAY + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + jcolpercentColor + '">' + response.Result[i].JUN + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + jucolpercentColor + '">' + response.Result[i].JUL + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + agcolpercentColor + '">' + response.Result[i].AUG + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + scolpercentColor + '">' + response.Result[i].SEP + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + ocolpercentColor + '" >' + response.Result[i].OCT + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + ncolpercentColor + '">' + response.Result[i].NOV + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '<td><a href="/Home/DashboardData/?Districtid=' + response.Result[i].DISTRICTID + '&year=' + Yearid + '" style="color: ' + dcolpercentColor + '">' + response.Result[i].DEC + '/' + response.Result[i].TOTALDBLOCK + '</td>';
+                    row += '</tr>';
+                    $('#tblBody').append(row);
+                }
+                debugger;
+                calculateColumnSum();
+            }
+        },
+        error: function (Message) {
+            alert("No data found");
+        }
+    });
+}
+    function BindTemplateData() {
+        debugger
+        var Distid = $("#ddlDistrict").val();
+        var Categoryid = $("#ddlaspiration").val();
+        var Yearid = $("#ddlYear").val();
+        $.ajax({
+            type: "POST",
+            url: "/Home/DashboardAbstractc", // Replace with the correct URL for your action.
+            data: { Distid: Distid, Categoryid: Categoryid, Yearid: Yearid },
+            data: data,
+            dataType: "json",
+            success: function (data) {
+                // Handle the response data here
+                console.log("Response:", data);
+            },
+            error: function (error) {
+                console.error("Error:", error);
+            }
+        });
+    }
+</script>
+<script>
+    function calculateColumnSum() {
+        var table = $("#tbldata");
+        var footer = table.find("tfoot");
+        var columnsCount = footer.find("td").length;
+
+        for (var i = 2; i < columnsCount; i++) { // Start from the third column (Jan), skipping the first two columns (Sl No. and District)
+            var sumNumerator = 0;
+            var sumDenominator = 0;
+
+            table.find("tbody tr").each(function () {
+                var tdValue = $(this).find("td:nth-child(" + i + ")").text().trim();
+                var parts = tdValue.split("/");
+
+                if (parts.length === 2) {
+                    var numerator = parseFloat(parts[0].replace(",", ""));
+                    var denominator = parseFloat(parts[1].replace(",", ""));
+
+                    if (!isNaN(numerator) && !isNaN(denominator)) {
+                        sumNumerator += numerator;
+                        sumDenominator += denominator;
+                    }
+                }
+            });
+
+            footer.find("td:nth-child(" + i + ")").text(sumNumerator.toFixed(0) + ' / ' + sumDenominator.toFixed(0));
+        }
+    }
+
+</script>
+<script>
+
+    function redirect(event,districtId) {
+            debugger;
+            event.preventDefault();
+            var parameterValue = "DistrictId=" + districtId + "&year=" + @ViewBag.year;
+            var url = '@Url.Action("DashboardData", "Home")';
+            url += '?' + parameterValue;
+            window.location.href = url;
+    };
+    function getColoredTd(value, total) {
+        var color = value === total ? 'green' : 'red';
+        return '<td style="color: ' + color + ';">' + value + '/' + total + '</td>';
+    }
+    </script>

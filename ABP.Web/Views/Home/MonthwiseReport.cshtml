@@ -1,0 +1,214 @@
+﻿@model ABP.Domain.Report.Report
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+    //var RData = ViewBag.RejectResultCount as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+    var ListData = ViewBag.DatapointData as Task<IEnumerable<ABP.Domain.Report.Report>>;
+}
+
+
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+</style>
+
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" id="dashsearch">
+                    <div class="form-group row">
+
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlYear" name="Year" asp-for="Year">
+                                <option value="0">---Select---</option>
+                                <option value="2021">2021</option>
+                                <option value="2022">2022</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <label class="control-label" for="demo-email-input">District</label>
+                            <select class="form-control" id="ddlDistrict" name="DistrictId" asp-for="DistrictId" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-4 mt-4">
+                            <button id="btnSearch" class="btn btn-primary"> Search</button>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-2">
+                    </div>
+                    <a href="javascript:PrintPage();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-5"><i class="icon-printer1"></i></a>
+                </form>
+                <br />
+                <div class="table-responsive" id="printtable">
+                    <table class="table table-bordered mt-3">
+                        <thead>
+                            <tr>
+                                @if (ListData != null)
+                                {
+                                    <th width="50px">Sl No. </th>
+                                    <th width="150px">District </th>
+                                    <th>Total No. of Blocks </th>
+                                    <th>For the month of</th>
+                                    <th>Total no. of blocks Data submitted</th>
+                                    <th>Total no. of blocks Data pending  </th>
+                                    <th>Total no. of blocks Data rejected</th>
+                                    <th>Total no. of blocks Data approved</th>
+                                }
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var count = 1;
+                            }
+                            @if (ListData != null)
+                            {
+                                @foreach (var item1 in ListData.Result)
+                                {
+
+                                    <tr>
+                                        <td>@count</td>
+                                        <td> <span class="Static">@item1.Districtname </span></td>
+                                        <td> <span class=""> @item1.TotalBlocks </span></td>
+                                        <td>@item1.Month</td>
+                                        <td> <span class=" Static">@item1.BlocksEntered </span></td>
+                                        <td> <span class="orange-Static">@item1.DataPending </span></td>
+                                        <td> <span class="red-Static">@item1.DataRejected </span></td>
+                                        <td> <span class="green-Static">@item1.DataApproved </span></td>
+                                    </tr>
+                                    count = count + 1;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Home', 'Dashboard', 'Dashboard');
+        document.getElementById("dashsearch").href = "../Home/DistDashboard?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    });
+
+</script>
+<script>
+    // print function
+    function PrintPage() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable").clone();
+        var head = $('#printtable thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div><div class='float-left'>For the Year:- " + $("#ddlYear").val()+"</div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+</script>
+
+<script>
+     $(document).ready(function () {
+      // BindScheme();
+        SummerizeTable('#printtable');
+        $('#printtable').Datatable();
+    });
+      $('#btnSearch').click(function(){
+        if($('#ddlYear').val()==0){
+            bootbox.alert('Please Select any year!');
+            return false;
+        }
+    })
+     function SummerizeTable(table) {
+        $(table).each(function () {
+            $(table).find('td').each(function () {
+                var $this = $(this);
+                var col = $this.index();
+                if (col <= 1||col == 2) {
+                    var html = $this.html();
+                    var row = $(this).parent()[0].rowIndex;
+                    var span = 1;
+                    var cell_above = $($this.parent().prev().children()[col]);
+
+                    // look for cells one above another with the same text
+                    while (cell_above.html() === html) { // if the text is the same
+                        span += 1; // increase the span
+                        cell_above_old = cell_above; // store this cell
+                        cell_above = $(cell_above.parent().prev().children()[col]); // and go to the next cell above
+                    }
+
+                    // if there are at least two columns with the same value,
+                    // set a new span to the first and hide the other
+                    if (span > 1) {
+                        // console.log(span);
+                        $(cell_above_old).attr('rowspan', span);
+                        $this.hide();
+                    }
+                }
+            });
+        });
+    }
+</script>

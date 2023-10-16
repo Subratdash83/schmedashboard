@@ -1,0 +1,160 @@
+﻿
+@model ABP.Domain.DataPoint.DataPoint
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "RejectedDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.RejectedResult as List<ABP.Domain.DataPoint.DataPoint>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BDODataReject">
+                        Rejected
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="table">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="myTable">
+                            <thead>
+                                <tr>
+                                    <th width="50">Sl#</th>
+                                    @*<th width="180">Block Name</th>*@
+                                    <th width="140">Year</th>
+                                    <th width="150">Frequency</th>
+                                    <th width="50">Month</th>
+                                    <th width="150">Sector</th>
+                                    <th class="text-center" width="180">Take Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tbodySector" id="tbody">
+                                @{
+                                    int Count = 1;
+                                }
+                                @if (ListData != null)
+                                {
+                                    @foreach (var item in ListData)
+                                    {
+                                        <tr>
+                                            <td>@Count</td>
+                                            @*<td>@item.BLOCKNAME</td>*@
+                                            <td>@item.YEAR</td>
+                                            <td>@item.FREQUENCY</td>
+                                            <td>
+                                                @if (item.FREQUENCYID == 2)
+                                                {
+                                                    @item.FREQUENCYVALUE
+                                                }
+                                                else
+                                                {
+                                                    @item.YRFREQUENCYVALUE
+                                                }
+                                            </td>
+                                            <td>@item.SECTORNAME</td>
+                                            <td class="text-center"><a href="/BlockData/RejectedData?AppNo=@item.APPLICATIONNO&FreqId=@item.FREQUENCYID" ; class="btn btn-outline-success btn-sm custome-btn-outline" title="" data-original-title="Edit">Take Action</a></td>
+                                        </tr>
+                                        Count++;
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @*<div class="norecord"> No Record Found</div>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModal" aria-hidden="true" style="padding-right: 9px;">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width : 150%">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="exampleModalLabel" style="color:black">
+                    Datapoints
+                </h5>
+                <a href="javascript:;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </a>
+            </div>
+            <div id="datapointpopup"></div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable({
+            "searching": true,
+            //"bStateSave": true,
+            "dom": 'Bfrtip',
+            "autoWidth": false,
+            "buttons": [
+                ,
+                {
+                    extend: 'pageLength'
+
+                }
+            ],
+            "lengthMenu": [
+                [10, 25, 50, 100, 1000, - 1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', '1000 rows', 'Show all']
+            ]
+
+        });
+        document.getElementById("BDODataReject").href = "../BlockData/RejectedDetails?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('RejectedData', 'gldata', 'plbdodata', 'Rejected Data', 'Rejected Data', 'Rejected Data');
+        var currentYear = new Date().getFullYear();
+        var start = currentYear;
+        var end = 2020;
+        var options = "";
+        options += "<option value='0'>--All--</option>";
+        for (var year = start; year >= end; year--) {
+            options += "<option value=" + year + ">" + year + "</option>";
+        }
+        document.getElementById("ddlYear").innerHTML = options;
+
+        $('#table').show();
+    });
+</script>
+
+
+<script>
+    function sethdnsector(AppNo) {
+        $.ajax({
+            url: "/BlockData/GetDatapoints?AppNo=" + AppNo + "&Status=1",
+            type: "GET",
+
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+                $('#datapointpopup').html(data);
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+        });
+    }
+</script>
+
+
+
+
+

@@ -1,0 +1,41 @@
+﻿.git
+.vs
+ABP.Web/bin/**
+ABP.Web/obj/**
+ABP.Domain/bin/**
+ABP.Domain/obj/**
+ABP.Repository/bin/**
+ABP.Repository/obj/**
+ABP.Repository.Contract/obj/**
+ABP.Repository.Contract/bin/**
+/ABP.Infrastructure/obj/Debug/netstandard2.0/.NETStandard,Version=v2.0.AssemblyAttributes.cs
+/ABP.Infrastructure/obj/project.nuget.cache
+
+/ABP.Infrastructure/obj/Debug/netstandard2.0
+/ABP.Infrastructure/obj/Release/netstandard2.0
+/ABP.Web/.config/dotnet-tools.json
+/ABP.Web/Properties/PublishProfiles
+/.vs
+<<<<<<< HEAD
+=======
+/ABP.Repository/obj
+>>>>>>> origin/Dev
+/ABP.Domain/obj
+/ABP.Infrastructure/obj
+/ABP.Repository/obj
+/ABP.Repository.Contract/obj
+/ABP.Web/obj
+<<<<<<< HEAD
+/.vs
+=======
+/ABP.Web/bin/Debug
+/ABP.Repository.Contract/bin/Debug
+/ABP.Repository/bin/Debug
+/ABP.Infrastructure/bin/Debug
+/ABP.Domain/bin/Debug
+>>>>>>> origin/Dev
+/ABP.Repository/ABP.Repository.csproj.user
+/ABP.Web/wwwroot/SectorDocuments
+/ABP.Infrastructure/bin/Release/netstandard2.0
+/ABP.Web/wwwroot/logs
+/Documents

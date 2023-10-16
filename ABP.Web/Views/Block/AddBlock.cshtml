@@ -1,0 +1,158 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddBlock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a asp-area="" asp-controller="Block" asp-action="AddBlock" class="nav-item nav-link active">Add</a>
+                        <a asp-area="" asp-controller="Block" asp-action="ViewBlock" class="nav-item nav-link">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BlkAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="BlkView">
+
+                        View
+
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+                <!--Email Input-->
+                <div class="form-group row">
+                    <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select District <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <span class="colon">:</span>
+                        <select class="form-control" id="ddlDist" name="Dist" asp-items="@(new SelectList(ViewBag.District, "DistrictId", "DISTRICT_NAME" ))">
+                            <option value="">---Select---</option>
+                            @*<option value="1234567">---SelectAnoNym---</option>*@
+                        </select>
+                        @*<select class="form-control">
+            <option>---Select---</option>
+            </select>*@
+                    </div>
+                </div>
+                <!--Password-->
+                <!--Textarea-->
+                <div class="form-group row pad-ver" id="blk">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">Block List</label>
+                    <div class="col-12 col-md-6 col-xl-5">
+                        <span class="colon">:</span>
+                        <div class="checkbox block-checkbox" id="mainDiv">
+                          
+                            <!-- Inline Checkboxes -->
+                            @*<input id="demo-form-inline-checkbox" class="magic-checkbox" type="checkbox">
+        <label for="demo-form-inline-checkbox">Option 1</label> &nbsp;&nbsp;
+        <input id="demo-form-inline-checkbox-2" class="magic-checkbox" type="checkbox">
+        <label for="demo-form-inline-checkbox-2">Option 2</label> &nbsp;&nbsp;
+        <input id="demo-form-inline-checkbox-3" class="magic-checkbox" type="checkbox">
+        <label for="demo-form-inline-checkbox-3">Option 3</label> &nbsp;&nbsp;
+        <input id="demo-form-inline-checkbox" class="magic-checkbox" type="checkbox">
+        <label for="demo-form-inline-checkbox">Option 4</label> &nbsp;&nbsp;
+        <input id="demo-form-inline-checkbox-2" class="magic-checkbox" type="checkbox">
+        <label for="demo-form-inline-checkbox-2">Option 5</label> &nbsp;&nbsp;
+        <input id="demo-form-inline-checkbox-3" class="magic-checkbox" type="checkbox">
+        <label for="demo-form-inline-checkbox-3">Option 6</label> &nbsp;&nbsp;*@
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button id="btnConfirm" onclick="sendOTP()" class="btn btn-success show-otp">Submit</button>
+                        <button id="btnReset" class="btn btn-danger  ">Reset</button>
+                        @*<button class="btn btn-danger mb-1">Accept</button>*@
+                    </div>
+                </div>
+                
+                <div class="form-group row pad-ver otp-box bg-light pt-3">
+                    <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                        Enter OTP
+                    </label>
+                    <div class="col-lg-4">
+                        <input type="number" id="txtotp" class="form-control" />
+
+                        <input type="hidden" id="hdnotp" class="form-control" />
+                        <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+                    </div>
+                    <button onclick="reSendOTP()" style="height:50px" id="otpcount"class="btn btn-success">Re Send OTP</button>
+                    <label class="col-xl-12  col-xl-12 control-label"></label>
+                    <label class="col-12  col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button id="btnSubmit" class="btn btn-primary  ">Submit</button>
+                        <button id="btnReset1" class="btn btn-danger ">Reset</button>
+                    </div>
+                </div>
+              
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/block.js"></script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("BlkAdd").href = "../Block/AddBlock?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("BlkView").href = "../Block/ViewBlock?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('AddBlock', 'gldata', 'plbdodata', 'Manage Master', 'Manage Block', 'Add Block');
+        var distCode = getUrlVars()["DistCode"];
+        if (distCode != undefined) {
+            $("#btnSubmit").html("Update");
+            $("#btnReset").html("Cancel");
+            $("#ddlDist option[value=" + distCode + "]").attr('selected', 'selected');
+            bindBlock(distCode);
+        }
+       $("#btnConfirm").hide();
+       $("#btnReset").hide();
+    });
+
+
+    $("#btnConfirm").click(function () {
+        $("#btnReset").hide();
+    });
+
+    $("#btnReset1").click(function () {
+       
+       
+        $("#ddlDist").val("");
+        $("#blk").hide();
+        $("#txtotp").val("");
+        $(".otp-box").hide();
+        
+        
+    });
+
+
+
+
+    
+
+
+
+
+
+
+</script>

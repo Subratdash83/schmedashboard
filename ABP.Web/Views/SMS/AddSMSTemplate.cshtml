@@ -1,0 +1,209 @@
+﻿@{
+    @model ABP.Domain.SMS.SMSData
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddIndicator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="TEMPAdd">
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="TEMPView">
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnIndicatorId" hidden="hidden" value="0" class="form-control">
+                <input type="text" id="hdnDeptId" hidden="hidden" value="0" class="form-control">
+
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Template Code <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="text" id="txtTemplateName" class="form-control" maxlength="100" onkeypress="return inputLimiter(event,'NameCharactersymbol')">
+                        <small class="text-danger"> (Max 100 Character(s) Allow.)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-text-input">Template Title<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <input type="text" id="txtTemplateContent" class="form-control" maxlength="1000" onkeypress="return inputLimiter(event,'NameCharactersymbol')">
+                        <small class="text-danger"> (Max 1000 Character(s) Allow.)</small>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-text-input">Template Message<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <textarea id="txtTemplateMessage"rows="4" class="form-control" onkeypress="return inputLimiter(event,'NameCharactersymbol')" maxlength="1000"></textarea>
+                        <small class="text-danger"> (Max 1000 Character(s) Allow.)</small>
+                    </div>
+                </div>
+
+
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Save</button>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("TEMPAdd").href = "../SMS/AddSMSTemplate?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("TEMPView").href = "../SMS/ViewTemplate?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('AddSMSTemplate', 'gldata', 'plbdodata', 'Manage Master', 'Manage SMS Template', 'Manage SMS Template');
+
+    });
+    $('#btnSubmit').click(function () {
+        if (validate()) {
+            var DATAPOINTID = getUrlVars()["ID"];
+            if (DATAPOINTID != undefined) {
+                msg = "Are you sure ,you want to Update?";
+            } else {
+                msg = "Are you sure ,you want to Save?";
+            }
+            bootbox.confirm({
+                size: "medium",
+                message: msg,
+                callback: function (result) {
+                    if (result === true) {
+                        var fileData = new FormData();
+                        fileData.append("TEMPLATECODE", $('#txtTemplateName').val());
+                        fileData.append("TEMPLATETITLE", $('#txtTemplateContent').val());
+                        fileData.append("TEMPLATEMESSAGE", $('#txtTemplateMessage').val());
+                        addSMSConfig(fileData);
+                    }
+                }
+            });
+        }
+
+    });
+    //Validations for the fields in the form
+    function validate() {
+        if ($('#txtTemplateName').val() == "") {
+            bootbox.alert("Please Enter Template Code!");
+            $('#txtTemplateName').focus();
+            return false;
+        }
+        else if ($('#txtTemplateContent').val() == "") {
+            bootbox.alert("Please Enter Template Title!");
+            $('#txtTemplateContent').focus();
+            return false;
+        }
+        else if ($('#txtTemplateMessage').val() == "") {
+            bootbox.alert("Please Enter Template Message!");
+            $('#txtTemplateMessage').focus();
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+    //Post Call to the controller for data insertion
+    function addSMSConfig(Data) {
+        $.ajax({
+            type: "POST",
+            url: "/SMS/AddSMSTemplate",//Controller and Method(/Controller/Method)
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            data: Data,
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
+            success: function (res) {
+                bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                    window.location.href = "/SMS/AddSMSTemplate";
+                });
+            },
+            failure: function (response) {
+                console.log(response.responseText);
+            },
+            error: function (response) {
+                console.log(response.responseText);
+            }
+        });
+    }
+</script>
+
+

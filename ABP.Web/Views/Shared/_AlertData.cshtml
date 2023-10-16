@@ -1,0 +1,48 @@
+@{
+    var ListData =  ViewBag.RejectedResult as Task<IEnumerable<ABP.Domain.DataPoint.DataPoint>>;
+}
+                            <div class="card-body">
+                                <b class="w-100">Pending Actions</b>
+                                <div class="table-responsive col-sm-12">
+                                    <table class="table table-hover">
+                                    <thead>
+                                    <tr>
+                                    <th>Sl#</th>
+                                    <th>BLOCKNAME</th>
+                                    <th>Year</th>
+                                    <th>Frequency</th>
+                                    <th>Month/Qtr/Half/Year</th>
+                                    <th>Take Action</th>
+                                    </tr>
+                                    </thead>
+                               <tbody class="tbodySector" id="tbody"> 
+                                                 @{
+                                    int Count = 1;
+                                }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                         <td>@item.BLOCKNAME</td>
+                                        <td>@item.YEAR</td>
+                                        <td>@item.FREQUENCY</td>
+                                        <td> @item.FREQUENCYVALUE </td>
+                                        @if (item.STATUS == 2)
+                                        {
+                                            <td class="text-center"><a href="/DistrictData/Pending?Glink=0&Plink=0&BlockId=@item.BLOCKID&AppNo=@item.APPLICATIONNO" ; class="text-primary" title="" data-original-title="Edit"><i class="icon-edit1"></i></a></td>
+                                        }
+                                        else if (item.STATUS == 3)
+                                        {
+                                            <td class="text-center"><a href="/BlockData/RejectedData?Glink=0&Plink=0&AppNo=@item.APPLICATIONNO" ; class="text-primary" title="" data-original-title="Edit"><i class="icon-edit1"></i></a></td>
+                                        }
+                                    </tr>
+                                    Count++;
+                                }
+                                        </tbody>
+                                       </table>
+                                       </div>
+                                </div>
+
+
+

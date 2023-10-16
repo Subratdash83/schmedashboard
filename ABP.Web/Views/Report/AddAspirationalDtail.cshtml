@@ -1,0 +1,231 @@
+﻿@{
+    @model ABP.Domain.Report.Report
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddIndicator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="TEMPAdd">
+                        Add
+                    </a>
+                    @*<a class="nav-item nav-link" data-toggle="tooltip" id="TEMPView">
+                        View
+                    </a>*@
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnIndicatorId" hidden="hidden" value="0" class="form-control">
+                <input type="text" id="hdnDeptId" hidden="hidden" value="0" class="form-control">
+
+
+                <div class="form-group row">
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label class="control-label" for="demo-email-input">District</label>
+                        <select class="form-control" id="ddlDist" asp-for="DistrictId" onchange="BindBlockData(0)" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE","BLOCK_NAME"))">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <div id="annually">
+                            <label class="control-label" for="demo-email-input">Block</label>
+                        </div>
+                        <select class="form-control" asp-for="BlockId" id="ddlBlock" name="Blockid">
+                            <option value="0">---All---</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-xl-3">
+                        <label class=" control-label" for="demo-email-input">Block Type</label>
+                        <div class="">
+                            <input type="radio" id="type1" name="YEARTYPE" value="1">
+                            <label for="type1">Aspirational Block</label>
+                            <input type="radio" id="type2" name="YEARTYPE" value="2">
+                            <label for="type2">Non-Aspirational Block</label><br>
+                        </div>
+                    </div>
+                </div>
+
+ 
+                <div class="form-group row">
+                    <label class=" control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-primary mb-1" id="btnSubmit">Save</button>
+
+
+                    </div>
+                </div>
+
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        document.getElementById("TEMPAdd").href = "../Report/AddAspirationDtail";
+        //document.getElementById("TEMPView").href = "../SMS/ViewTemplate";
+        loadNavigation('Template Configuration', 'gldata', 'plbdodata', 'Report', 'Add Aspiration Detail');
+
+    });
+    $('#btnSubmit').click(function () {
+        if (validate()) {
+            var DATAPOINTID = getUrlVars()["ID"];
+            if (DATAPOINTID != undefined) {
+                msg = "Are you sure ,you want to Update?";
+            } else {
+                msg = "Are you sure ,you want to Save?";
+            }
+            bootbox.confirm({
+                size: "medium",
+                message: msg,
+                callback: function (result) {
+                    if (result === true) {
+                        var fileData = new FormData();
+                        fileData.append("BlockId", $('#ddlBlock').val());
+                        fileData.append("BlockType", $("input[name='YEARTYPE']:checked").val());
+                        addSMSConfig(fileData);
+                    }
+                }
+            });
+        }
+
+    });
+    //Validations for the fields in the form
+    function validate() {
+        var radioValue = $("input[name='YEARTYPE']:checked").val();
+        if ($('#ddlDist').val() == "0") {
+            bootbox.alert("Please select District!");
+            $('#ddlDist').focus();
+            return false;
+        }
+        else if ($('#ddlBlock').val() == "0") {
+            bootbox.alert("Please Select Block!");
+            $('#ddlBlock').focus();
+            return false;
+        }
+        else if (radioValue == undefined) {
+            bootbox.alert("Please select Block Type!");
+            return false;
+            
+        }
+        else {
+            return true;
+        }
+    }
+    //Post Call to the controller for data insertion
+    function addSMSConfig(Data) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/AddAspirationalDtail",//Controller and Method(/Controller/Method)
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("XSRF-TOKEN",
+                    $('input:hidden[name="__RequestVerificationToken"]').val());
+            },
+            data: Data,
+            contentType: false, // Not to set any content header
+            processData: false, // Not to process data
+            success: function (res) {
+                bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                    window.location.href = "/Report/AddAspirationalDtail";
+                });
+            },
+            failure: function (response) {
+                console.log(response.responseText);
+            },
+            error: function (response) {
+                console.log(response.responseText);
+            }
+        });
+    }
+
+
+    function BindBlockData(id) {
+        $.ajax({
+            url: "/Department/GetBlockByDistID?id=" + $('#ddlDist').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0">---Select---</option>';
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+                }
+                if ($('#ddlDist').val() != 0) {
+                    $('#ddlBlock').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---Select---</option>';
+                    $('#ddlBlock').html(Ghtml1);
+                }
+                $('#ddlBlock').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+
+</script>
+
+

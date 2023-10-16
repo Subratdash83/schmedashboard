@@ -1,0 +1,172 @@
+﻿@model ABP.Domain.QueryBuilder.QueryBuilderModel
+@{
+    Layout = null;
+    ViewBag.Title = "QueryBuilder";
+}
+
+ <link href="~/css/bootstrap.min.css" rel="stylesheet">
+ <script src="~/js/jquery-3.3.1.min.js"></script>
+<title>@ViewBag.showmessage</title>
+<div class="formpage">
+
+    <div class="row">
+        <div class="col-md-12 col-sm-12">
+            <div class="panel panel-default">
+
+                <div class="panel-body">
+
+
+                    <div class="form-group">
+
+                        <div class="row" id="querypwd">
+                            <div class="container">
+                            <div class="col-md-3">
+                                <b class="mt-1"> Authentication (For DML Operation):</b>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="password" class="form-control" autocomplete="off" placeholder="Enter your Authentication Code" id="dmlpwd" name="dmlpwd" />
+                                <br />
+                            </div>
+                            <div class="col-md-3">
+                                <input type="button" value="Submit" onclick="checkPWD();" class="btn btn-outline-success" id="dmlbtn" />
+                            </div>
+                            </div>
+                        </div>
+                        @using (Html.BeginForm("AnalyticReport", "Reports", FormMethod.Post))
+                        {
+                            <div class="row" id="queryarea1">
+                                <div class="col-md-2">
+                                </div>
+                                <div class="col-md-8">
+                                    <br />
+                                    <h3>Enter your query below</h3>
+                                </div>
+                                <div class="col-md-2">
+                                </div>
+                            </div>
+                            <div class="row" id="queryarea2">
+                                <div class="col-md-2">
+                                    @Html.HiddenFor(model => model.DMLCode)
+
+                                </div>
+                                <div class="col-md-8">
+                                    <br />
+                                    @Html.TextAreaFor(model => model.QueryText, new { @Value = @ViewBag.QueryText, autocomplete = "off", @placeholder = "Enter your query here", @class = "form-control QueryTextbox", style = "height:200px;" })
+                                </div>
+                                <div class="col-md-2">
+                                </div>
+                            </div>
+                            <div class="row" id="queryarea3">
+                                <div class="col-md-5">
+
+                                    <br />
+                                </div>
+                                <div class="col-md-4">
+
+                                    <br />
+                                    <table>
+                                        <tr>
+
+                                            <td>
+                                            <td> <input type="submit" value="Execute" class="btn btn-success " name="Command" id="btn1" /></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-5">
+                                </div>
+                            </div>
+                        }
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5 class="text-warning"><b>@ViewBag.showmessage</b></h5>
+
+
+                            </div>
+                        </div>
+
+                        @*Grid*@
+                        <div class="row">
+                            <div class="col-md-12">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @if (ViewBag.data == null)
+    {
+        <script type="text/javascript">
+            $('#queryarea1').hide();
+            $('#queryarea2').hide();
+            $('#queryarea3').hide();
+        </script>
+    }
+    else
+    {
+        <script type="text/javascript">
+                  $('#queryarea1').show();
+                    $('#queryarea2').show();
+                    $('#queryarea3').show();
+                    $('#querypwd').hide();
+                    $('#dmlpwd').val("");
+            $('#DMLCode').val(@ViewBag.data);
+        </script>
+
+    }
+    <script type="text/javascript">
+        $('#dmlpwd').keypress(function (e) {
+            var key = e.which;
+            if (key == 13)
+            {
+                checkPWD();
+                return false;
+            }
+        });
+        $(function () {
+                var code = (new URL(location.href)).searchParams.get('code');
+        if (code == null) {
+                }
+        else {
+
+        $('#DMLCode').val(code);
+               }
+
+           });
+        function checkPWD() {
+                if ($('#dmlpwd').val() == '') {
+            alert("Enter the DMLCode !")
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("CheckDMLCode","Reports")',
+                data: { 'dcode': $('#dmlpwd').val() },
+                type: "POST",
+                success: function (res) {
+                    if (res.status == 1) {
+                        var code = (new URL(location.href)).searchParams.get('code');
+                        $('#queryarea1').show();
+                        $('#queryarea2').show();
+                        $('#queryarea3').show();
+                        $('#querypwd').hide();
+                        $('#dmlpwd').val("");
+                        $('#DMLCode').val(res.dcode);
+                    }
+                    else {
+                        alert("code is incorrect");
+                        $('#dmlpwd').val("");
+                    }
+                },
+                error: function (err) {
+                    alert(JSON.stringify(err));
+                }
+            })
+
+        }
+            }
+    </script>
+</div>
+
+

@@ -1,0 +1,676 @@
+﻿@model ABP.Domain.Report.Report
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "MonthlyDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.DatapointData as Task<IEnumerable<ABP.Domain.Report.Report>>;
+    var ListDataYr = ViewBag.DatapointDatayearly as Task<IEnumerable<ABP.Domain.Report.Report>>;
+}
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box{
+        float: inherit;
+    }
+       .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+  
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+                <li class="breadcrumb-item"><a href="../Home/MapData" title="Home"><i class="fa fa-home"></i></a></li>
+                <li class="breadcrumb-item">MIS Report </li>
+                <li class="breadcrumb-item font-weight-bold">Monthly Entry Performance</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <form method="post" id="search">
+                    <div class="form-group row">
+
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlYear" asp-for="Year" asp-items="@(new SelectList(ViewBag.Years, "FREQUENCYNO", "FREQUENCYVALUE" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <input type="hidden" id="hdnDistrict" value="" />
+                            <label class="control-label" for="demo-email-input">District</label>
+                            <select class="form-control" id="ddlDistrict" asp-for="DistrictId" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Completion(%)</label>
+                            <select class="form-control" id="ddlcompare" asp-for="condition">
+                                <option value="0">---Select---</option>
+                                <option value="1">&lt;=</option>
+                                <option value="2">&gt;=</option>
+                                <option value="3">Between</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3 col-xl-3 ">
+                            <label class="control-label" for="demo-email-input" id="Frmcompletion"></label>
+                            <div class="d-sm-flex">
+                                <div class="w-100">
+                                    <input type="text" id="datapointenter" min="0" max="100" asp-for="filterno" class="form-control">
+                                </div>
+                                <div id="Todatapoint">
+                                    <input type="text" id="todatapointenter" min="1" max="100" asp-for="filternoto" class="form-control ml-sm-1">
+                                </div>
+
+
+                            </div>
+
+                        </div>
+                        
+                            <div class="col-12 mt-2 mb-3">
+                                <button id="btnSearch" class="btn btn-primary"> Search</button>
+                            </div>
+
+
+                        </div>
+                        <div class="col-lg-2">
+                        </div>
+                        @if (ListData != null)
+                        {
+
+                            <div class="alert alert-secondary" role="alert">
+                                <ul class="table-details">
+                                    <li>53 = Monthly Datapoints</li>
+                                    <li>52 = Annual Datapoints</li>
+                                    <li>105 = Monthly and Annual datapoints</li>
+                                </ul>
+                            </div>
+
+                            @*   <div class='legend-box mr-2  text-left mt-3'>
+                <a href='#' class='text-success ml-0' onclick="CheckGreen()" id="gcheck">  <span class='back-green1'></span> <strong>No's mentioned against months indicate the no of datapoints to be entered for the month</strong> </a>
+                <br />
+                <a href='#' class='text-success ml-0' onclick="CheckGreen()" id="gcheck">  <span class='back-green1'></span> <strong>No mentioned monthly for the month May includes monthly and annual datapoints</strong> </a>
+            </div>*@
+                        }
+</form>
+
+                <div>
+                    @if (ListData != null)
+                    {
+                        <div class='legend-box legend-box2 mr-2'>
+                            <div>
+                                <a href='#' class='text-success  mb-lg-0' onclick="CheckGreen()" id="gcheck">  <span class='back-green1'></span> <strong>100% Completed </strong> </a>
+                                <a href='#' class='text-warning mb-lg-0' onclick="CheckYellow()" id="ycheck">  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a>
+                                <a href='#' class='text-danger mb-lg-0' onclick="CheckRed()" id="rcheck">  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a>
+                            </div>
+                            <div>
+                                <a href="javascript:PrintPagePF();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mt-3"><i class="icon-printer1"></i></a>
+                                @*<a href="javascript:generate();void(0)" title="Export to PDF" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-pdf-1"></i></a>*@
+                                <a href="javascript:generateExcelD();void(0)" title="Export to Excel" id="printIconD" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mt-3"><i class="icon-excel-file"></i></a>
+                            </div>
+
+                        </div>
+                    }
+                    <div class="clearfix"></div>
+                </div>
+                <div class="table-responsive" id="printtable1">
+                    <table class="table ">
+                        <thead>
+                            <tr>
+                                @if (ListData != null)
+                                {
+                                    <th width="50px">Sl No. </th>
+                                    <th width="150px">District </th>
+                                    <th width="150px" style="text-align:left">Block </th>
+                                    @foreach (var item in ListData.Result.OrderBy(x => x.FREQUENCYNO).Select(u => u.Month).Distinct().ToList())
+                                    {
+                                        if (item == "May")
+                                        {
+                                            <th>@item (105)</th>
+                                        }
+                                        else
+                                        {
+                                            <th>@item (53)</th>
+
+                                        }
+
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var count = 1;
+                            }
+                            @if (ListData != null)
+                            {
+                                @foreach (var item1 in ListData.Result.OrderBy(x => x.FREQUENCYNO).Select(u => new { u.BLOCKNAME, u.Districtname }).Distinct().ToList())
+                                {
+
+                                    <tr>
+                                        <td>@count</td>
+                                        <td>@item1.Districtname</td>
+                                        <td style="text-align:left">@item1.BLOCKNAME</td>
+                                        @for (var i = 1; i <= (12 - ListData.Result.Where(w => w.Districtname == item1.Districtname && w.BLOCKNAME == item1.BLOCKNAME).Count()); i++)
+                                        {
+                                            <td></td>
+                                        }
+                                        @foreach (var item in ListData.Result.Where(w => w.Districtname == item1.Districtname && w.BLOCKNAME == item1.BLOCKNAME))
+                                        {
+                                            decimal percent;
+                                            int dpcount = 0;
+                                            var item2 = ListDataYr.Result.Where(x => x.BlockId == item.BlockId).Select(u => u.NONZERODPCOUNT).FirstOrDefault();
+                                            dpcount = item.NONZERODPCOUNT + item2;
+                                            if (@item.NONZERODPCOUNT == 0 && @dpcount == 0)
+                                            {
+                                                percent = 0;
+                                            }
+                                            else
+                                            {
+                                                @if (item.Month == "May")
+                                                {
+
+
+                                                    percent = (dpcount * 100) / 105;
+                                                }
+                                                else
+                                                {
+                                                    percent = (@item.NONZERODPCOUNT * 100) / @item.DPCOUNT;
+                                                }
+                                                @*percent = (@item.NONZERODPCOUNT / @item.DPCOUNT) * 100;*@
+
+                                            }
+                                            string percentclass = string.Empty;
+                                            if (percent == 100)
+                                            {
+                                                percentclass = "back-green";
+                                            }
+                                            else if (percent >= 50)
+                                            {
+                                                percentclass = "back-yellow";
+                                            }
+                                            else if (percent != 0 && percent <= 50)
+                                            {
+                                                percentclass = "back-red";
+                                            }
+                                            else
+                                            {
+                                                percentclass = "font-weight-bold";
+                                            }
+                                    <td class="@percentclass">
+                                        @if (item.Month == "May")
+                                        {
+                                            if (item.NONZERODPCOUNT == 0)
+                                            {
+                                                <a onclick="redirect2(@item.BlockId,5,@dpcount)">@dpcount</a>
+                                            }
+                                            else
+                                            {
+                                                <a onclick="redirect2(@item.BlockId,2,@dpcount)"> @dpcount</a>
+                                            }
+
+                                        }
+
+                                        else if (item.FREQUENCYNO > 5)
+                                        {
+                                            <label><b>--</b></label>
+                                        }
+                                        else
+                                        {
+                                            <a onclick="redirect(@item.BlockId,@item.FREQUENCYNO,@item.NONZERODPCOUNT)">@item.NONZERODPCOUNT</a>
+                                        }
+
+
+                                    </td>
+                                        }
+                                    </tr>
+                                    count = count + 1;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+           
+           
+        </div>
+
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        var compare = $("#ddlcompare").val();
+        if (compare == "3") {
+            $("#Todatapoint").show();
+            $("#Frmcompletion").html("Value1 & Value2");
+        }
+        else {
+            $("#Frmcompletion").html("Value");
+            $("#Todatapoint").hide();
+        }
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("tabMonthly").href = "../Home/MonthlyDashboard?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("tabAnnually").href = "../Home/AnnualWiseReportcpy?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('Monthly Entry Performance', 'gldata', 'plbdodata', 'MIS Report', 'Monthly Entry Performance', 'Monthly Entry Performance');
+        document.getElementById("dashsearch").href = "../Home/Dashboard?Glink=" + gl + "&Plink=" + pl;
+        if (@HttpContextAccessor.HttpContext.Session.GetInt32("_HRMSSTATUS") == 0) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Do you want to change your Password?",
+                callback: function (result) {
+                    if (result == true) {
+                        window.location.href = "/Login/ChangePasswordReq?Hid=@HttpContextAccessor.HttpContext.Session.GetString("_EncryptUserName")";
+
+                    }
+                }
+            });
+        }
+
+    });
+    $('#btnSearch').click(function () {
+        $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        if ($('#ddlYear').val() == 0) {
+            bootbox.alert('Please Select any year!');
+            return false;
+        }
+        if ($('#ddlcompare').val() != 0) {
+            if ($('#ddlcompare').val() == 3) {
+
+                if ($('#todatapointenter').val() == '') {
+
+                    bootbox.alert('Please Enter Value!');
+
+                    return false;
+                }
+            }
+
+            if ($('#datapointenter').val() == '') {
+
+                bootbox.alert('Please Enter Value!');
+
+                return false;
+            }
+
+            if (($('#todatapointenter').is(':visible'))) {
+                if (($('#todatapointenter').val()) < ($('#datapointenter').val())) {
+                    bootbox.alert("Value should be more than from Value1 ");
+                    return false;
+                }
+            }
+        }
+
+
+        //else if ($('#datapointenter').val() == 0) {
+        //    bootbox.alert('Please Select any value!');
+        //    return false;
+        //}
+
+        //else if ($('#todatapointenter').is(':visible')) {
+        //    if ($('#todatapointenter').val() == '') {
+        //        bootbox.alert("Please Enter Value2");
+        //        $("#todatapointenter").focus();
+        //        return false;
+        //    }
+
+
+        //}
+    })
+    document.getElementById("datapointenter").onkeyup = function () {
+        var input = parseInt(this.value);
+        if (input < 0 || input > 100)
+            bootbox.alert("Value should be between 0 - 100");
+        if (input < 0) {
+            $('#datapointenter').val('');
+        }
+
+
+
+        return;
+    }
+    document.getElementById("todatapointenter").onkeyup = function () {
+        var input = parseInt(this.value);
+        var input1 = $('#datapointenter').val();
+        if (input < 1 || input > 100)
+            bootbox.alert("Value should be between 1 - 100");
+        //if (input < 1) {
+        //    $('#todatapointenter').val('');
+        //}
+        //if (input < input1) {
+        //    bootbox.alert("Value should be more than from Value1 ");
+        //}
+        return;
+    }
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtable1 thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtable1 tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+    function generateExcelD() {
+        $('#printtable1').table2excel();
+        getvisible();
+    }
+    $("#ddlDistrict").change(function () {
+
+    })
+
+
+
+
+    function getReportname(name) {
+        if ($('#ddlDistrict').val() != 0) {
+            return "BMPMonthlyDataEntryReport-" + $("#hdnDistrict").val() + "(" + $('#ddlYear').val() + ")";
+        }
+        else {
+            return "BMPMonthlyDataEntryReport(" + $('#ddlYear').val() + ")";
+        }
+    }
+</script>
+<script>
+    //print function work
+    function PrintPagePF() {
+
+        var windowName = "PrintPageP";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable1").clone();
+        var head = $('#printtable1 thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div style='display:flex;align-items:center;'><div class='float-left year mt-0'>For the Year:- " + $("#ddlYear").val() + "</div><div class='float-left year mt-0'>District:-@HttpContextAccessor.HttpContext.Session.GetString("_DeptName")</div><div class='legend-box float-right' style='    line-height: 2px;'><a href='#' style='text-decoration:none'  class='text-success mb-0'>  <span class='back-green1'></span> <strong>100% Completed </strong> </a><a href='#' style='text-decoration:none' class='text-warning mb-00'>  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a><a href='#' style='text-decoration:none' class='mb-0 text-danger'>  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a></div></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>
+<script>
+    function CheckEntered() {
+        $("tbody").find("tr").each(function () {
+            $(this).show();
+            var textvalue1 = $(this).find('td.back-yellow');
+            var textvalue2 = $(this).find('td.back-green');
+            var textvalue3 = $(this).find('td.back-red');
+            if (textvalue1.length == 0 && textvalue2.length == 0 && textvalue3.length == 0) {
+                $(this).hide();
+            }
+        });
+        DyncSlno();
+        $('.legend-box').show();
+        $('#gcheck').removeClass("green-Static");
+        $('#ycheck').removeClass("yellow-Static");
+        $('#rcheck').removeClass("red-Static");
+    }
+    function CheckNotEntered() {
+        $("tbody").find("tr").each(function () {
+            $(this).show();
+            var textvalue1 = $(this).find('td.back-yellow');
+            var textvalue2 = $(this).find('td.back-green');
+            var textvalue3 = $(this).find('td.back-red');
+            if (textvalue1.length != 0 || textvalue2.length != 0 || textvalue3.length != 0) {
+                $(this).hide();
+            }
+        });
+        DyncSlno();
+        $('.legend-box').hide();
+        $('#gcheck').removeClass("green-Static");
+        $('#ycheck').removeClass("yellow-Static");
+        $('#rcheck').removeClass("red-Static");
+    }
+    function CheckAll() {
+        $("tbody").find("tr").each(function () {
+            $(this).show();
+        });
+        DyncSlno();
+        $('.legend-box').show();
+        $('#gcheck').removeClass("green-Static");
+        $('#ycheck').removeClass("yellow-Static");
+        $('#rcheck').removeClass("red-Static");
+    }
+    function DyncSlno() {
+        var count = 1;
+        $("tbody").find("tr").each(function () {
+            if ($(this).css('display') == 'table-row') {
+                $(this).find('td:eq(0) ').text(count);
+                count++;
+            }
+        });
+    }
+
+    function CheckGreen() {
+        $('#gcheck').addClass("green-Static");
+        $('#ycheck').removeClass("yellow-Static");
+        $('#rcheck').removeClass("red-Static");
+        if (!($('#NEntered').prop("checked"))) {
+            $("tbody").find("tr").each(function () {
+                $(this).show();
+                var textvalue2 = $(this).find('td.back-green');
+                if (textvalue2.length == 0) {
+                    $(this).hide();
+                }
+            });
+            DyncSlno();
+
+        }
+    }
+    function CheckYellow() {
+        $('#gcheck').removeClass("green-Static");
+        $('#ycheck').addClass("yellow-Static");
+        $('#rcheck').removeClass("red-Static");
+        if (!($('#NEntered').prop("checked"))) {
+            $("tbody").find("tr").each(function () {
+                $(this).show();
+                var textvalue2 = $(this).find('td.back-green');
+                var textvalue1 = $(this).find('td.back-yellow');
+                if (textvalue2.length == 0 && textvalue1.length == 0) {
+                    $(this).hide();
+                }
+            });
+            DyncSlno();
+
+        }
+    }
+    function CheckRed() {
+        $('#gcheck').removeClass("green-Static");
+        $('#ycheck').removeClass("yellow-Static");
+        $('#rcheck').addClass("red-Static");
+        if (!($('#NEntered').prop("checked"))) {
+            $("tbody").find("tr").each(function () {
+                $(this).show();
+                var textvalue2 = $(this).find('td.back-red');
+                if (textvalue2.length == 0) {
+                    $(this).hide();
+                }
+            });
+            DyncSlno();
+
+        }
+    }
+</script>
+<script>
+    function redirect(bid, fno, nxdpcount) {
+        if (nxdpcount == 0) {
+            bootbox.alert("Data Not Entered For This Month");
+        }
+        else {
+            window.open("/BlockData/BlockDataViewTemp?blockid=" + bid + "&FreqId=2&FreqNo=" + fno + "&year=" + @ViewBag.year, '_blank', 'width=1000');
+        }
+    }
+    function redirect2(bid, fno, nxdpcount) {
+
+        if (nxdpcount == 0) {
+            bootbox.alert("Data Not Entered For This Month");
+        }
+       else if (fno == 5) {
+              window.open("/BlockData/BlockDataViewTempV2?blockid=" + bid + "&FreqId=5&FreqNo=" + fno + "&year=" + @ViewBag.year, '_blank', 'width=1000');
+          }
+          else{
+            window.open("/BlockData/BlockDataViewTempV2?blockid=" + bid + "&FreqId=2&FreqNo=5 &&year=" + @ViewBag.year, '_blank', 'width=1000');
+
+
+        }
+    }
+</script>
+<script>
+    function generate() {
+        debugger;
+        var doc = new jsPDF('p', 'pt', 'letter');
+        var htmlstring = '';
+        var tempVarToCheckPageHeight = 0;
+        var pageHeight = 0;
+        var img = new Image();
+        img.src = '../images/Odisha_logo_Black.png';
+        pageHeight = doc.internal.pageSize.height;
+        specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#bypassme': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true
+            }
+        };
+        margins = {
+            top: 150,
+            bottom: 60,
+            left: 40,
+            right: 40,
+            width: 600
+        };
+        var y = 20;
+        var show = $('#printtable').html();
+        doc.setLineWidth(2);
+        doc.addImage(img, 'png', 40, 10, 50, 50);
+        doc.fromHTML("<b style='font-size:25px'>Block Monitoring Programme</b>", 90, 8);
+        // doc.fromHTML("<p style='font-size:20px'>Government of Odisha</p>", 95, 22);
+        // doc.text(50, y = y + 45, show);
+        doc.autoTable({
+            html: '#printtable',
+            startY: 100,
+            theme: 'grid',
+            styles: {
+                minCellHeight: 40
+            }
+        })
+        doc.save('DataEntryPerformance.pdf');
+    }
+    $("input:checkbox").on('click', function () {
+        var $box = $(this);
+        if ($box.is(":checked")) {
+            var group = "input:checkbox[name='" + $box.attr("name") + "']";
+            $(group).prop("checked", false);
+            $box.prop("checked", true);
+        } else {
+            $box.prop("checked", false);
+        }
+    });
+</script>
+<script>
+
+    $("#ddlcompare").change(function () {
+        var compare = $("#ddlcompare").val();
+        if (compare == "3") {
+            $("#Todatapoint").show();
+
+            $("#Frmcompletion").html("Value1 & Value2");
+
+
+        }
+        else {
+            $("#Frmcompletion").html("Value");
+            $("#Todatapoint").hide();
+
+        }
+
+        $('#datapointenter').val('')
+        $('#todatapointenter').val('')
+    })
+</script>
+

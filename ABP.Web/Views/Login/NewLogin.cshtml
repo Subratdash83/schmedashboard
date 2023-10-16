@@ -1,0 +1,345 @@
+﻿@model ABP.Domain.Login.Login
+@{
+    Layout = null;
+    var ListData = ViewBag.DashboardList as Task<IEnumerable<ABP.Domain.Login.Login>>;
+
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User Login</title>
+    <!-- <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/icons.css" rel="stylesheet">
+    <link href="~/css/font-awesome.min.css" rel="stylesheet">-->
+    <!-- <link href="~/css/custom.css" rel="stylesheet">
+    <link href="../css/login.css" rel="stylesheet">
+    <script src="~/js/jquery-3.3.1.min.js"></script> -->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="~/js/aes.js"></script>
+    <link href="../css/login-new.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <div class="mainsection">
+        <div class="d-flex align-items-center">
+            <div class="container">
+                <div class="card login-card">
+                    <div class="no-gutters">
+
+                        <div class="">
+                            <div class="card-body">
+                                <div class="brand-wrapper">
+                                    <img src="../images/Odisha_logo_Black.png" alt="odisha Govt logo" class="logo">
+                                </div>
+                                <p class="login-card-description">Block Monitoring Programme<br> <small> Government of Odisha</small></p>
+
+                                <div class="sdg-full">
+                                    <div class="">
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="optradio" onclick="function pl(){window.location.href='/Login/Login'}pl();return false;"> HRMS
+                                            </label>
+                                        </div>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="optradio" checked="checked"> Portal
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+
+                                @*
+        @if (Model != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show p-2 mb-2 my-alert" role="alert">@Model.Message</div>
+        }*@
+                                @using (Html.BeginForm("NewLogin", "Login", FormMethod.Post, new { @class = "form-horizontal", onsubmit = "return checkForm();" }))
+                                {
+                                    @*<div class="form-group">
+                <label>HRMS </label><input type="radio" name="logintype" onclick="function pl(){window.location.href='/Login/Login'}pl();return false;" />
+                <label>Portal </label><input type="radio" name="logintype" checked="checked" />
+            </div>*@
+                                    <div class="row" id="alldiv">
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label class="">User Type</label>
+                                                <select class="form-control" id="ddlusertype">
+                                                    <option value="0">select</option>
+                                                    <option value="1">Department User</option>
+                                                    <option value="2">BDO</option>
+                                                    <option value="3">Collector</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 ">
+
+
+
+                                        </div>
+                                    </div>
+                                    <div class="row" id="deptdiv">
+                                        <div class="col-sm-6 pr-sm-0">
+                                            <div class="form-group">
+                                                <label class="" id="lbldepartment">Department</label>
+                                                <select class="form-control" id="ddlDepartment" onchange="bindDesg()" asp-items="@(new SelectList(ViewBag.Department, "DEPTID", "DEPTNAME"))">
+                                                    <option value="0">select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 ">
+                                            <div class="form-group">
+                                                <label class="" id="lbldepartment">Designation</label>
+                                                <select class="form-control" id="ddldesg"  onchange="bindDesg">
+                                                    <option value="0">select</option>
+                                                </select>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="row" id="bdodiv">
+                                        <div class="col-sm-6 pr-sm-0">
+                                            <div class="form-group">
+                                                <label class="">District</label>
+                                                <select class="form-control" onchange="bindBlock()" id="ddldistrict" asp-items="@(new SelectList(ViewBag.district, "DistrictId", "DISTRICT_NAME"))">
+                                                    <option value="0">select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-6 ">
+                                            <div class="form-group ">
+                                                <label class="">Block</label>
+                                                <input type="text" asp-for="VCHUSERNAME" onchange="bindBlock()" id="hdnUserName" hidden="hidden" value="0" class="form-control">
+                                                <select class="form-control" id="ddlblock">
+                                                    <option value="0">select</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="coltdiv">
+                                        <div class="form-group">
+                                            <label class="">District Name</label>
+                                            <select class="form-control" id="ddldisttcol" asp-items="@(new SelectList(ViewBag.district, "DistrictId", "DISTRICT_NAME"))">
+                                                <option value="0">select</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" id="divpsw">
+                                        <label for="exampleInputPassword1" class="" placeholder="********">Password</label>
+                                        <div class="input-group mb-3">
+    @Html.PasswordFor(m => m.vchpassword, new { @class = "form-control", type = "password", id = "txtpwd" })
+    @Html.ValidationMessageFor(m => m.vchpassword)
+    <div class="input-group-append">
+        <span class="input-group-text" id="basic-addon2"><span id="togglePassword" class="fa fa-eye" onclick="togglePasswordField()"></span></span>
+    </div>
+</div>
+                                    </div>
+                                    <div class="d-flex">
+                                        <button type="submit" class="btn btn-block login-btn mt-3">Sign in</button>
+                                        <a asp-action="HRMSLogin" asp-controller="Login" class="smltxt forgot-pass text-success w-100 d-block" id="password">Forgot&nbsp;Password?</a>
+                                      
+                                    </div>
+
+                                }
+                                <input name="hidmsg" type="hidden">
+
+
+
+                                <br><a href="abpsupport@odisha.gov.in" target="_blank" class="w-100 d-block text-secondary" id="password"> For any query, Mail us at <span class="d-block" style="font-weight:bold"> abpsupport@odisha.gov.in </span></a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+
+</html>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+<script src="~/js/jquery-3.3.1.min.js"></script>
+<script>
+
+    $(document).ready(function () {
+        $("#deptdiv").hide();
+        $("#bdodiv").hide();
+        $("#coltdiv").hide();
+        $("#divpsw").hide();
+        if ("@ViewBag.msg" != null) {
+           bootbox.alert("@ViewBag.msg");
+        }
+
+    });
+    $('#txtpwd').on('input', function () {
+        var maxLength = 48;
+        if (this.value.length > maxLength) {
+            this.value = this.value.substring(0, maxLength);
+            bootbox.alert("Please Enter Password within 48 Characters");
+        }
+    });
+
+</script>
+<script>
+    $("#ddlusertype").on("change", function () {
+        debugger;
+        var usertype = $("#ddlusertype").val();
+      
+        if (usertype == "0") {
+            $("#deptdiv").hide();
+            $("#bdodiv").hide();
+            $("#coltdiv").hide();
+            $("#divpsw").hide();
+        }
+        if (usertype == "1") {
+            /* function pl() { window.location.href = '/Login/DeptLogin' } pl(); return false;*/
+            $("#deptdiv").show();
+            $("#bdodiv").hide();
+            $("#coltdiv").hide();
+            $("#divpsw").show();
+        }
+        else if (usertype == "2") {
+            $("#deptdiv").hide();
+            $("#bdodiv").show();
+            $("#coltdiv").hide();
+            $("#divpsw").show();
+           /* function pl() { window.location.href = '/Login/NewLogin' } pl(); return false;*/
+        }
+        else if (usertype == "3") {
+            $("#deptdiv").hide();
+            $("#bdodiv").hide();
+            $("#coltdiv").show();
+            $("#divpsw").show();
+           // function pl() { window.location.href = '/Login/Login' } pl(); return false;
+        }
+        else {
+            "Invalid user";
+        }
+
+    });  
+    $(".allow_numeric").on("input", function(evt) {
+       var self = $(this);
+       self.val(self.val().replace(/\D/g, ""));
+       if ((evt.which < 48 || evt.which > 57))
+        {
+        evt.preventDefault();
+        }
+    });
+    function SubmitsEncry(strCntrol) {
+        var strData = $('#' + strCntrol).val();
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encryptedlogin = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(strData), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+        $('#' + strCntrol).val(encryptedlogin);
+    }
+    function checkForm() {
+        debugger
+        var pwd = document.getElementById('txtpwd').value;
+        //var x = document.getElementById("ddldistrict");
+        //var y = document.getElementById("ddlblock");
+        if ($('#ddldistrict').is(':visible')) {
+            if ($('#ddldistrict').val() == '0') {
+                bootbox.alert("Please enter District .");
+                return false;
+            }
+        }
+        if ($('#ddlblock').is(':visible')) {
+          if ($('#ddlblock').val() == '0') {
+                bootbox.alert("Please enter Block.");
+                return false;
+            }
+        }
+        if ($('#ddlDepartment').is(':visible')) {
+            if ($('#ddlDepartment').val() == '0') {
+                bootbox.alert("Please enter Department .");
+                return false;
+            }
+        }
+        if (pwd == '') {
+            bootbox.alert("Please enter Password.");
+            return false;
+        }
+        else {
+            SubmitsEncry('hdnUserName');
+            SubmitsEncry('txtpwd');
+        }
+    }
+    function bindBlock(){
+        var id=$('#ddldistrict').val();
+          $.getJSON("/Login/Blocklist", { did:id  }, function (data) {
+        var row = '<option value="">Select  </option>';
+        console.log(data);
+        $("#ddlblock").empty();
+        for(var i=0;i<data.length;i++){
+            row += '<option value='+data[i].username+'>'+data[i].blocK_NAME+'</option>';
+        }
+        $("#ddlblock").append(row);
+    })
+    }
+    function bindDesg() {
+        var id = $('#ddlDepartment').val();
+        debugger
+        $.getJSON("/Login/Desglist", { deptid: id }, function (data) {
+            var row = '<option value="">Select  </option>';
+            console.log(data);
+            $("#ddldesg").empty();
+            for (var i = 0; i < data.length; i++) {
+                row += '<option value=' + data[i].username + '>' + data[i].desG_NAME + '</option>';
+            }
+            $("#ddldesg").append(row);
+        })
+    }
+    $('#ddlblock').change(function(){
+        $("#hdnUserName").val($('#ddlblock').val());
+    });
+    $('#ddldesg').change(function () {
+        $("#hdnUserName").val($('#ddldesg').val());
+    });
+    $('#ddldisttcol').change(function () {     
+        var id = $('#ddldisttcol').val();
+        $.getJSON("/Login/DistlistColwise", { did: id }, function (data) {
+            
+            console.log(data);
+            
+            $('#hdnUserName').val(data[0].username);
+           // $('#hdnUserName').val(username)
+          /*  alert(JSON.stringify(data[0].username));*/
+        });
+      
+    });
+    function togglePasswordField() {
+        const passwordField = document.getElementById('txtpwd');
+        const togglePassword = document.getElementById('togglePassword');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            togglePassword.classList.remove('fa-eye');
+            togglePassword.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            togglePassword.classList.remove('fa-eye-slash');
+            togglePassword.classList.add('fa-eye');
+        }
+    }
+</script>

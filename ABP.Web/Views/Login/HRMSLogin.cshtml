@@ -1,0 +1,122 @@
+﻿@model ABP.Domain.Login.Login
+@{
+    Layout = null;
+    var ListData = ViewBag.DashboardList as Task<IEnumerable<ABP.Domain.Login.Login>>;
+
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User Login</title>
+    <!-- <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/icons.css" rel="stylesheet">
+    <link href="~/css/font-awesome.min.css" rel="stylesheet">-->
+    <!-- <link href="~/css/custom.css" rel="stylesheet">
+    <link href="../css/login.css" rel="stylesheet">
+    <script src="~/js/jquery-3.3.1.min.js"></script> -->
+    <link href="~/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="~/js/aes.js"></script>
+    <link href="../css/login-new.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <div class="mainsection">
+        <div class="d-flex align-items-center">
+            <div class="container">
+                <div class="card login-card">
+                    <div class="no-gutters">
+
+                        <div class="">
+                            <div class="card-body">
+                                <div class="brand-wrapper">
+                                    <img src="../images/Odisha_logo_Black.png" alt="odisha Govt logo" class="logo">
+                                </div>
+                                <p class="login-card-description">Block Monitoring Programme<br> <small> Government of Odisha</small></p>
+
+                                <div class="sdg-full">
+                                    <div class=" ">
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                 Forget Password
+                                            </label>
+                                        </div>
+                                    </div>
+                                    </div>
+
+
+                                    @if (Model != null)
+                                    {
+                                        <div class="alert alert-danger alert-dismissible fade show p-2 mb-2 my-alert" role="alert">@Model.Message</div>
+                                    }
+                                    @using (Html.BeginForm("HRMSLogin", "Login", FormMethod.Post, new { @class = "form-horizontal", onsubmit = "return checkForm();" }))
+                                    {
+
+                                        <div class="form-group">
+                                            <label class="">HRMS User Name</label>
+                                            @Html.TextBoxFor(m => m.VCHUSERNAME, new { @class = "form-control", id = "txtuname" })
+                                            @Html.ValidationMessageFor(m => m.VCHUSERNAME)
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="exampleInputPassword1" class="" placeholder="********">HRMS Password</label>
+                                            @Html.PasswordFor(m => m.vchpassword, new { @class = "form-control", type = "password", id = "txtpwd" })
+                                            @Html.ValidationMessageFor(m => m.vchpassword)
+                                        </div>
+                                        <div class="d-flex">
+                                            <button type="submit" class="btn btn-block login-btn mt-3">Sign in</button>
+                                            <a  class="smltxt forgot-pass text-success w-100 d-block" href="#" onclick="history.back()"> <i class="fa fa-angle-left" aria-hidden="true"></i> Back</a>
+                                        </div>
+                                       
+                                    }
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+
+</html>
+<script>
+
+    function SubmitsEncry(strCntrol) {
+        var strData = $('#' + strCntrol).val();
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encryptedlogin = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(strData), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+        $('#' + strCntrol).val(encryptedlogin);
+    }
+    function checkForm() {
+        var uname = document.getElementById('txtuname').value;
+        var pwd = document.getElementById('txtpwd').value;
+        if (uname == '') {
+            bootbox.alert("Please enter User Name.");
+            return false;
+        }
+        else if (pwd == '') {
+            bootbox.alert("Please enter Password.");
+            return false;
+        }
+        else {
+            SubmitsEncry('txtuname');
+
+            SubmitsEncry('txtpwd');
+        }
+    }
+</script>

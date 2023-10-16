@@ -1,0 +1,420 @@
+﻿@{
+    @model ABP.Domain.Report.Report
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ManageAspirationalBlock";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2-bootstrap-css/1.4.6/select2-bootstrap.min.css">
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/css/select2.min.css" rel="stylesheet" />
+
+<style>
+
+    .table tr td, .table tr th {
+        padding: 5px 0px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .legend-box.legend-box2 {
+        float: inherit;
+        justify-content: space-between;
+        display: flex;
+        align-items: center;
+    }
+
+        .legend-box.legend-box2 a {
+            margin-bottom: 12px;
+            margin-left: 16px;
+        }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+
+    .legend-box {
+        float: inherit;
+    }
+
+    .alert-secondary {
+        color: #383d41;
+        background-color: #e2e3e52e;
+        border-color: #d6d8db;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="AspirationalAdd">
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="AspirationalView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+
+            <div class="card-body">
+                <!--Static-->
+                <!--Email Input-->
+                <div class="form-group row">
+                    <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select District <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <span class="colon">:</span>
+                        <select class="form-control" id="ddlDist" name="Dist" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                            <option value="">---Select---</option>
+                            @*<option value="1234567">---SelectAnoNym---</option>*@
+                        </select>
+                    </div>
+                </div>
+                <!--Password-->
+                <!--Textarea-->
+                <div class="form-group row pad-ver" id="blk">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">Block List</label>
+                    <div class="col-12 col-md-6 col-xl-5">
+                        <span class="colon">:</span>
+                        <div class="checkbox block-checkbox" id="mainDiv">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4 mb-1">
+                        <button id="btnSubmit" class="btn btn-primary  ">Submit</button>
+                        <button id="btnReset" class="btn btn-danger ">Reset</button>
+                    </div>
+                </div>
+                <div>
+                    
+                </div>
+
+            </div>
+        </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.4/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            $(".js-select3").select2({
+                closeOnSelect: false,
+                placeholder: "Select Block",
+                // allowHtml: true,
+                allowClear: true,
+                tags: true // создает новые опции на лету
+            });
+            $("#blk").hide();
+            gl = decodeURI(getUrlVars()["Glink"]);
+            pl = decodeURI(getUrlVars()["Plink"]);
+
+            if (gl == 'undefined') {
+                gl = 0;
+            }
+            if (pl == 'undefined') {
+                pl = 0;
+            }
+            document.getElementById("AspirationalAdd").href = "../DistrictData/ManageAspirationalBlock?Glink=" + gl + "&Plink=" + pl;
+            document.getElementById("AspirationalView").href = "../DistrictData/ViewAspirationalBlock?Glink=" + gl + "&Plink=" + pl;
+            loadNavigation('ManageAspirationalBlock', 'gldata', 'plbdodata', 'Manage Master', 'Tag Aspirational Block', 'Tag Aspirational Block');
+            var DistrictId = getUrlVars()["ID"];
+
+            if (DistrictId != undefined) {
+                $("#btnSubmit").html("Update");
+                $("#btnCancel").html("Cancel");
+                $("#ddlDist").val(DistrictId).change();
+            }
+
+
+
+        });
+        $("#btnSubmit").click(function () {
+            var checkedCount = $.map(getAllCheckedValues(), function (value, index) { return [value]; });;
+            if ($('#ddlDist').val() === "") {
+                bootbox.alert("Please Select a District!", function () {
+                    //window.location.href = "/Block/AddBlock";
+                });
+            }
+            else if (checkedCount.length == 0) {
+                bootbox.alert("Please Select Blocks");
+            }
+            else {
+
+                var inputCheckedValues = $.map(getAllCheckedValues(), function (value, index) {//Getting checked values from the check boxes in an array to send it to controller for mapping or unmapping purpose
+                    return [value];
+                });
+                var inputUnCheckedValues = $.map(getAllUnCheckedValues(), function (value, index) {//Getting unchecked values from the check boxes in an array to send it to controller for mapping or unmapping purpose
+                    return [value];
+                });
+                //Putting all the values into a variable as per dto(Data Transmission Object) defined in the controller
+                var BlockObj = {
+                    CheckedValues: inputCheckedValues,
+                    UnCheckedValues: inputUnCheckedValues,
+                    DistCode: $("#ddlDist").val()
+                };
+                var distdata = '';
+                for (var i = 0; i < inputCheckedValues.length; i++) {
+
+                    // Concat Array value to string variable
+                    if (distdata == '') {
+                        distdata += inputCheckedValues[i];
+                    }
+                    else {
+                        distdata = distdata + "," + inputCheckedValues[i];
+                    }
+                }
+
+                    var blockdata = '';
+                    for (var i = 0; i < inputUnCheckedValues.length; i++) {
+
+                        // Concat Array value to string variable
+                        if (blockdata == '') {
+                            blockdata += inputUnCheckedValues[i];
+                        }
+                        else {
+                            blockdata = blockdata + "," + inputUnCheckedValues[i];
+                        }
+
+
+                }
+                var distCode = getUrlVars()["DistCode"];
+                if (distCode != undefined) {
+                    msg = "Are you sure ,you want to Update?";
+                } else {
+                    msg = "Are you sure , you want to Submit?";
+                }
+                    bootbox.confirm({
+                        size: "medium",
+                        message: msg,
+                        callback: function (result) {
+                            if (result === true) {
+                                $.ajax({
+                                    url: "/DistrictData/MapBlock",
+                                    data: { BlockData: distdata, DistIdD: BlockObj.DistCode, BlockDataN: blockdata },
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader("XSRF-TOKEN",
+                                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                                    },
+                                    method: "POST",
+                                    success: function (result) {
+                                        //bindBlock($("#ddlDist").val());
+                                        var Glink = 8;
+                                        var Plink = 32;
+                                        var DISTID = getUrlVars()["DistCode"];
+                                        if (DISTID != undefined) {
+                                            bootbox.alert("Block Updated successfully", function () {  //Alert showing through bootbox for a better look and fill
+                                                window.location.href = "/Block/ViewBlock?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                                            });
+                                        }
+                                        else {
+                                            bootbox.alert("Block Mapped successfully", function () {
+                                                window.location.href = "/DistrictData/ManageAspirationalBlock?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                                            });
+                                        }
+                                    },
+                                    error: function (result) {
+                                        alert(result);
+                                    }
+                                });
+                            }
+                        }
+                    });
+                
+            }
+        });
+        //Validations for the fields in the form
+        function validate() {
+            var radioValue = $("input[name='YEARTYPE']:checked").val();
+            if ($('#ddlDist').val() == "0") {
+                bootbox.alert("Please select District!");
+                $('#ddlDist').focus();
+                return false;
+            }
+            else if ($('#ddlBlock').val() == "0") {
+                bootbox.alert("Please Select Block!");
+                $('#ddlBlock').focus();
+                return false;
+            }
+            else if (radioValue == undefined) {
+                bootbox.alert("Please select Block Type!");
+                return false;
+
+            }
+            else {
+                return true;
+            }
+        }
+        //Post Call to the controller for data insertion
+        function addSMSConfig(Data) {
+            $.ajax({
+                type: "POST",
+                url: "/DistrictData/ManageAspirationalBlock",//Controller and Method(/Controller/Method)
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: Data,
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                success: function (res) {
+                    bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                        window.location.href = "/DistrictData/ManageAspirationalBlock";
+                    });
+                },
+                failure: function (response) {
+                    console.log(response.responseText);
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                }
+            });
+        }
+
+
+        //function BindBlockData(id) {
+        //    var actualid = id;
+
+        //    if (id == 0) {
+        //        id = $('#ddlDist').val();
+        //    }
+        //    $.ajax({
+        //        url: "/Department/GetBlockByDistID?id=" + id,
+        //        type: "GET",
+        //        success: function (data) {
+        //            var Ghtml = '';
+        //            //console.log(data);
+        //            for (var i = 0; i < data.length; i++) {
+        //                Ghtml += '<option value="' + data[i].blocK_CODE + '">' + data[i].blocK_NAME + '</option>'
+        //            }
+        //            if ($('#ddlDist').val() != 0) {
+        //                $('#ddlBlock').html(Ghtml);
+        //            }
+        //            else {
+        //                var Ghtml1 = '<option value="0">---Select---</option>';
+        //                $('#ddlBlock').html(Ghtml1);
+        //            }
+        //            if (actualid == 0) { $('#ddlBlock').val(0); } else { $('#ddlBlock').val(getUrlVars()["ID"]); }
+
+        //        },
+        //        error: function (error) {
+        //            jsonValue = jQuery.parseJSON(error.responseText);
+        //            bootbox.alert("Error : " + jsonValue);
+        //        }
+        //    });
+        //}
+
+    </script>
+    <script>
+        //function bindBlockById(BlockId) {
+        //    $.ajax({
+        //        url: "/DistrictData/bindBlockById?id=" + BlockId,
+        //        type: "GET",
+        //        dataType: "json",
+        //        contentType: "application/json;charset=UTF-8",
+        //        success: function (data) {
+        //            debugger;//Filling the values in appropriate field for updating purpose
+        //            BindBlockData(data.data[0].districtId);
+        //            $('#ddlBlock').val(data.data[0].blockId);
+        //            $('#ddlDist').val(data.data[0].districtId);
+        //            if (data.data[0].aspirationblock == 1) {
+        //                $('#type1').attr('checked', true);
+        //            }
+        //            else {
+        //                $('#type2').attr('checked', true);
+        //            }
+        //        },
+        //        error: function (error) {
+        //            jsonValue = jQuery.parseJSON(error.responseText);
+        //            bootbox.alert("Error : " + jsonValue);
+        //        }
+        //    });
+        //}
+    </script>
+<script>
+    $("#ddlDist").change(function () {
+        $("#blk").show();
+        var distcode = $(this).val();
+        $.ajax({
+            url: "/DistrictData/GetMappedBlocksByDist?DistCode=" + distcode,
+            type: "GET",
+            contentType: "application/json;charset=utf-8",
+            dataType: "json",
+            success: function (Blocks1) {
+                var html = '';
+                if (Blocks1.length != 0) {
+                    $.each(Blocks1, function (key, item) {
+                        if (item.MAPPEDBLOCK == "true") {
+                            html += "<input id='demo-form-inline-checkbox-" + item.BlockId + "' class='magic-checkbox block' value=" + item.BlockId + " type='checkbox' checked>"
+                                + "<label for='demo-form-inline-checkbox-" + item.BlockId + "'>" + item.BLOCKNAME + "</label> &nbsp;&nbsp;"
+                           
+                        }
+                        else {
+                            html += "<input id='demo-form-inline-checkbox-" + item.BlockId + "' class='magic-checkbox block' value=" + item.BlockId + " type='checkbox' >"
+                                + "<label for='demo-form-inline-checkbox-" + item.BlockId + "'>" + item.BLOCKNAME + "</label> &nbsp;&nbsp;"
+                        }
+                        }); 
+                }
+                $('#mainDiv').html(html);
+            }
+        });
+    });
+</script>
+<script>
+    //Finding all checked values inside the main div
+    function getAllCheckedValues() {
+
+        var inputValues = $('#mainDiv :input').map(function () {
+            var type = $(this).prop("type");
+
+            // checked radios/checkboxes
+            if ((type == "checkbox" || type == "radio") && this.checked) {
+                return $(this).val();
+            }
+            // all other fields, except buttons
+            //else if (type != "button" && type != "submit") {
+            //    return $(this).val();
+            //}
+        });
+        //alert(inputValues);
+        //var values = inputValues.join(",");
+        return inputValues;
+    }
+    //Finding all unchecked values inside the main div
+    function getAllUnCheckedValues() {
+        var inputValues = $('#mainDiv :input').map(function () {
+            var type = $(this).prop("type");
+
+            // checked radios/checkboxes
+            if ((type == "checkbox" || type == "radio") && this.checked === false) {
+                return $(this).val();
+            }
+            // all other fields, except buttons
+            //else if (type != "button" && type != "submit") {
+            //    return $(this).val();
+            //}
+        });
+        //var values = inputValues.join(",");
+        //alert(inputValues);
+        return inputValues;
+    }
+</script>
+
+

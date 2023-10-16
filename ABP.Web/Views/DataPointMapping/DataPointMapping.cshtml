@@ -1,0 +1,92 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "DataPointMapping";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var Indicator = ViewBag.Indicator as Task<IEnumerable<ABP.Domain.Indicator.Indicator>>;
+}
+<link rel="stylesheet" href="~/choosen/chosen.css" />
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="IndicatorMapping" asp-action="AddIndicatorMapping">Add</a>
+                        <a class="nav-item nav-link " asp-controller="IndicatorMapping" asp-action="ViewIndicatorMapping">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndMapAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="IndMapView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="text" id="hdnIMId" hidden="hidden" value="0" class="form-control">
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlSector" name="Sector" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select Indicator<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlIndicator" name="Sector" asp-items="@(new SelectList(ViewBag.Indicator, "INDICATORID", "INDICATORNAME" ))" >
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select DataPoint<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control chosen-select" id="ddlDataPoint" name="Sector" asp-items="@(new SelectList(ViewBag.DataPoint, "CONTROLID", "DISPLAYNAME1" ))" multiple >
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row pad-ver bg-light pt-3">
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button id="btnSubmit" class="btn btn-primary mb-1">Submit</button>
+                        <button id="btnCancel1" class="btn btn-danger mb-1">Reset</button>
+                    </div>
+                </div>
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndMapAdd").href = "../IndicatorMapping/AddIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("IndMapView").href = "../IndicatorMapping/ViewIndicatorMapping?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('AddIndicatorMapping', 'gldata', 'plbdodata', 'Manage Master', 'Manage IndicatorMapping', 'Add IndicatorMapping');
+    });
+</script>
+<script src="~/docsupport/jquery-3.2.1.min.js" type="text/javascript"></script>
+<script src="~/choosen/chosen.jquery.js" type="text/javascript"></script>
+<script src="~/docsupport/prism.js" type="text/javascript" charset="utf-8"></script>
+<script src="~/docsupport/init.js" type="text/javascript" charset="utf-8"></script>
+

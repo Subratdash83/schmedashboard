@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewData["Title"] = "CollectorDataApproval";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var SectorData = ViewBag.Sector as Task<IEnumerable<ABP.Domain.Sector.sector>>;
+    var Blockss = ViewBag.Block as Task<IEnumerable<ABP.Domain.Block.Block>>;
+    var ResultData = ViewBag.Result as List<ABP.Domain.DataPoint.DataPoint>;
+}
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" asp-controller="CollectorData" asp-action="CollectorDataApproval">Collector DataPoint</a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <div class="form-group row" id="sector">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Select Block<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        @*<select class="form-control" id="ddlBlock" name="Block" value="@ViewBag.BlockId" asp-items="@(new SelectList(ViewBag.Block, "BLOCKID", "BLOCK_NAME" ))">
+                    <option value="0">---Select---</option>
+            </select>*@
+                        @if (Blockss.Result.ToList().Count > 0)
+                        {
+                            <select class="form-control" id="ddlBlock" name="block">
+                                <option value="0">---Select---</option>
+                                @foreach (var v in Blockss.Result)
+                                {
+                                    @if (@ViewBag.BlockId == v.BLOCK_CODE)
+                                    {
+                                        <option value="@v.BLOCK_CODE" selected="selected">@v.BLOCK_NAME</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@v.BLOCK_CODE">@v.BLOCK_NAME</option>
+                                    }
+                                }
+                            </select>
+                        }
+                        else
+                        {
+                            <select class="form-control" id="ddlBlock" name="block">
+                                <option value="-1">---Select---</option>
+                            </select>
+
+                        }
+
+                    </div>
+                </div>
+
+                <hr>
+                <div id="accordion">
+                    @if (SectorData.Result.Count() != 0)
+                    {
+                        @foreach (var items in SectorData.Result)
+                        {
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <h5 class="mb-0">
+                                        <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.SECTORID" aria-expanded="true" aria-controls="collapse-@items.SECTORID">
+                                            @items.SECTORNAME<span class="text-danger">*</span>
+                                        </a>
+                                    </h5>
+                                </div>
+                                @if (ResultData != null)
+                                {
+                                    @if (ResultData.Where(u => u.SECTORID == items.SECTORID).Count() != 0)
+                                    {
+                                        string remark = "";
+                                        <div id="collapse-@items.SECTORID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                                            <div class="card-body">
+                                                <div class="table-responsive col-sm-12">
+                                                    <table data-toggle="table" class="table table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="60px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th>DataPoint </th>
+                                                                <th width="100px">Value<span class="text-danger">*</span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.SECTORID">
+                                                            @if (ResultData.Count() != 0)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in ResultData.Where(u => u.SECTORID == items.SECTORID))
+                                                                {
+                                                                    remark = @list.COLLECTORREMARK;
+                                                            <tr>
+                                                                <td>@count</td>
+                                                                <td style="display:none;">@list.BDODATAID</td>
+                                                                <td>@list.DATAPOINTNAME</td>
+                                                                <td><input type="text" value="@list.DATAPOINTVALUE" onclick="hideAcceptButton();" id="demo-text-input" class="form-control"></td>
+                                                                @*<td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                <td style="display:none;">@list.TODATE</td>
+                                                                <td style="display:none;">@list.FROMDATE</td>
+                                                                <td style="display:none;">@list.BLOCKID</td>
+                                                                <td style="display:none;">@list.INDICATORID</td>*@
+
+
+
+
+                                                            </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                    <div class="form-group row">
+                                                        <label class="col-12 col-md-1 col-xl-1 control-label" for="demo-textarea-input">Remark</label>
+                                                        <div class="col-12 col-md-6 col-xl-6">
+                                                            <input type="text" id="txtRemark-@items.SECTORID" value="@remark" rows="4" class="form-control" placeholder="Add Your content here..">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+                @if (ResultData!=null && ResultData.Count() > 0)
+                {
+            <div class="form-group row">
+                <div class="col-12 col-md-6 col-xl-4">
+                    @*<button onclick="saveAsDraftForm()" class="btn btn-primary mb-1">Save As Draft</button>*@
+                    <button onclick="acceptForm()" id="btnAccept" class="btn btn-success mb-1">Accept</button>
+                    <button onclick="rejectForm()" id="reject" class="btn btn-danger mb-1">Reject</button>
+                </div>
+            </div>
+                }
+                </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/collectordataapproval.js"></script>
+<script>
+     $(document).ready(function () {
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Manage Data', 'Collector Data Approval', 'View BDOData');
+    });
+</script>
+@*<script>
+    $(document).ready(function () {
+        var blockId = getUrlVars()["BlockId"];
+        if (blockId != undefined) {
+            $("#ddlBlock")(blockId);
+        }
+
+    });
+</script>*@

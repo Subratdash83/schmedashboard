@@ -1,0 +1,247 @@
+﻿@model ABP.Domain.DataPointExpression.DatapointExpression
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewBDOData";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DataPointExpression.DatapointExpression>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="BDODataAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BDODataView">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            Search Panel
+            <div class="search-container">
+                <div class="search-sec">
+                    <form method="post" id="blocksearch">
+                        
+                        @*<div class="form-group row">
+                                <div class="col-12 col-md-2 col-xl-2">
+                                    <label class="control-label" for="demo-email-input">Sector Name</label>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "SECTORID", "SECTORNAME" ))">
+                                        <option value="0">---All---</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-md-2 col-xl-2">
+                                    <label class="control-label" for="demo-email-input">Frequency</label>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-3">
+                                    <select class="form-control" id="ddlFrequency" asp-for="FREQUENCY" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                                        <option value="0">---All---</option>
+                                    </select>
+                                </div>
+                            </div>*@
+                    <div class="form-group row">
+                        <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME",ViewBag.sectorid ))">
+                                <option value="0">Select Sector Name</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-6 col-xl-2">
+                            <button id="btnSearch" class="btn btn-primary"> <i class="fa fa-search"></i> Search</button>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+            <!-- Search Panel -->
+            <div class="card-body">
+                @if (ListData.Result.ToList().Count > 0)
+                {
+                <div class="table-responsive">
+                    <table data-toggle="table" id="tblIndicator" class="table">
+                        <thead>
+                            <tr>
+                                @*<th width="25px" valign="top">
+                        <input id="demo-form-inline-checkboxall" class="magic-checkbox" type="checkbox">
+                        <label for="demo-form-inline-checkboxall"></label>
+                    </th>*@
+                                <th>Sl#</th>
+                                <th>Sector Name</th>
+                                <th>Expression Name</th>
+
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{int Count = 1; }
+
+                            @foreach (var item in ListData.Result)
+                            {
+                                <tr>
+                                    <td>@Count</td>
+                                    <td>@item.SECTORNAME</td>
+                                    <td>@item.ExpressionNAME</td>
+
+                                    <td>
+
+                                        <a href="/DatapointExpression/AddExpression?ID=@Convert.ToString(item.ExpressionID)&Glink=@Glink&Plink=@Plink" class="text-primary mr-3" data-toggle="tooltip" onclick="BindFormulaById(@item.ExpressionID)" data-original-title="Edit">
+                                            <i class="icon-edit1"></i>
+                                        </a>
+                                        <a class="text-danger" data-toggle="tooltip" onclick="DeleteExpression(@item.ExpressionID)"
+                                           data-original-title="Delete">
+                                            <i class="icon-trash-21"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                Count++;
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+
+                <div class="clearfix col-sm-12"></div>
+                @*<nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item "><a class="page-link" href="#">Previous</a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                        </ul>
+                    </nav>*@
+            </div>
+        </div>
+    </div>
+</div>
+
+<
+<!--div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModal" aria-hidden="true" style="padding-right: 9px;">
+   <div class="modal-dialog">
+       <div class="modal-content" style="width : 150%">
+           <div class="modal-header bg-light">
+               <h5 class="modal-title" id="exampleModalLabel" style="color:black">
+                   Datapoints
+               </h5>
+               <a href="javascript:;" class="close" data-dismiss="modal" aria-label="Close">
+                   <span aria-hidden="true">&times;</span>
+               </a>
+           </div>
+           <div id="datapointpopup"></div>-->
+@*<table class="table table-bordered cus-tble-font cutom-tbl-responsive" id="tblNewApplication">
+    <thead>
+    <tr>
+    <th width="30px">Sl#</th>
+    <th>Datapoint Name</th>
+    <th>Datapoint Value</th>
+    </tr>
+    </thead>
+    <tbody id="datapointpopup">
+    </tbody>
+    </table>*@
+<!--</div>
+    </div>
+</div>-->
+
+<script>
+    $(document).ready(function () {
+       
+        document.getElementById("BDODataAdd").href = "../DatapointExpression/AddExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("BDODataView").href = "../DatapointExpression/ViewExpression?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ManageExpression', 'gldata', 'plbdodata', 'Manage Master', 'Manage Expression', 'Manage Expression');
+        getDataTable();
+
+
+    });
+    function getDataTable() {
+        $('#tblIndicator').DataTable({
+            "searching": true,
+            //"bStateSave": true,
+            "dom": 'Bfrtip',
+            "autoWidth": false,
+            "buttons": [
+                //{
+                //    extend: 'print',
+                //    title: 'Manage Block',
+                //    exportOptions: {
+                //        columns: [0, 1, 2, 3, 4]
+                //    },
+                //    customize: function (win) { $(win.document.body).css('font-size', '10pt').prepend('<img src="' + origin + '/images/t5-logo-white.png"  style="position:absolute; top:0; left:0;" />'); $(win.document.body).find('table').addClass('compact').css('font-size', 'inherit'); }
+
+                //}
+                ,
+                {
+                    extend: 'pageLength'
+
+                }
+            ],
+            "lengthMenu": [
+                [10, 25, 50, 100, 1000 - 1],
+                ['10 rows', '25 rows', '50 rows', '100 rows', '1000 rows', 'Show all']
+            ]
+
+        });
+    }
+    function DeleteExpression(id) {
+
+        bootbox.confirm({
+            size: "medium",
+            message: "Are you sure you want to delete ?",
+            callback: function (result) {
+
+                if (result === true) {
+                    $.ajax({
+                        url: "/DatapointExpression/DeleteExpression?id=" + id,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json;charset=UTF-8",
+                        success: function (data) {
+                            if (data == "3") {
+                                bootbox.alert("Expression Deleted Successfully", function () {
+                                    //window.location.href = "/IndicatorMapping/ViewIndicatorMapping";
+                                    window.location.reload();
+
+                                });
+                            }
+                            
+                            else { }
+                        },
+                        error: function (error) {
+                            jsonValue = jQuery.parseJSON(error.responseText);
+                            bootbox.alert("Error : " + jsonValue);
+                        }
+                    });
+                }
+            }
+        });
+    }
+
+
+</script>
+

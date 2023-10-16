@@ -1,0 +1,107 @@
+﻿@*@model ABP.Domain.CollectorData.CollectorDataAlert*@
+@{
+    var DistBlockData = ViewBag.DistrictData as Task<IEnumerable<ABP.Domain.Department.DistrictData>>;
+    var ListData = ViewBag.CollectorData as List<ABP.Domain.CollectorData.CollectorDataAlert>;
+}
+<div class="row col-lg-12 col-md-12 col-md-12" style="width:1050px">
+
+    <div class="card">
+
+        @*<div class="row">
+            <label class="col-12 col-md-2 col-xl-1 control-label" for="demo-email-input" id="lblYear">Year<span class="text-danger">*</span></label>
+            <div class="col-12 col-md-6 col-xl-2" id="divYear">
+                <select class="form-control" id="ddlDist" asp-for="DISTRICTID"  asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE","BLOCK_NAME"))">
+                    <option value="0">---All---</option>
+                </select>
+            </div>
+        </div>*@
+        <div class="card-body">
+
+            <div class="clearfix"></div>
+
+            @if (DistBlockData != null && DistBlockData.Result.ToList().Count > 0)
+            {
+
+                <div id="accordion">
+
+
+                    @if (DistBlockData.Result != null)
+                    {
+                        @foreach (var items in DistBlockData.Result)
+                        {
+                            <div class="card">
+                                <div class="card-header" id="headingOne">
+                                    <h5 class="mb-0">
+                                        <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.DISTRICTID" aria-expanded="true" aria-controls="collapse-@items.DISTRICTID">
+                                            @items.DISTNAME
+                                        </a>
+                                    </h5>
+                                </div>
+                                @if (ListData.Where(u => u.DISTRICTID == items.DISTRICTID).Count() != 0)
+                                {
+                                    <div id="collapse-@items.DISTRICTID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                        <div class="card-body p-0 pt-0">
+                                            <div class="table-responsive">
+                                                <table data-toggle="table" class="table table-bordered mb-0">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="60px">Sl#</th>
+                                                            <th style="display:none;"></th>
+                                                            <th>Year </th>
+                                                            <th width="200px">Block Name</th>
+                                                            <th width="200px">Frequency</th>
+                                                            <th width="200px">Total Datapoint</th>
+                                                            <th width="200px">Entered Datapoint</th>
+                                                            <th width="200px">Not Entered Datapoint</th>
+                                                            <th width="200px">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="tbody-@items.DISTRICTID">
+                                                        @if (ListData != null)
+                                                        {
+                                                            int rwcount = 0;
+                                                            int count = 1;
+                                                            @foreach (var list in ListData.Where(u => u.DISTRICTID == items.DISTRICTID))
+                                                            {
+                                                               
+                                                                <tr>
+                                                                    <td>@count</td>
+                                                                    <td style="display:none;">@list.BLOCKID</td>
+                                                                    <td>@list.YEAR</td>
+                                                                    <td>@list.BLOCKNAME</td>
+                                                                    <td>@list.FREQUENCY</td>
+                                                                    <td>@list.DPCOUNT</td>
+                                                                    <td>@list.DPENTERED</td>
+                                                                    <td>@list.NOTENTERED</td>
+                                                                    <td>@list.REMARKS</td>
+                                                                </tr>
+                                                                count++;
+                                                               
+                                                            }
+                                                            rwcount= count - 1;
+                                                            <tr><td colspan="9" style="text-align:end;font:bold;">Total No. of Blocks :- @rwcount</td></tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="norecord"><p id="errorMessage">Please Select Year And Month</p></div>
+            }
+
+
+        </div>
+
+    </div>
+</div>
+
+

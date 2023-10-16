@@ -1,0 +1,296 @@
+﻿@model ABP.Domain.Sector.sector
+@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewIndicator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ResultData = ViewBag.Result as Task<IEnumerable<ABP.Domain.Indicator.Indicator>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link " asp-controller="Indicator" asp-action="AddIndicator">Add</a>
+                        <a class="nav-item nav-link active" asp-controller="Indicator" asp-action="ViewIndicator">View</a>*@
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="IndicatorAdd">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndicatorView">
+
+                        View
+                    </a>
+                </ul>
+                @*<div class="indicatorslist">
+                    <a id="printicon" href="javascript:void(0)" data-toggle="tooltip" data-placement="top" title="" data-original-title="Print"><i class="icon-printer1"></i></a>
+                    <a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>
+                    </div>*@
+            </div>
+            <!-- Search Panel-->
+            <div class="search-container">
+                <div class="search-sec" style="display: block;">
+                    <form method="post" id="indsearch">
+                        <div class="form-group form-row">
+                            @*<label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>*@
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <label class="control-label">Sector Name</label>
+                                <select class="form-control" id="ddlSector" asp-for="SECTORID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME",ViewBag.sectorid ))">
+                                    <option value="0">---Select--- </option>
+                                </select>
+                            </div>
+
+                            @*<div class="col-12 col-md-6 col-xl-3">
+                                    <label class="control-label">Frequency Type</label>
+                                    <select class="form-control" id="ddlSector" asp-for="FREQUENCYID" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME",ViewBag.sectorid ))">
+                                        <option value="0">---Select--- </option>
+                                    </select>
+                                </div>*@
+
+                            <div class="col-12 col-md-6 col-xl-3">
+                                <label class="control-label">Frequency Type</label>
+                                <select class="form-control" id="ddlFrequency" asp-for="FREQUENCYID" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY",ViewBag.frequencyid ))">
+                                    <option value="0">---Select---</option>
+                                </select>
+                            </div>
+                            <!--<label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Indicator Name-->@*<span class="text-danger">*</span>*@<!--</label>-->
+                            @*<div class="col-12 col-md-6 col-xl-3">
+                                    <select class="form-control" id="ddlIndicator" asp-for="INDICATORID">
+                                        <option value="0">Select Indicator Name</option>
+                                    </select>
+                                </div>*@
+                            <div class="col-lg-2 ">
+                                <button id="btnSearch" class="btn btn-primary mt-xl-4 mt-2"> <i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="text-center"> <a class="searchopen" title="Search" data-toggle="tooltip" data-placement="bottom"> <i class="icon-angle-arrow-down"></i> </a></div>
+            </div>
+
+           
+
+
+            <!-- Search Panel -->
+            <!--===================================================-->
+            <div class="card-body ">
+                <div>
+                    <a href="javascript:PrintPagePF();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mb-3"><i class="icon-printer1"></i></a>
+
+                    <a href="javascript:generateExcedata();void(0)" title="Export to Excel" id="printIconD" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-3"><i class="icon-excel-file"></i></a>
+                </div>
+                @if (ResultData.Result.ToList().Count > 0)
+                {
+                    <div class="table-responsive" id="printtable1">
+                        <table data-toggle="table" id="tblIndicator" class="table">
+                            <thead>
+                                <tr>
+                                    @*<th width="25px" valign="top">
+                            <input id="demo-form-inline-checkboxall" class="magic-checkbox" type="checkbox">
+                            <label for="demo-form-inline-checkboxall"></label>
+                            </th>*@
+                                    <th width="60px" class="align-top text-center">Sl#</th>
+                                    <th width="250px" class="align-top">Sector</th>
+                                    <th width="300px" class="align-top">Indicator Name<br> <span class="font-weight-normal">  Type </span> </th>
+                                    <th width="150px" style="display:none;" class="align-top">Target Value</th>
+                                    <th width="150px" class="align-top">Frequency Type</th>
+                                    <th width="150px" class="align-top">Unit</th>
+                                    <th width="250px" class="align-top">Description <br> <span class="font-weight-normal"> Type | Date </span> </th>
+                                    <th width="200px" style="display:none;" class="align-top">Department Name</th>
+                                    <th width="150px" class="align-top">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int count = 1;
+                                }
+                                @foreach (var list in ResultData.Result)
+                                {
+                                    <tr>
+                                        <td class="text-center">@count</td>
+                                        @* <td> <a href="/SectorDocuments/Sector20220523113900850.svg" target="_blank"> <img id="Pimg" src="/SectorDocuments/Sector20220523113900850.svg" height="50px" width="50px"></a> *@
+                                        <td>
+                                            @list.SECTORNAME
+                                        </td>
+                                        <td>
+                                            <span>@list.INDICATORNAME </span>
+                                            @if (list.INDICATORTYPE == 0)
+                                            {
+                                                <span class="positive negative">Negative   <i class="fa fa-arrow-down"></i></span>
+
+                                            }
+                                            else
+                                            {
+                                                <span class="positive">Positive  <i class="fa fa-arrow-up"></i></span>
+                                            }
+
+
+                                        </td>
+
+                                        <td style="display:none;">@list.TARGETVALUE</td>
+                                        <td>@list.FREQUENCY</td>
+                                        <td>@list.UNIT</td>
+                                        <td>
+                                            <span>@list.DESCRIPTION</span>
+                                            <br>
+                                            <span class="">@list.INDICATORDATE</span>
+                                        </td>
+                                        <td style="display:none;">@list.DEPTNAME</td>
+                                        <td>
+                                            <div class="d-flex">
+                                                <a href="/Indicator/AddIndicator?ID=@Convert.ToString(list.INDICATORID)&Glink=@Glink&Plink=@Plink" class="text-primary mr-3" title="" data-original-title="Edit"><i class="icon-edit1"></i></a>
+                                                <a onclick="deleteIndicator('@list.INDICATORID');" class="text-danger" title="" data-original-title="Delete"><i class="icon-trash-21"></i></a>
+                                            </div>
+                                            
+                                        </td>
+                                    </tr>
+                                    count++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+                <div class="clearfix col-sm-12"></div>
+            </div>
+            <!--===================================================-->
+        </div>
+    </div>
+</div>
+<script src="~/js/indicator.js"></script>
+<script src="~/js/datapoint.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndicatorAdd").href = "../Indicator/AddIndicator?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("IndicatorView").href = "../Indicator/ViewIndicator?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        document.getElementById("indsearch").href = "../Indicator/ViewIndicator?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        loadNavigation('ViewIndicator', 'gldata', 'plbdodata', 'Manage Master', 'Manage Indicator', 'View Indicator');
+        getDataTable();
+    });
+
+</script>
+
+<script>
+
+    $(document).ready(function () {
+        if (@ViewBag.sectorid != null) {
+            $.ajax({
+                url: "/IndicatorMapping/GetIndicatorAndDataPointsBySectorId?SectorId=" + @ViewBag.sectorid,
+                type: "GET",
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    var item = "<option value='0'>---All---</option>";
+                    $("#ddlIndicator").empty();
+                    $.each(res.indicators, function (i, data) {
+                        if (data.INDICATORID == @ViewBag.indicatorid) {
+                            item += '<option value="' + data.INDICATORID + '" selected>' + data.INDICATORNAME + '</option>'
+                        }
+                        else {
+                            item += '<option value="' + data.INDICATORID + '">' + data.INDICATORNAME + '</option>'
+                        }
+                    });
+                    $("#ddlIndicator").html(item);
+                }
+            });
+        }
+    })
+    
+    
+</script>
+<script>
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtable1 thead').find('tr').clone();
+        var headCells = $(headrow).find('th');
+        headCells.eq(8).remove();
+        var heading = headrow[0].outerHTML; // Assign the modified header HTML to 'heading'
+        vtable.push(heading);
+        $('#printtable1 tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            $(this).find("td").each(function (index) {
+                if (index !== 8) {
+                    temprow += '<td>' + $(this).html() + '</td>';
+                }
+            });
+
+            vtable.push('<tr>' + temprow + '</tr>');
+        });
+        return vtable;
+    }
+    function generateExcedata() {
+        $('#printtable1').table2excel();
+       
+        
+        getvisible();
+    }
+    function getReportname(name) {
+        return "ViewIndicator";
+        //return "BMPMonthlyDataEntryReport-" + $("#ddlSector").val() + "(" + $('#ddlFrequency').val() + ")";
+    }
+</script>
+<script>
+    //print function work
+    function PrintPagePF() {
+
+        var windowName = "PrintPageP";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable1").clone();
+        var cloneTable = $("#printtable1").clone();
+        cloneTable.find('tr').each(function () {
+            $(this).find('td:eq(8), th:eq(8)').remove();
+        });
+
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("/", windowName, wOption);
+        wWinPrint.document.write('\x3Cscript type="text/javascript" src="../../js/print.js">\x3C/script>');
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        /* wWinPrint.document.write("<div style='display:flex;align-items:center;'><div class='float-left year mt-0'></div><div class='float-left year mt-0'></div></div>");*/
+        wWinPrint.document.write("<strong style='margin-left: 19px;font - size: 17px;color:#000'>Indicator List </strong><div style=''><br/>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div><div><button class='btn btn-primary' onclick='PrintableContent(\"printContent\");' style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div></div>");
+
+
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>

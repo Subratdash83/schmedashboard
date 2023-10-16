@@ -1,0 +1,425 @@
+﻿@model ABP.Domain.Report.Report
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    //var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+    //var RData = ViewBag.RejectResultCount as Task<IEnumerable<ABP.Domain.DashboardModel.DashboardModel>>;
+    var ListData = ViewBag.DatapointData as Task<IEnumerable<ABP.Domain.Report.Report>>;
+}
+
+
+<style>
+
+    .table tr td, .table tr th {
+        vertical-align: middle;
+    }
+
+    .btn.btn-sm1 {
+        padding: 0.2rem 0.5rem;
+        font-size: .9rem;
+        line-height: 1.5;
+        left: 995px;
+    }
+</style>
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="ViewAppInd">
+                        Indicator Wise Performance
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div>
+
+                    <ul class="d-flex">
+                        <a class="btn custome-btn " id="tabIMonthly">Monthly</a>
+                        <a class="btn custome-btn active" id="tabIAnnually">Annualy</a>
+                    </ul>
+                </div>
+
+                <form method="post" id="dashsearch">
+                    <div class="form-group row">
+
+                        @*<div class="col-12 col-md-6 col-xl-3">
+                            <label class="control-label" for="demo-email-input">Year<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlYear" asp-for="Year" asp-items="@(new SelectList(ViewBag.Years, "FREQUENCYNO", "FREQUENCYVALUE" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>*@
+
+
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <input type="hidden" id="hdnDistrict" value="" />
+                            <label class="control-label" for="demo-email-input">District<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlDistrict" asp-for="DistrictId" asp-items="@(new SelectList(ViewBag.DistrictData, "BLOCK_CODE", "BLOCK_NAME" ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <input type="hidden" id="hdnddlsector" value="" />
+                            <label class="control-label" for="demo-email-input">Sector<span class="text-danger">*</span></label>
+                            <select class="form-control" id="ddlsector" asp-for="SectorId" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))" onchange="BindIndicatorData(0)">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3 mt-xl-0 mt-3">
+                            <input type="hidden" id="hdnddlindicator" value="" />
+                            <label class="control-label" for="demo-email-input">Indicator</label>
+                            <select class="form-control" asp-for="IndicatorId" id="ddlindicator">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-6 col-xl-3 mt-4">
+                            <button id="btnSearch" class="btn btn-primary">Search</button>
+                        </div>
+
+                    </div>
+                    <div class="col-lg-2">
+                    </div>
+                    @if (ListData != null)
+                    {
+                        <a href="javascript:PrintPageY();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mb-3"><i class="icon-printer1"></i></a>
+                        @*<a href="javascript:generate();void(0)" title="Export to PDF" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-pdf-1"></i></a>*@
+                        <a href="javascript:generateExcel();void(0)" title="Export to Excel" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-3"><i class="icon-excel-file"></i></a>
+                    }
+                </form>
+                <br />
+                @*@if (ListData != null)
+                    {
+
+                        <div class='legend-box mr-2'>
+                            <a href='#' class='text-success ' onclick="CheckGreen()" id="gcheck">  <span class='back-green1'></span> <strong>100% Completed </strong> </a>
+                            <a href='#' class='text-warning' onclick="CheckYellow()" id="ycheck">  <span class='back-yellow1'></span>  <strong> &gt;50% Completed</strong> </a>
+                            <a href='#' class='text-danger' onclick="CheckRed()" id="rcheck">  <span class='back-red1'></span>  <strong>&lt; 50% Completed </strong></a>
+                        </div>
+                        <div class="" style="float:left;">
+                            <div class="form-check-inline">
+                                <input type="radio" id="All" name="drone" onclick="CheckAll()" checked>
+                                <label for="All" class="form-check-label">All</label>
+                            </div>
+
+                            <div class="form-check-inline">
+                                <input type="radio" id="Entered" name="drone" onclick="CheckEntered()">
+                                <label for="Entered" class="form-check-label">Entered</label>
+                            </div>
+
+                            <div class="form-check-inline">
+                                <input type="radio" id="NEntered" name="drone" onclick="CheckNotEntered()">
+                                <label for="NEntered" class="form-check-label">Not Entered</label>
+                            </div>
+                        </div>
+
+
+                    }
+
+                    <div class="clearfix"></div>*@
+                <div class="table-responsive mt-3" id="printtable">
+                    <table class="table " style="width:100%;" >
+                        <thead>
+                            <tr>
+                                @if (ListData != null)
+                                {
+                                    <th width="60px" >Sl No. </th>
+                                    <th width="120px" >District </th>
+                                    <th width="150px" >Block </th>
+                                    <th width="850px" >Indicator Name</th>
+                                    @foreach (var item in ListData.Result.Select(u => u.Month).Distinct().ToList())
+                                    {
+                                        <th>@item</th>
+                                    }
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var count = 1;
+                            }
+                            @if (ListData != null)
+                            {
+                                @foreach (var item1 in ListData.Result.Select(u => new { u.BLOCK_NAME, u.DISTRICT_NAME, u.INDICATORNAME }).Distinct().ToList())
+                                {
+                            <tr>
+                                <td style="text-align:left">@count</td>
+                                <td style="text-align:left">@item1.DISTRICT_NAME</td>
+                                <td style="text-align:left">@item1.BLOCK_NAME</td>
+                                <td style="text-align:left">@item1.INDICATORNAME</td>
+                                @foreach (var item in ListData.Result.Where(w => w.DISTRICT_NAME == item1.DISTRICT_NAME && w.BLOCK_NAME == item1.BLOCK_NAME && w.INDICATORNAME == item1.INDICATORNAME))
+                                {
+                            <td style="margin-left:5px;">
+                                @if (@item.INDICATORSCORE == "-99")
+                                {
+
+                                }
+                                else
+                                {
+                                    string formattedValue = string.Format("{0:N2}", @item.INDICATORSCORE);
+                                    if (formattedValue.StartsWith("."))
+                                    {
+                                        formattedValue = "0" + formattedValue;
+                                    }
+
+
+                                    @formattedValue;
+                                    //@String.Format("{0:N2}", @item.INDICATORSCORE)
+                                    // @String.Format("{0:n0}", @item.INDICATORSCORE)
+                                }
+
+                            </td>
+                                }
+                            </tr>
+                                    count = count + 1;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+       
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+
+        document.getElementById("tabIMonthly").href = "../Home/IndicatorValueReport?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("tabIAnnually").href = "../Home/IndicatorYearlyValueReport?Glink=" + gl + "&Plink=" + pl;
+
+        document.getElementById("dashsearch").href = "../Home/Dashboard?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('IndicatorYearlyValueReport', 'gldata', 'plbdodata', 'MIS Report', 'Indicator Wise Performance', 'Indicator Wise Performance');
+         $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        $("#hdnddlsector").val($('#ddlsector option:selected').text());
+
+        if (@HttpContextAccessor.HttpContext.Session.GetInt32("_HRMSSTATUS") == 0) {
+            bootbox.confirm({
+                size: "medium",
+                message: "Do you want to change your Password?",
+
+                callback: function (result) {
+                    if (result == true) {
+                        window.location.href = "/Login/ChangePasswordReq?Hid=@HttpContextAccessor.HttpContext.Session.GetString("_EncryptUserName")";
+
+                    }
+                }
+            });
+        }
+
+        if ("@ViewBag.Iid" != 0) {
+            BindIndicatorData("@ViewBag.Iid");
+        }
+    });
+</script>
+<script>
+    $('#btnSearch').click(function () {
+        $("#hdnDistrict").val($('#ddlDistrict option:selected').text());
+        if ($('#ddlYear').val() == 0) {
+            bootbox.alert('Please Select any year!');
+            return false;
+        }
+        if ($('#DistrictId').val() == 0) {
+            bootbox.alert('Please Select any District!');
+            return false;
+        }
+        
+        else if ($('#ddlsector').val() == 0) {
+            bootbox.alert("Please Select and Sector!");
+            return false;
+        }
+    })
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtable thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtable tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+    function generateExcel() {
+        $('#printtable').table2excel();
+        getvisible();
+    }
+    $("#ddlDistrict").change(function () {
+
+    })
+    function getReportname(name) {
+        if ($('#ddlDistrict').val() != 0) {
+            return "BMPMonthlyIndicatorWiseReport -" + $("#hdnDistrict").val() + "(" + $('#ddlYear').val() + ")" + "(" + $('#hdnddlsector').val() + ")";
+        }
+        else {
+            return "BMPMonthlyIndicatorWiseReport(" + $('#ddlYear').val() + ")" + "(" + $('#hdnddlsector').val() + ")";
+        }
+    }
+</script>
+<script>
+    // print function Yearly value report
+    function PrintPageY() {
+
+        var windowName = "PrintPageY";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable").clone();
+        var head = $('#printtable thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+
+        wWinPrint.document.write("<div class=' my-border'>")
+
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div><div class='float-left year'>For the Year:- " + $("#ddlYear").val() + "<strong style='margin-left: 19px;font - size: 17px;color:#000'>Indicator Yearly Value Report List </strong>" + "</div><div class='legend-box float-right'><a href='#' style='text-decoration:none'  class='text-success'></div>" + "<div><button class='btn btn-primary'onclick='window.print();' style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+       
+        wWinPrint.document.write("<div id='printContent'><table class='table '>" + cloneTable.html() + "</table></div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+
+        wWinPrint.document.write("</div>");
+
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>
+
+<script>
+    function generate() {
+        debugger;
+        var doc = new jsPDF('p', 'pt', 'letter');
+        var htmlstring = '';
+        var tempVarToCheckPageHeight = 0;
+        var pageHeight = 0;
+        var img = new Image();
+        img.src = '../images/Odisha_logo_Black.png';
+        pageHeight = doc.internal.pageSize.height;
+        specialElementHandlers = {
+            // element with id of "bypass" - jQuery style selector
+            '#bypassme': function (element, renderer) {
+                // true = "handled elsewhere, bypass text extraction"
+                return true
+            }
+        };
+        margins = {
+            top: 150,
+            bottom: 60,
+            left: 40,
+            right: 40,
+            width: 600
+        };
+        var y = 20;
+        var show = $('#printtable').html();
+        doc.setLineWidth(2);
+        doc.addImage(img, 'png', 40, 10, 50, 50);
+        doc.fromHTML("<b style='font-size:25px'>Block Monitoring Programme</b>", 90, 8);
+        // doc.fromHTML("<p style='font-size:20px'>Government of Odisha</p>", 95, 22);
+        // doc.text(50, y = y + 45, show);
+        doc.autoTable({
+            html: '#printtable',
+            startY: 100,
+            theme: 'grid',
+            styles: {
+                minCellHeight: 40
+            }
+        })
+        doc.save('IndicatorWisePerformance.pdf');
+    }
+    $("input:checkbox").on('click', function () {
+        var $box = $(this);
+        if ($box.is(":checked")) {
+            var group = "input:checkbox[name='" + $box.attr("name") + "']";
+            $(group).prop("checked", false);
+            $box.prop("checked", true);
+        } else {
+            $box.prop("checked", false);
+        }
+    });
+</script>
+<script>
+    function BindIndicatorData(id) {
+        $.ajax({
+            url: "/Home/GetIndicatorBySectorYearly?id=" + $('#ddlsector').val(),
+            type: "GET",
+            success: function (data) {
+                var Ghtml = '<option value="0"> Select  </option>';
+
+                //console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    Ghtml += '<option value="' + data[i].indicatorid + '">' + data[i].indicatorname + '</option>'
+                }
+                if ($('#ddlsector').val() != 0) {
+                    $('#ddlindicator').html(Ghtml);
+                }
+                else {
+                    var Ghtml1 = '<option value="0">---Select---</option>';
+                    $('#ddlindicator').html(Ghtml1);
+                }
+                $('#ddlindicator').val(id);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>

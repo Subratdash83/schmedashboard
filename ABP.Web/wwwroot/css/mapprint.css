@@ -1,0 +1,523 @@
+﻿body {
+    padding: 30px 30px 30px;
+    font-family: Helvetica, sans-serif, Arial !important;
+    font-size: 15px !important;
+}
+
+
+
+.year {
+    font-weight: bold;
+    margin: 10px 0px 5px 20px;
+    font-size: 15px;
+}
+
+#printContent {
+    width: 100%;
+    padding: 20px !important;
+}
+
+h4 {
+    font-size: 20px;
+}
+
+#header img {
+    width: 45px;
+}
+
+h4.logo a {
+    display: none !important;
+}
+
+.print-logo {
+    margin-bottom: 0;
+}
+
+    .print-logo img {
+        width: 100px !important;
+    }
+
+.form-control {
+    border-radius: 2px;
+    border: 1px solid #dadada;
+    background-color: #e9ecef;
+}
+
+.td-div {
+    float: left;
+    padding: 10px 10px 5px;
+}
+
+  
+
+.div-label {
+    color: #8d99a7;
+    font-weight: 500;
+    margin-bottom: -1px;
+}
+
+.div-text {
+    color: #000;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.warning-bg .d-flex {
+    justify-content: center !important;
+    display: flex !important;
+}
+
+.success-bg .d-flex {
+    justify-content: center !important;
+    display: flex !important;
+}
+
+.primary-bg .d-flex {
+    justify-content: center !important;
+    display: flex !important;
+}
+
+#header {
+    padding: 10px;
+    background: #498846;
+}
+
+.mapcontent_title {
+    font-weight: 400;
+    font-size: 1.1rem;
+    color: #939292;
+}
+
+.mapenter_title {
+    font-weight: 400;
+    font-size: 1.03rem;
+    color: #878787;
+}
+
+.mapcontent_block {
+    display: flex !important;
+    margin-bottom: 1rem !important;
+    position: relative !important;
+}
+
+.col-lg-4 {
+    -ms-flex: 0 0 33.333333%;
+    flex: 0 0 100% !important;
+    max-width: 100% !important;
+}
+
+.mapenter {
+    display: flex;
+    gap: 3rem;
+}
+
+.mapcontent_deatils:after {
+    position: absolute;
+    content: "";
+    background-color: rgb(233 233 233);
+    right: 43px;
+    top: 2px;
+    bottom: 0;
+    height: 88%;
+    width: 1px;
+}
+
+
+
+.aspiration-text {
+    color: #8cc575 !important;
+}
+
+.non-aspiration-text {
+    color: rgb(229 154 97) !important;
+}
+
+
+
+.mapcontent_deatils {
+    flex: 0 0 55%;
+    position: relative;
+}
+
+.mapcontent {
+    margin-top: 47px;
+}
+
+.mapcontent_deatils:last-child:before {
+    display: none;
+}
+
+.mapcontent_deatils:last-child:after {
+    display: none;
+}
+
+.bg-one {
+    fill: #afcba3 !important;
+    stroke-width: 1;
+    stroke: #fff;
+    cursor: pointer;
+}
+
+.bg-two {
+    fill: #e7c6ad !important;
+    stroke-width: 1;
+    stroke: #fff;
+    cursor: pointer;
+}
+
+.blocklegend ul li span {
+    width: 25px !important;
+    height: 25px !important;
+    background-color: #ccc;
+    margin-right: 0.5rem;
+    border: 1px solid #ccc !important;
+    display: block !important;
+}
+
+.aspiration {
+    background-color: #afcba3 !important;
+}
+
+.aspiration-data {
+    fill: #0bbe5b;
+    stroke: #007836;
+}
+
+.less-completed {
+    fill: #fcb606;
+    stroke: #df9f00;
+    stroke-width: 2;
+}
+
+.not-completed {
+    fill: #f54d64;
+    stroke: #e33c53;
+    stroke-width: 2;
+}
+
+.status {
+    position: absolute;
+    right: 0;
+    bottom: 105px;
+}
+
+.blocklegend ul li {
+    display: flex !important;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1.04rem;
+    font-weight: 500;
+}
+
+.non-aspiration {
+    background-color: #e7c6ad !important;
+}
+
+tspan {
+    fill: #fff !important;
+    font-size: 12px;
+}
+
+.map {
+    margin-top: 2rem;
+}
+
+.status ul {
+    display: block;
+    gap: 0.5rem;
+}
+
+    .status ul li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+        .status ul li span {
+            width: 15px;
+            height: 15px;
+            background-color: #ccc;
+            border-radius: 4px;
+            display: inline;
+            margin-right: 0.5rem;
+        }
+
+.status_sucess {
+    background-color: rgb(11 190 91) !important;
+}
+
+.status_warning {
+    background-color: rgb(252 182 6) !important;
+}
+
+.status_pending {
+    background-color: rgb(255 95 117) !important;
+}
+
+.map-area {
+    width: 75%;
+    margin: 0 auto;
+}
+
+.map_container {
+    width: 590px;
+    position: relative;
+    margin: 0 auto 0;
+}
+
+#map-svg {
+    width: 100%;
+    height: 100%;
+    margin-top: -116px;
+}
+
+.title h6 {
+    margin-bottom: 1rem;
+}
+
+
+
+.col-lg-8 {
+    margin: 0 auto;
+}
+.nonaspiration-bg {
+    border-left: 2px solid #ffc090c2;
+}
+
+.aspiration-bg {
+    border-left: 2px solid #afcba3;
+}
+@media print {
+    @page {
+        margin: 0;
+        margin: 2rem;
+        page-break-before: always;
+    }
+   
+    body {
+        margin: 2rem;
+        padding: 2rem;
+    }
+    .mapenter_title {
+        font-weight: 400;
+        font-size: 1.23rem!important;
+        color: #878787;
+    }
+    .blocklegend ul li {
+        font-size: 1.24rem!important;
+    }
+    .status ul li span {
+        width: 20px!important;
+        height: 20px!important;
+        background-color: #ccc;
+        border-radius: 4px;
+        display: inline;
+        margin-right: 0.5rem;
+    }
+        .table tr th {
+        padding: 0.5rem 0.5rem;
+        background: #eaf1fb!important;
+        font-weight: 500;
+    }
+    .title h6 {
+        margin-bottom: 1rem;
+    }
+
+    .map-area {
+        width: 75%;
+        margin: 0 auto;
+    }
+
+    #map-svg {
+        width: 100%;
+        height: 100%;
+        margin-top: -215px;
+    }
+
+    .print-btn {
+        display: none;
+    }
+
+    .map_container {
+        width: 911px;
+        position: relative;
+        margin: 0 auto 0;
+    }
+
+    .status ul li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        font-size: 2rem;
+    }
+
+    .status_sucess {
+        background-color: rgb(11 190 91) !important;
+    }
+
+    .status_warning {
+        background-color: rgb(252 182 6) !important;
+    }
+
+    .status_pending {
+        background-color: rgb(255 95 117) !important;
+    }
+
+   
+
+    .map {
+        margin-top: 2rem;
+    }
+
+    tspan {
+        fill: #fff !important;
+        font-size: 12px;
+    }
+
+    .blocklegend ul li span.aspiration {
+        width: 25px !important;
+        height: 25px !important;
+        background-color: #afcba3 !important;
+        margin-right: 0.5rem;
+        border: 1px solid #ccc !important;
+        display: block !important;
+    }
+
+  
+    .blocklegend ul li span.non-aspiration {
+        width: 25px !important;
+        height: 25px !important;
+        background-color: #e7c6ad !important;
+        margin-right: 0.5rem;
+        border: 1px solid #ccc !important;
+        display: block !important;
+    }
+
+    .non-aspiration {
+        background-color: rgb(231 198 173) !important;
+    }
+
+    .blocklegend ul li {
+        display: flex !important;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-size: 1.04rem;
+        font-weight: 500;
+    }
+
+    .nonaspiration-bg {
+        border-left: 2px solid #ffc090c2;
+    }
+
+    .aspiration-bg {
+        border-left: 2px solid #afcba3;
+    }
+    .status {
+        position: absolute;
+        right: 0;
+        bottom: 105px;
+    }
+
+        .status ul {
+            display: block;
+            gap: 0.5rem;
+        }
+
+    .aspiration-data {
+        fill: #0bbe5b;
+        stroke: #007836;
+    }
+
+    .less-completed {
+        fill: #fcb606;
+        stroke: #df9f00;
+        stroke-width: 2;
+    }
+
+    .not-completed {
+        fill: #f54d64;
+        stroke: #e33c53;
+        stroke-width: 2;
+    }
+
+    .blocklegend ul li span {
+        width: 25px;
+        height: 25px;
+        background-color: #ccc !important;
+        display: inline;
+        margin-right: 0.5rem;
+        border: 1px solid #ccc !important;
+    }
+
+    .bg-one {
+        fill: #afcba3 !important;
+        stroke-width: 1;
+        stroke: #fff;
+        cursor: pointer;
+    }
+
+    .bg-two {
+        fill: #e7c6ad !important;
+        stroke-width: 1;
+        stroke: #fff;
+        cursor: pointer;
+    }
+
+    .aspiration {
+        background-color: rgb(175 203 163) !important;
+    }
+
+  
+
+        
+    .aspiration-text {
+        color: #8cc575 !important;
+    }
+
+    .non-aspiration-text {
+        color: rgb(229 154 97) !important;
+    }
+
+    .non-aspiration {
+        background-color: rgb(231 198 173) !important;
+    }
+
+    .mapenter {
+        display: flex;
+        gap: 3rem;
+    }
+
+    #header {
+        padding: 10px;
+        background: #498846;
+    }
+
+    .mapcontent_title {
+        font-weight: 400;
+        font-size: 1.1rem;
+        color: #939292;
+    }
+
+    .mapenter_title {
+        font-weight: 400;
+        font-size: 1.03rem;
+        color: #878787;
+    }
+
+    .mapcontent_block {
+        display: flex !important;
+        margin-bottom: 1rem !important;
+        position: relative !important;
+    }
+
+    .col-lg-4 {
+        -ms-flex: 0 0 33.333333%;
+        flex: 0 0 100% !important;
+        max-width: 100% !important;
+    }
+
+}
+
+
+
+

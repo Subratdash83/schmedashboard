@@ -1,0 +1,301 @@
+﻿@model ABP.Domain.Report.Report
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment hostingEnv
+@{
+    ViewData["Title"] = "LoginReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Loginreport as Task<IEnumerable<ABP.Domain.Login.Login>>;
+}
+
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            @* <div class="card-header">
+            <ul class="nav nav-tabs nav-fill" role="tablist">
+            </ul>
+            <div class="indicatorslist">
+            <p class="ml-2">(*) Indicates mandatory </p>
+            </div>
+            </div>*@
+            <div class="card-body">
+                <form method="post" id="dashsearch">
+                    <div class="form-group row">
+
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label class="control-label" for="demo-readonly-input">From Date</label>
+                            <span class="colon">:</span>
+                            <div class="input-group">
+                                <input type="text" class="form-control datepicker brush readonly" id="fromdate" asp-for="FromDate" aria-label="Default" aria-describedby="inputGroup-sizing-default" autocomplete="off">
+                                <div class="input-group-append">
+                                    <span class="input-group-text" id="inputGroup-sizing-default"><i class="icon-calendar1"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        <div class="col-12 col-md-6 col-xl-3">
+                            <label class="control-label" for="demo-readonly-input">To Date</label>
+                            <span class="colon">:</span>
+                            <div class="input-group">
+                                <input type="text" class="form-control datepicker brush readonly" id="todate" asp-for="ToDate" aria-label="Default" aria-describedby="inputGroup-sizing-default" autocomplete="off">
+                                <div class="input-group-append">
+                                    <span class="input-group-text" id="inputGroup-sizing-default"><i class="icon-calendar1"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="col-12 col-md-6 col-xl-3">
+                        <label class="control-label" for="demo-email-input">Frequency<span class="text-danger">*</span></label>
+                        <div>
+
+                        <select class="form-control" id="ddlFrequency" name="Frequency" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                        <option value="0">---Select---</option>
+                        </select>
+                        </div>
+                        </div>*@
+
+                        <div class="col-12 col-md-6 col-xl-2 mt-xl-0 mt-md-3">
+                            <label class="control-label d-block" for="demo-textarea-radio">Entered Block <span class="text-danger">*</span></label>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" id="type1" asp-for="status" value="@ViewBag.statusyes">
+                                <label for="type1">Yes </label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" id="type2" asp-for="status" value="@ViewBag.statusno">
+                                <label for="type2">No</label>
+                            </div>
+
+                        </div>
+                        <div class="col-lg-2 margintop">
+                            <button type="submit" class="btn btn-success mt-md-4 mt-3" id="btnView">View</button>
+
+                        </div>
+                    </div>
+
+
+                </form>
+                <br />
+                <div class="table-responsive" id="printtable">
+                    <h5 class="mb-3 font-weight-normal" id="dateshow">
+                        @*Authority Login Report: @ViewBag.FromDate to @ViewBag.TODATE*@
+                        @if (ListData != null)
+                        {
+                            <a href="javascript:PrintPageBlock();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-2"><i class="icon-printer1"></i></a>
+                            <a href="javascript:generateExcel();void(0)" title="Export to Excel" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-excel-file"></i></a>
+                        }
+                    </h5>
+                    <table class="table  mt-3">
+                        <thead>
+                            <tr>
+                                @if (ListData != null)
+                                {
+                                    <th width="50px" class="text-center">Sl# </th>
+                                    <th class="text-left">Block</th>
+                                    <th class="text-left">District</th>
+                                    <th class="text-left">Last Login Time</th>
+                                    @*<th width="220px" class="text-left"><b>Designation</b></th>*@
+
+                                    @*<th class="text-left">Login Date and Time</th>
+                                <th class="text-left">Logout date and Time</th>*@
+                                }
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var count = 1;
+                            }
+                            @if (ListData != null)
+                            {
+                                @foreach (var item1 in ListData.Result)
+                                {
+
+                                    <tr>
+                                        <td class="text-center">@count</td>
+                                        <td class="text-left">
+                                            @if (@item1.BlockName != null)
+                                            {
+                                                @item1.BlockName
+                                            }
+                                            else
+                                            {
+                                                <label>-</label>
+                                            }
+                                        </td>
+                                        @if (item1.nvchaliasname == "COL")
+                                        {
+                                            <td class="text-left">@item1.BlockName</td>
+                                            <td class="text-left"> -NA-</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="text-left">@item1.DistrictName</td>
+
+                                        }
+                                        <td class="text-left">@item1.LoginTime</td>
+                                        @*<td class="text-left">@item1.LoginTime</td>
+                                <td class="text-left">@item1.LogoutTime</td>*@
+                                    </tr>
+                                    count = count + 1;
+                                }
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.6/jspdf.plugin.autotable.min.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        loadNavigation('EnteredBlockReport', 'gldata', 'plbdodata', 'MIS Report', 'Block Entry Report', 'Block Entry Report');
+        document.getElementById("dashsearch").href = "../Home/DistDashboard?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.toLocaleString('default', { month: 'short' });
+        var yyyy = today.getFullYear();
+
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        today = dd + '-' + mm + '-' + yyyy;
+        document.getElementById('fromdate').placeholder = today;
+        document.getElementById('todate').placeholder = today;
+        $('#fromdate').datepicker({
+            format: "dd-M-yyyy",
+            todayBtn: "linked",
+            autoclose: true,
+            startDate: new Date('01-APR-2021'),
+            endDate: new Date(),
+            todayHighlight: true
+        });
+        $('#todate').datepicker({
+            format: "dd-M-yyyy",
+            todayBtn: "linked",
+            autoclose: true,
+            startDate: new Date('01-APR-2021'),
+            endDate: new Date(),
+            todayHighlight: true
+        });
+    });
+</script>
+<script>
+    // print function
+    function PrintPageBlock() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable").clone();
+        var head = $('#printtable thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("/", windowName, wOption);
+        wWinPrint.document.write('\x3Cscript type="text/javascript" src="../../js/print.js">\x3C/script>');
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();PrintableContent(\"printContent\");$(this).show();'>Print</a></h4></div></div>" + "</div>" + "<div><button class='btn btn-primary'onclick=PrintableContent('printContent'); style='float:right;margin: 10px;margin-right: 23px;'>Print</button></div>");
+        wWinPrint.document.write("<strong style='margin-left: 19px;font - size: 17px;color:#000'>Entered Block Report List</strong><div style=''><br/>");
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtable thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtable tbody').find('tr').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+    function generateExcel() {
+        $('#printtable').table2excel();
+        getvisible();
+    }
+    function getReportname(name) {
+        var fday, tday;
+        var today = new Date();
+        var dd = today.getDate();
+        var mm = today.toLocaleString('default', { month: 'short' });
+        var yyyy = today.getFullYear();
+
+        if (dd < 10) {
+            dd = '0' + dd;
+        }
+
+        if (mm < 10) {
+            mm = '0' + mm;
+        }
+        today = dd + '-' + mm + '-' + yyyy;
+        fday = today;
+        tday = today;
+        if ($('#fromdate').val() != '') {
+            fday = $('#fromdate').val();
+        }
+        if ($('#todate').val() != '') {
+            tday = $('#todate').val();
+        }
+        return "BMPLoginReport(" + fday + "-" + tday + ")";
+    }
+</script>
+<script>
+    $('#btnView').click(function () {
+        var radioValue = $("input[name='status']:checked").val();
+        if (radioValue == undefined) {
+            bootbox.alert("Please Select Yes or no!");
+            return false;
+        }
+        else
+            return true;
+    });
+</script>
+

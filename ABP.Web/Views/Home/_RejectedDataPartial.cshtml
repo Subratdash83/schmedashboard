@@ -1,0 +1,61 @@
+﻿@{
+    var RejectedData = ViewBag.RejectedResult as Task<IEnumerable<ABP.Domain.DataPoint.DataPoint>>;
+   
+}    
+<div class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+    <div class="card-body">
+        <div class="table-responsive col-sm-12" id="tblsSectoWise">
+            <table  data-toggle="table" class="table">
+                <thead>
+                    <tr>
+                        <th class="br-left text-left" width="35px">Sl#</th>
+                        <th>Block Name </th>
+                        <th>Year</th>
+                        <th>Month/Quater</th>
+                        <th>Frequency</th>
+                        @*<th>Total Datapoint Count</th>*@
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody class="tbodySector">
+                    @{ int count = 1;}
+                    @if(RejectedData!=null)
+                    {
+                              @foreach (var list in RejectedData.Result.ToList())
+                    {
+                        <tr>
+                            <td class="br-left text-left" width="35px">@count</td>
+                            <td>@list.BLOCKNAME</td>
+                            <td>@list.YEAR</td>                                            
+                            <td>@list.MONTHNAME</td>                                            
+                            <td>@list.FREQUENCY</td>
+                            @*<td>@list.DATAPOINTCOUNT</td>*@
+                                            
+                            <td>
+                                <a href="" class="btn btn-success">Take Action</a>
+                            </td>
+                        </tr>       
+                        count++;
+                    }
+                    }
+              
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    function OpenComponent(id) {
+        if ($("#tbl_" + id + "")[0].className == "chartertable table collapsebtn collapsed") {
+            $("#tbl_" + id + "").attr('class', 'chartertable table collapsebtn tableactive');
+            $("#collapseExample_" + id + "").attr('class', 'compbg collapse show');
+        }
+        else {
+            $("#tbl_" + id + "").attr('class', 'chartertable table collapsebtn collapsed');
+            $("#collapseExample_" + id + "").attr('class', 'compbg collapse');
+        }
+    }
+</script>
+
+

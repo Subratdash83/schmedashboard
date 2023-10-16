@@ -1,0 +1,527 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "AddFormular";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #Dcheck {
+        height: 300px;
+        overflow-x: auto;
+        margin: 10px 0px 30px 0px; 
+    }
+</style>
+
+
+<script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.10.0.min.js" type="text/javascript"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/jquery-ui.min.js" type="text/javascript"></script>
+<link href="https://ajax.aspnetcdn.com/ajax/jquery.ui/1.9.2/themes/blitzer/jquery-ui.css"
+      rel="Stylesheet" type="text/css" />
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    @*<a class="nav-item nav-link active" asp-controller="Indicator" asp-action="AddIndicator">Add</a>
+                        <a class="nav-item nav-link " asp-controller="Indicator" asp-action="ViewIndicator">View</a>*@
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="IndicatorFormulaAdd">
+
+                        Add Indicator Formula
+                    </a>
+                    @*<a class="nav-item nav-link" data-toggle="tooltip" id="IndicatorFormulaView">
+
+                            View
+                        </a>*@
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <!--Static-->
+
+
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Sector Name<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <select class="form-control" id="ddlSector" onchange="BindIndicators1()" name="Sector" asp-items="@(new SelectList(ViewBag.Sector, "PANELID", "DISPLAYNAME" ))">
+
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-12 col-md-2 col-xl-2 control-label" for="demo-email-input">Frequency<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+
+                        <select class="form-control" id="ddlFrequency" onchange="BindIndicators()" name="Frequency" asp-items="@(new SelectList(ViewBag.Frequency, "FREQUENCYID", "FREQUENCY" ))">
+                            <option value="0">---Select---</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row" id="DP" style="display:none">
+                    <label class="col-12 col-md-2 col-xl-2 control-label">DataPoints <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-4 col-xl-4">
+                        <span class="colon">:</span>
+                        @*<select id="ddlKPI"
+                                    multiple class="form-control">
+                                <option value="0">Select</option>
+                            </select>*@
+                        <div id="Dcheck"></div>
+                    </div>
+                </div>
+
+
+                <div style="display:none" id="DFormula">
+                    <div>
+                        @*<a href="javascript:generateExcel();void(0)" title="Export to Excel" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-0"><i class="icon-excel-file"></i></a>*@
+
+                        <a href="javascript:PrintPagePF();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-printer1"></i></a>
+
+                    </div>
+                    <div class="section1">
+                        <div class="table-responsive" id="printtable1">
+                            <table data-toggle="table" class="table table-bordered mt-2" id="Approvalinsert">
+                                <thead>
+                                    <tr>
+                                        <th width="45px" class="text-center">Sl#</th>
+                                        <th width="500px">Indicator Name</th>
+                                        <th width="550px">Indicator Formula</th>
+
+                                        <th width="20px" style="display:none"></th>
+                                        @* <th  width="20px" style="visibility:hidden">KPIFormulaOriginal</th>*@
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row" id="btngroup">
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button class="btn btn-success mb-1" id="btnSubmitNow">Submit</button>
+                        <a class="btn btn-danger mb-1" onclick="ClearScheme()">Reset</a>
+                    </div>
+                </div>
+                @*</form>*@
+
+                @*<div class="form-group row pad-ver otp-box bg-light pt-3">
+
+                        <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                            Enter OTP
+                        </label>
+                        <div class="col-lg-4">
+                            <input type="number" id="txtotp" class="form-control" />
+                            <input type="hidden" id="hdnotp" class="form-control" />
+                            <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+                        </div>
+                        <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+                        <label class="col-xl-12  col-xl-12 control-label"></label>
+                        <label class="col-12  col-xl-2 control-label"></label>
+                        <div class="col-12 col-md-6 col-xl-4">
+
+                            <button id="btnSubmit" class="btn btn-primary mb-1">Submit</button>
+                            <button id="btnCancel1" class="btn btn-danger mb-1">Reset</button>
+                        </div>
+                    </div>*@
+
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+</style>
+<script src="~/js/datapoint.js"></script>
+<script src="~/js/exportToExcel.js"></script>
+<script>
+    $(document).ready(function () {
+        document.getElementById("IndicatorFormulaAdd").href = "../IndicatorFormula/AddFormula?Glink=" + @Glink + "&Plink=" + @Plink;
+        //document.getElementById("IndforView").href = "../IndicatorFormula/ViewFormula?Glink=" + @Glink + "&Plink=" + @Plink;
+        loadNavigation('AddFormula', 'gldata', 'plbdodata', 'Manage Master', 'Manage Indicator Formula', 'Add IndicatorMapping');
+        $("#data").hide();
+         var formulaId = getUrlVars()["FormulaId"];
+    if (formulaId != undefined) {
+        $("#btnSubmit").html("Update");
+        $("#btnCancel").html("Cancel");
+        BindFormulaById(formulaId);
+    }
+       $('#btngroup').hide();
+    });
+
+
+    //$('#btnCancel1').click(function () {
+
+    //    $('#hdnIMId').val("0");
+    //    $('#ddlSector').val("0");
+    //    $('#ddlIndicator').val("0");
+    //    $('#txtFormula').val("");
+    //    $('#mainDivD').empty();
+    //    $('#mainDivN').empty();
+    //    $('#btnConfirm').show();
+    //    $(".otp-box").hide();
+    //    $('#btnCancel').show();
+
+
+    //});
+    $("#btnSubmitNow").click(function (e) {
+
+
+        debugger;
+        var ProjectMasterID = getUrlVars()["ID"];
+        if (ProjectMasterID != undefined) {
+            msg = "Are you sure ,you want to Update?";
+        }
+        else {
+            msg = "<p class='msg-display'>Are you sure ,you want to Submit?</p>";
+        }
+        var rowcount = 0;
+        $('#Approvalinsert tbody tr').each(function (index) {
+
+
+            var Question1 = $(this).find("td").eq(1).find("#txtDatapointName").val();
+
+
+
+            if (Question1 == "") {
+                bootbox.alert("Please Enter Question1.");
+                $(this).focus();
+                rowcount = 0;
+                return false;// breaks out of each loop
+            }
+
+
+            else {
+                rowcount++;
+            }
+        })
+        if (rowcount > 0) {
+
+            var linkDetails = new Array();
+            var fileData = new FormData();
+            var DPNames='' ;
+            $(".department").each(function () {
+                if (this.checked == true) {
+
+                    DPNames =DPNames+this.value+',';
+                    // myArray.push(this.name);
+
+                }
+
+            })
+            $('#Approvalinsert tbody tr').each(function (index) {
+
+                var KpiMasterid = $(this).find("td").eq(3).find("#txtINDID").val();
+
+                var KpiFormula = $(this).find("td").eq(2).find("#txtDatapointName").val();
+
+
+                var linkDetail = {};
+                linkDetail.Sectorid = parseInt($("#ddlSector").val());
+                linkDetail.INDICATORID = KpiMasterid;
+                linkDetail.IndicatorFormulaName = KpiFormula;
+                linkDetail.SelectedDataPoints = DPNames;
+                linkDetails.push(linkDetail);
+            });
+            fileData.append("Elements", JSON.stringify(linkDetails));
+
+            bootbox.confirm({
+                size: "medium",
+                message: msg,
+                callback: function (result) {
+                    if (result === true) {
+
+                        addDatapoint(fileData);
+                    }
+                }
+            });
+        }
+    });
+    function BindIndicators1(){
+        if($("#ddlFrequency").val()!=0){
+           BindIndicators();
+        }
+    }
+ function addDatapoint(Data) {
+            $.ajax({
+
+                type: "POST",
+                //url: "/Datapoint/AddDatapoint",
+                url: '@Url.Action("AddFormulaData", "IndicatorFormula")', //Controller and Method(/Controller/Method)
+
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: Data,
+                contentType: false, // Not to set any content header=================
+                processData: false, // Not to process data
+                success: function (res) {
+                    var ID = getUrlVars()["ID"];
+                    if (ID != undefined) {
+                        bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                            window.location.href = "../IndicatorFormula/ViewFormula?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                        });
+                    }
+                    else {
+                        bootbox.alert(res, function () { //Alert showing through bootbox for a better look and fill
+                            window.location.href = "../IndicatorFormula/AddFormula?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+                            //window.location.reload();
+                        });
+                    }
+                },
+                failure: function (response) {
+                    console.log(response.responseText);
+                },
+                error: function (response) {
+                    console.log(response.responseText);
+                }
+            });
+        }
+
+
+        $(document).on('keyup', '.inputs', function () {
+
+            $('#Approvalinsert tbody tr').each(function (index) {
+
+                function split(val, separator) {
+
+                    return val.split(RegExp('\\' + separator + '\\s*'));
+
+
+                }
+
+
+
+
+                $(this).find("td").eq(2).find("#txtDatapointName").autocomplete({
+
+                    // source: availableTags
+                    source: function (request, response) {
+                        var Sectorid = $("#ddlSector").val();
+                        var IndicatorFormulaID=$("#ddlFrequency").val();
+                        //var myArray = [];
+                        //$(".department").each(function () {
+                        //    if (this.checked == true) {
+
+                        //        myArray.push(this.name);
+                        //       // myArray.push(this.name);
+
+                        //    }
+
+                        //})
+                        //response($.map(myArray, function (item) {
+                        //           return { label: item.DISPLAYNAME, value: item.DISPLAYNAME };
+                        //}))
+                        //response($.each(myArray, function (index, value) {
+                        //    // Get value in alert
+                        //  //  alert(value);
+                        //    return { label: value, value: value };
+                        //}))
+                        $.ajax({
+                            url: "../IndicatorFormula/BindIndicatorAutoFill",
+                            type: "POST",
+                            dataType: "json",
+                            data: {
+                                "Sectorid": Sectorid,"IndicatorFormulaID":IndicatorFormulaID
+                            },
+                            success: function (data) {
+                                var out = $.parseJSON(data);
+
+                                response($.map(out, function (item) {
+                                    return { label: item.DISPLAYNAME, value: item.DISPLAYNAME };
+                                }))
+
+                            }
+                        })
+                    },
+                    multiselect: true,
+                    focus: function () {
+                        // prevent value inserted on focus
+                        return false;
+                    },
+                    select: function (event, ui) {
+                        var op = '';
+                        op = this.value.substr(-1);
+
+                        var terms = split(this.value, op);
+
+
+
+                        terms.pop();
+                        var test = ui.item.value;
+                        terms.push(test);
+                        op = op + '';
+
+                        if (terms[0] != "") {
+                            this.value = terms.join(op);
+                        }
+                        else { this.value = terms.join(''); }
+                        return false;
+
+                    }
+
+                });
+                //  $(this).find("td").eq(4).find("#txtKFO").value = KFOvalue;
+            });
+
+        });
+
+    function BindIndicators() {
+        $("#DFormula").show(100);
+
+        debugger
+        var Sectorid = $("#ddlSector").val();
+        var frequencyid=$("#ddlFrequency").val();
+        var url = '../IndicatorFormula/BindIndicators'; @* '@Url.Action("BindScheme", "ApprovalConfing")',*@
+        $.getJSON(url, { Sectorid: Sectorid ,frequencyid:frequencyid}, function (result) {   //result has to be parsed to get an object from string
+            var item = "";
+            $("#Approvalinsert").find('tbody').empty();
+            if(result=="[]"){
+                $("#Approvalinsert").find('thead').empty();
+               item+='<tr><td rowspan="4"><label class="norecord">No Indicator Found</label></td></tr>'
+               $("#Approvalinsert").find('tbody').append(item);
+               $('#btngroup').hide();
+            }
+            else{
+            $.each(JSON.parse(result), function (i, data) {
+                //  item += '<option value="' + data.ID + '">' + data.SCHEME_NAME + '</option>'
+                item += '<tr><td class="text-center">' + parseInt(i + 1) + '</td>';
+                item += '<td width="500">' + data.INDICATORNAME + '</td>';
+                if (data.IndicatorFormulaName != null) {
+
+                    item += '<td> <textarea id="txtDatapointName" class="inputs form-control"  >' + data.IndicatorFormulaName + '</textarea></td>';
+                    item += '<td style="display:none"><input type="text" class="form-control" value=' + data.INDICATORID + ' id="txtINDID"  name="DisplayName"    /></td> ';
+                }
+               else {
+                    item += '<td> <textarea id="txtDatapointName" class="inputs form-control" ></textarea></td>';
+                    item += '<td style="display:none"><input type="text" class="form-control" value=' + data.INDICATORID + ' id="txtINDID"  name="DisplayName"/></td> ';
+                    }
+
+                //  item += '<td style="visibility:hidden"><input type="text"  id="txtKFO"  name="KFO"    /></td></tr > ';
+
+            });
+
+            $("#Approvalinsert").find('tbody').append(item);
+            $('#btngroup').show();
+            }
+        });
+    }
+    function ClearScheme() {
+        window.location.href = "../IndicatorFormula/AddFormula?Glink=" + decodeURI(getUrlVars()["Glink"]) + "&Plink=" + decodeURI(getUrlVars()["Plink"]);
+    }
+ function getUrlVars() {
+        var vars = [], hash;
+        var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+        for (var i = 0; i < hashes.length; i++) {
+            hash = hashes[i].split('=');
+            vars.push(hash[0]);
+            vars[hash[0]] = hash[1];
+        }
+        return vars;
+    }
+    function BindFormulaById(IndicatorFormulaID) {
+        $.ajax({
+            url: "/IndicatorFormula/BindFormulaById?IndicatorFormulaID=" + IndicatorFormulaID,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json;charset=UTF-8",
+            success: function (data) {  //Filling the values in appropriate field for updating purpose
+                /*$('#hdnDATAPOINTID').val(data[0].DATAPOINTID);*/
+                $('#ddlSector').val(data[0].SECTORID);
+                BindIndicators();
+                //$('#txtDATAPOINTNAME').val(data[0].DATAPOINTNAME);
+                //$('#txtDATAPOINTDATE').val(data[0].DATAPOINTDATE);
+                //$('#ddlFrequency').val(data[0].FREQUENCYID);
+            },
+            error: function (error) {
+                jsonValue = jQuery.parseJSON(error.responseText);
+                bootbox.alert("Error : " + jsonValue);
+            }
+        });
+    }
+</script>
+
+<script>
+    function generateExcel() {
+
+        $("#Approvalinsert").table2excel();
+        getvisible();
+    }
+    function getReportname(name) {
+        return "BMPDistrictsMapData";
+        //return "BMPMonthlyDataEntryReport-" + $("#ddlSector").val() + "(" + $('#ddlFrequency').val() + ")";
+    }
+</script>
+<script>
+    function getvisible() {
+        var vtable = []
+        var headrow = $('#printtable1 thead').find('tr').html();
+        vtable.push(headrow);
+        $('#printtable1 tbody').find('tr:visible').each(function () {
+            var temprow = '';
+            if ($(this).css('display') == 'table-row') {
+                temprow += '<tr>' + $(this).html() + '</tr>';
+            }
+            vtable.push(temprow);
+        });
+        return vtable;
+    }
+</script>
+
+<script>
+    //print function work
+    function PrintPagePF() {
+
+        var windowName = "PrintPageP";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#printtable1").clone();
+        var head = $('#printtable1 thead tr');
+
+        cloneTable.find('input[type=text],select,textarea').each(function () {
+            var elementType = $(this).prop('tagName');
+            if (elementType == 'SELECT') {
+
+                if ($(this).val() > 0)
+                    var textVal = $(this).find("option:selected").text();
+                else
+                    textVal = '';
+            } else
+                var textVal = $(this).val();
+            $(this).replaceWith('<label>' + textVal + '</label>');
+        });
+        cloneTable.find('a').each(function () {
+            var anchorVal = $(this).html();
+            $(this).replaceWith('<label>' + anchorVal + '</label>');
+        });
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../../css/bootstrap.min.css' rel='stylesheet'><link href='../../css/print.css' rel='stylesheet'><link href='../../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        /* wWinPrint.document.write("<div style='display:flex;align-items:center;'><div class='float-left year mt-0'></div><div class='float-left year mt-0'></div></div>");*/
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+
+</script>

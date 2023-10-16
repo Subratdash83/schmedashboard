@@ -1,0 +1,148 @@
+﻿@{
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    ViewData["Title"] = "ViewJobScheduleConfig";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var ListData = ViewBag.Result as Task<IEnumerable<ABP.Domain.SMS.SMSData>>;
+}
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+        </nav>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="JobScheduleAdd">
+                        Add
+                    </a>
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="JobScheduleView">
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <div class="card-body">
+                @if (ListData.Result.ToList().Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table data-toggle="table" id="tblIndicator" class="table">
+                            <thead>
+                                <tr>
+                                    <th>Sl#</th>
+                                    <th>Job Type</th>
+                                    <th>Indicator Job Type</th>
+                                    <th>Job Time</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{int Count = 1; }
+
+                                @foreach (var item in ListData.Result)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td>
+                                            @if (item.JOBTYPEID == 1)
+                                            {
+                                                <span>Hourly</span>
+                                            }
+                                            else if (item.JOBTYPEID == 2)
+                                            {
+                                                <span>Daily</span>
+                                            }
+                                            else if (item.JOBTYPEID == 3)
+                                            {
+                                                <span>Weekly</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Monthly</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.INDJOBTYPEID == 2)
+                                            {
+                                                <span>Monthly</span>
+                                            }
+                                            else
+                                            {
+                                                <span>Yearly</span>
+                                            }
+                                        </td>
+                                        <td>@item.JOBDATE</td>
+                                        <td>
+                                            <a onclick="deleteIndicatorJob('@item.ID');" data-toggle="tooltip" class="text-danger" title="" data-original-title="Delete">
+                                                <i class="icon-trash-21"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    Count++;
+                                }
+                            </tbody>
+                        </table>
+
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"> No Record Found</div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+        document.getElementById("JobScheduleAdd").href = "../SMS/JobScheduleConfig?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("JobScheduleView").href = "../SMS/ViewJobScheduleConfig?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('JobScheduleConfig', 'gldata', 'plbdodata', 'Manage Master', 'Job Schedule Config', 'Job Schedule Config');
+    });
+    function deleteIndicatorJob(id) {
+        bootbox.confirm({
+            size: "medium",
+            message: "Are you sure you want to delete ?",
+            callback: function (result) {
+                if (result === true) {
+                    $.ajax({
+                        url: "/SMS/DeleteJobDetails?ID=" + id,
+                        type: "POST",
+                        dataType: "json",
+                        contentType: "application/json;charset=UTF-8",
+                        success: function (res) {
+                            bootbox.alert(res, function () {  //Alert showing through bootbox for a better look and fill
+                                window.location.reload();
+                            });
+                        },
+                        error: function (error) {
+                            jsonValue = jQuery.parseJSON(error.responseText);
+                            bootbox.alert("Error : " + jsonValue);
+                        }
+                    });
+                }
+            }
+        });
+    };
+
+</script>
+
+
+

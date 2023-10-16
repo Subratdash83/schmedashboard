@@ -1,0 +1,631 @@
+﻿@{
+    ViewData["Title"] = "PreviewBlockDataEntry";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    string Glink = Context.Request.Query["Glink"];
+    string Plink = Context.Request.Query["Plink"];
+    var ResultData = ViewBag.Result as List<ABP.Domain.Panel.ControlPanel>;
+    var SectorData = ViewBag.Sector as Task<IEnumerable<ABP.Domain.Panel.Panel>>;
+    var script = ViewBag.Script as string;
+}
+<style>
+    .tblResult5 {
+        width: 1000px;
+        border-collapse: collapse;
+    }
+
+    tblResult5 td {
+        padding: 5px;
+        border: 1px solid blue;
+        font-family: Cambria;
+        font-size: 10px;
+    }
+
+    tblResult5 th {
+        padding: 5px;
+        border: 1px solid blue;
+        font-family: Cambria;
+        font-weight: bold;
+        font-size: 10px;
+        background-color: rgba(60,141,188,1);
+        color: white;
+    }
+
+    .flo {
+        float: right;
+    }
+</style>
+
+<div class="page-title">
+    <div class="title-details">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb p-0 mb-0 bg-transparent" id="navigation">
+            </ol>
+
+        </nav>
+
+    </div>
+    @*<i class="fa fa-bell Blink flo text-success
+    LIVE">Notification</i>*@
+    @*<button id="btnConfirmnotice" onclick="LoadData()" class="fa fa-bell Blink flo text-success
+    LIVE" style="border-top: 0px; border-bottom: 0px; border-left: 0px; border-right: 0px; ">Notification</button>*@
+</div>
+
+<div class="row">
+    <div class="col-md-12 col-sm-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs nav-fill" role="tablist">
+                    <a class="nav-item nav-link active" data-toggle="tooltip" id="BDODataAddTemp">
+
+                        Add
+                    </a>
+                    <a class="nav-item nav-link" data-toggle="tooltip" id="BDODataViewTemp">
+
+                        View
+                    </a>
+                </ul>
+                <div class="indicatorslist">
+                    @*<a title="" href="javascript:void(0)" id="backIcon" data-toggle="tooltip" data-placement="top" data-original-title="Back"><i class="icon-arrow-left1"></i></a>*@
+                    <p class="ml-2">(*) Indicates mandatory </p>
+                </div>
+            </div>
+            <!-- BASIC FORM ELEMENTS -->
+            <!--===================================================-->
+            <div class="card-body">
+                <div class="form-group row mb-4">
+                    @*<label class="col-12 col-md-2 col-xl-1 control-label" for="demo-email-input" id="lblYearType">Year Type<span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6 col-xl-2" id="divYearType">
+                    <select class="form-control" id="ddlYearType" name="YearType">
+                    <option value="0">---Select---</option>
+                    <option value="1">Calender</option>
+                    <option value="2">Financial</option>
+                    </select>
+                    </div>*@
+                    <div class="col-lg-4 col-md-6">
+                        <label class=" control-label" for="demo-email-input" id="lblYear">Year<span class="text-danger">*</span></label>
+                        <div id="divYear">
+                            <select class="form-control" disabled id="ddlYear" name="Year" asp-items="@(new SelectList(ViewBag.Year, "FREQUENCYNO", "FREQUENCYVALUE",ViewBag.SelectedYear ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <label class="control-label" for="demo-email-input" id="lblMonth">Month<span class="text-danger">*</span></label>
+                        <div id="divMonth">
+                            <select class="form-control" disabled id="ddlMonth" name="Month" asp-items="@(new SelectList(ViewBag.Month, "FREQUENCYNO", "FREQUENCYVALUE",ViewBag.SelectedMonth ))">
+                                <option value="0">---Select---</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="d-flex justify-content-between border-bottom   mb-3">
+                    <h6 class=" my-0">
+                        Enter Datapoint Values
+                    </h6>
+                    <ul class="nav nav-tabs custom-tab mb-0 mt-3 mt-md-0">
+                        @if (ViewBag.Frequency == 2)
+                        {
+                            <li class="nav-item">
+                                <a href="/BlockData/BlockDataEntryTemp?FreqId=2" class="nav-link" id="month-tab">Monthly</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a href="/BlockData/BlockDataEntryTemp?FreqId=5" class="nav-link" id="annual-tab">Yearly</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <input type="hidden" id="checkotpcount" class="form-control" value=0 />
+                <input type="hidden" id="hdnAppNo" class="form-control" value="@ViewBag.AppNo" />
+                <input type="hidden" id="hdnModalCall" class="form-control" value=0 />
+                <input type="text" id="hdnSubschemeid" hidden="hidden" value="0" class="form-control">
+                <div class="indicatorslist w-100 mb-2">
+                    <p id="datDurationMSG" class="text-danger pull-left mr-5"></p>
+                </div>
+                <div class="clearfix"></div>
+                <a href="javascript:PrintPage();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right mb-2"><i class="icon-printer1"></i></a>
+                @if (SectorData != null && SectorData.Result.ToList().Count > 0)
+                {
+
+                    <div id="accordion" class="blockentry-accordian">
+
+                        <span id="spnFromToDate">Date : <label id="lblFromDate" class="font-weight-bold"></label> To <label id="lblToDate" class="font-weight-bold"></label></span>
+                        @if (SectorData.Result != null)
+                        {
+                            @foreach (var items in SectorData.Result)
+                            {
+                                <div class="card w-100">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            <a class="accordianhead" data-toggle="collapse" data-target="#collapse-@items.PANELID" aria-expanded="true" aria-controls="collapse-@items.PANELID">
+                                                @items.DISPLAYNAME
+                                            </a>
+                                        </h5>
+                                    </div>
+                                    @if (ResultData.Where(u => u.PANELID == items.PANELID).Count() != 0 && ResultData[0].DataEntryEligibility)
+                                    {
+                                        <div id="collapse-@items.PANELID" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+
+                                            <div class="card-body p-0 pt-0">
+                                                <div class="table-responsive">
+                                                    <table data-toggle="table" class="table  mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="40px">Sl#</th>
+                                                                <th style="display:none;"></th>
+                                                                <th class="380px">DataPoint </th>
+                                                                <th width="230">Provider Name </th>
+                                                                <th width="100px">Value<span class="text-danger">*</span></th>
+                                                                <th width="100px">UNIT<span class="text-danger"></span></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-@items.PANELID">
+                                                            @if (ResultData != null)
+                                                            {
+                                                                int count = 1;
+                                                                @foreach (var list in ResultData.Where(u => u.PANELID == items.PANELID))
+                                                                {
+                                                                    <tr>
+                                                                        <td>@count</td>
+                                                                        <td style="display:none;">@list.CONTROLID</td>
+                                                                        <td>
+                                                                            @list.DISPLAYNAME
+                                                                            @if (list.DESCRIPTION != null)
+                                                                            {
+                                                                                <i class="fa fa-info-circle text-success" style="cursor:help" aria-hidden="true" data-toggle="tooltip" data-placement="top" data-original-title="@list.DESCRIPTION"></i>
+                                                                            }
+                                                                        </td>
+                                                                        <td>@list.PROVIDERNAME</td>
+                                                                        <td><input type="number" readonly value="@list.CONTROLVALUE" id=@list.CONTROLNAME class="form-control form-control-sm"></td>
+                                                                        <td style="display:none;">@list.CONTROLNAME</td>
+                                                                        <td style="display:none;">@list.PANELID</td>
+                                                                        <td style="display:none;">@list.FROMDATE</td>
+                                                                        <td style="display:none;">@list.TODATE</td>
+                                                                        <td style="display:none;">@list.FREQUENCYVALUE</td>
+                                                                        <td style="display:none;">@list.PANELNAME</td>
+                                                                        <td style="display:none;">@list.FREQUENCYID</td>
+                                                                        <td style="display:none;">@list.MONTHNO</td>
+                                                                        <td>@list.UNIT</td>
+                                                                    </tr>
+                                                                    count++;
+                                                                }
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="norecord"><p id="errorMessage">Please Select Year And Month</p></div>
+                }
+                @if (ResultData != null && ResultData.Count > 0 && ResultData[0].DataEntryEligibility == true && @ViewBag.Status == 0)
+                {
+                    <div class="form-group row" id="button">
+                        <div class="col-lg-4">
+                            @*     @if (ViewBag.AppNo == null)
+                        {*@
+                            @*                            <button id="btnDraft" value="0" class="btn btn-secondary">Save As Draft</button>*@
+                            <button id="btnSubmit" value="2" class="btn btn-success  ">Submit</button>
+                            <button id="btnCancel" value="0" class="btn btn-danger">Cancel</button>
+                            @*}*@
+                            @* <button id="btnConfirm" onclick="sendOTP()" class="btn btn-success show-otp">Submit</button>*@
+                        </div>
+                    </div>
+                }
+                else { }
+                <div class="form-group row pad-ver otp-box bg-light pt-3">
+                    <label for="TextBox6" class="col-12 col-md-2 col-xl-2 control-label ">
+                        Enter OTP
+                    </label>
+                    <div class="col-lg-4">
+                        <input type="number" id="txtotp" class="form-control" />
+                        <input type="hidden" id="hdnotp" class="form-control" />
+                        <small class="d-block text-danger">(OTP has been sent to your registered mobile)</small>
+                    </div>
+                    <button onclick="reSendOTP()" style="height:50px" id="otpcount" class="btn btn-success">Re Send OTP</button>
+                    <label class="col-xl-12  col-xl-12 control-label"></label>
+                    <label class="col-12  col-xl-2 control-label"></label>
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <button id="btnSubmit" value="1" class="btn btn-success  ">Submit</button>
+                        <button id="btnCancel1" class="btn btn-danger  ">Reset</button>
+                    </div>
+                </div>
+                <div class="modal fade" id="PreviewDetails" tabindex="-1" role="dialog" style="height:95%">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+
+                                <h4 class="text-white"> Notification </h4>
+                                <a href="javascript:PrintPage2();void(0)" title="Print" id="printIcon" data-toggle="tooltip" data-placement="top" class="btn btn-sm btn-default float-md-right ml-1 mb-2"><i class="icon-printer1"></i></a>
+                            </div>
+                            <div class="modal-body">
+                                <div class="card-body">
+                                    <div class="container">
+                                        <div class="row">
+                                            <div id="tblresult" class="col-sm-12 table-responsive tb0 overflow-scroll">
+                                                <div class="row">
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                @*<button type="submit" id="btnsave" class="btn btn-success" onclick="javascript: ValidateSchemeForm();"> Save</button>*@
+                                <button type="button" id="btnmodclose" class="btn btn-danger" data-bs-dismiss="modal" onclick="ModalClose()">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--===================================================-->
+            <!-- END BASIC FORM ELEMENTS -->
+        </div>
+    </div>
+</div>
+<script src="~/js/Common.js"></script>
+<script>
+    var gl = null;
+    var pl = null;
+    var lblFrequencyId = '';
+    var lblFrequencyNo = '';
+    var Year = '';
+    var lblFrequencyText = '';
+    $(document).ready(function () {
+        debugger
+        // $("#ddlMonth").val();
+        if ($("#ddlMonth").val() != 0) {
+            $("#PreviewDetails").modal('hide');
+        }
+        else {
+
+        }
+
+        lblFrequencyId = getUrlVars()["FreqId"];
+        lblFrequencyNo = getUrlVars()["FreqNo"];
+        Year = getUrlVars()["Year"];
+        $("#spnFromToDate").hide();
+        gl = decodeURI(getUrlVars()["Glink"]);
+        pl = decodeURI(getUrlVars()["Plink"]);
+
+        if (gl == 'undefined') {
+            gl = 0;
+        }
+        if (pl == 'undefined') {
+            pl = 0;
+        }
+
+        document.getElementById("BDODataViewTemp").href = "../BLOCKData/BlockDataEntryTemp?Glink=" + gl + "&Plink=" + pl;
+        document.getElementById("BDODataViewTemp").href = "../BLOCKData/ViewBlockData?Glink=" + gl + "&Plink=" + pl;
+        loadNavigation('AddBDOData', 'gldata', 'plbdodata', 'Datapoint Entry', 'Preview Block Data Entry', 'View BDOData');
+        if (getUrlVars()["FreqId"] == "3") {
+            $("#quarter-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "4") {
+            $("#halfyear-tab").addClass("active")
+        } else if (getUrlVars()["FreqId"] == "5") {
+            $("#annual-tab").addClass("active")
+        } else {
+            $("#month-tab").addClass("active")
+
+        }
+        //if (lblFrequencyId == '5') {
+        //    $("#divMonth").hide();
+        //    $("#lblMonth").hide();
+        //    $("#errorMessage").text("Please Select Year!");
+        //}
+
+        frequencyOnchange(lblFrequencyId, $("#ddlMonth option:selected").text(), $("#ddlYear").val());
+    });
+
+    $('#ddlMonth').change(function () {
+        //debugger
+        var lblFrequencyId2 = getUrlVars()["FreqId"];
+        if ($('#ddlMonth').val() != '0' && $('#ddlYear').val() != '0') {
+            frequencyOnchange(lblFrequencyId2, $("#ddlMonth option:selected").text(), $("#ddlYear").val());
+            var status = "0";
+
+
+            bindDatapoints(lblFrequencyId2);
+            $("#hdnSubschemeid").val(status);
+        }
+    });
+
+    $('#ddlYear').change(function () {
+        var lblFrequencyId2 = getUrlVars()["FreqId"];
+        if (lblFrequencyId2 == '5' && $('#ddlYear').val() != '0') {
+            frequencyOnchange(lblFrequencyId2, '0', $("#ddlYear").val());
+            bindDatapoints(lblFrequencyId2);
+        }
+        else if ($('#ddlMonth').val() != '0' && $('#ddlYear').val() != '0') {
+            frequencyOnchange(lblFrequencyId2, $("#ddlMonth option:selected").text(), $("#ddlYear").val());
+            bindDatapoints(lblFrequencyId2);
+        }
+    });
+    $('#btnCancel').click(function () {
+        var appno = getUrlVars()["AppNo"];
+        var year = getUrlVars()["Year"];
+        var freqid = getUrlVars()["FreqId"];
+        var freqno = getUrlVars()["FreqNo"];
+        var Monthno = getUrlVars()["MonthNo"];
+        window.location.href = "/BlockData/BlockDataEntryTemp?AppNo=" + appno + "&Year=" + year + "&FreqId=" + freqid + "&Status=0&FreqNo=" + freqno + "&MonthNo=" + Monthno+ "&Glink=" + gl + "&Plink=" + pl;
+    });
+    $('#btnSubmit').click(function () {
+        //if ($("#ddlMonth").val() == '0') {
+        //    bootbox.alert("Please Select Month!", function () { });
+        //}
+        //else if ($("#ddlYear").val() == '0') {
+        //    bootbox.alert("Please Select Year!", function () { });
+        //}
+        //else {
+        submitData($('#btnSubmit').val());
+        //}
+    });
+    function LoadData() {
+        $.ajax({
+            url: "/BlockData/GetBdoDtaAlert",
+            type: "GET",
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (data) {
+
+                var table = "<table class='tblResult5 table' id=tblResult5><thead > <tr><th width='80px'>Year</th><th width='100px'>Frequency</th><th>Total Datapoint</th><th>Entered Datapoint</th><th>Not Entered</th><th>Remarks</th><th>Action</th></tr></thead><tbody>";
+                for (var i = 0; i < data.length; i++) {
+
+                    var row = "<tr>";
+
+                    row += '<td>' + data[i].year + '</td>';
+                    row += '<td>' + data[i].frequency + '</td>';
+                    row += '<td>' + data[i].dpcount + '</td>';
+                    row += '<td>' + data[i].nonzerodpcount + '</td>';
+                    row += '<td>' + data[i].hndpcount + '</td>';
+                    row += '<td>' + data[i].remarks + '</td>';
+                    row += '<td>' + "<input type='button' value='Proceed for data entry' class='btn btn-success btn-sm' onclick='RediecttoPage(" + data[i].year + ")'/>" + '</td>';
+                    row += '</tr>';
+                    table += row;
+                }
+                table += '</tbody></table>';
+                $('#tblresult').html(table);
+                $("#PreviewDetails").modal('show');
+            },
+            error: function () {
+                alert("Content load failed.");
+            }
+
+        });
+    }
+    function submitData(status) {
+
+        if ((status == '2' || status == '0')) {
+            var currentDate = new Date();
+            var months = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+            ];
+            var prev = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+            var viewingMonth = months[prev.getMonth()];
+            //Getting all ids of all the tbodys to get all the row data for the insertion
+            var Ids = []; //array declaring to store the ids of all the tbodys
+            $('tbody').each(function () {
+                var itm = {};
+                itm.id = $(this).attr('id');
+                Ids.push(itm)
+            });
+            var Items = []; //array declaring to store the records to send it to controller
+            for (var j = 0; j < Ids.length; j++) {
+                var tbl = document.getElementById(Ids[j].id);
+                for (var i = 0; i < tbl.rows.length; i++) {
+                    var item1 = {};
+                    item1.FREQUENCYID = parseInt(tbl.rows[i].children[11].textContent);;
+                    item1.CONTROLID = parseInt(tbl.rows[i].children[1].textContent);
+                    item1.CONTROLVALUE = parseFloat(tbl.rows[i].children[4].children[0].value);
+                    if (item1.CONTROLVALUE == 'Nan') {
+                        item1.CONTROLVALUE = null;
+                    }
+                    else {
+                        item1.CONTROLVALUE = item1.CONTROLVALUE;
+                    }
+                    item1.CONTROLNAME = tbl.rows[i].children[5].textContent;
+                    item1.PANELID = parseFloat(tbl.rows[i].children[6].textContent);
+                    item1.FROMDATE = $("#lblFromDate").text();
+                    item1.TODATE = $("#lblToDate").text();
+                    if (lblFrequencyId == '5') {
+                        item1.FREQUENCYNO = $("#ddlYear").val();
+                        item1.FREQUENCYVALUE = $("#ddlYear option:selected").text();
+                    }
+                    else {
+                        item1.FREQUENCYNO = $("#ddlMonth").val();
+                        item1.FREQUENCYVALUE = $("#ddlMonth option:selected").text();
+                    }
+                    item1.PANELNAME = tbl.rows[i].children[10].textContent;
+                    item1.APPLICATIONO = $('#hdnAppNo').val();
+                    item1.status = status;
+                    item1.MONTHNO = tbl.rows[i].children[12].textContent;
+                    Items.push(item1);
+                }
+            }
+            //checking wheither for all the villages the source village have been selected or not
+            if (Items.length == 0) {
+                bootbox.alert("Plese enter values against every data points!");
+                return false;
+            } else {
+                var message = "";
+                if (status == '0') {
+                    message = "Are you sure , you want to Save As Draft?";
+                }
+                else {
+                    message = "Once you are submitting the data you can't edit the data again.Are you sure , you want to Submit?";
+                }
+                if (validate()) {
+                    status = '0';
+                    bootbox.confirm({
+                        size: "medium",
+                        message: message,
+
+                        callback: function (result) {
+                            if (result == true) {
+                                $(".my-loader").show();
+                                $.ajax({
+                                    url: "/BlockData/PreviewBlockDataEntry",
+                                    data: JSON.stringify(Items),
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader("XSRF-TOKEN",
+                                            $('input:hidden[name="__RequestVerificationToken"]').val());
+                                    },
+                                    type: "POST",
+                                    contentType: "application/json;charset=utf-8",
+                                    dataType: "json",
+                                    success: function (result) {
+                                        $(".my-loader").hide();
+                                        bootbox.alert(result.msg, function () {
+                                            window.location.href = "/BlockData/BlockDataEntryTemp?FreqId=" + result.freqid + "&Glink=" + gl + "&Plink=" + pl;
+                                        });
+                                    },
+                                    error: function (result) {
+                                        $(".my-loader").hide();
+                                        bootbox.alert(result);
+                                    }
+                                });
+
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    }
+    function validate() { return true }
+    function GetFromAndToDate() { }
+
+    function isLeapYear(year) {
+        return ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0);
+    }
+    function frequencyOnchange(lblFrequencyId, month, year) {
+        
+        if (lblFrequencyId == '5') {
+            $("#lblFromDate").text('01-Apr-' + year);
+            $("#lblToDate").text('31-Mar-' + parseFloat(parseFloat(year) + 1));
+            $("#spnFromToDate").hide()
+        }
+        else {
+            $("#lblFromDate").text('01-' + month + '-' + year);
+            if (month == 'Feb') {
+                $("#lblToDate").text('28-' + month + '-' + year);
+            }
+            else if (month == 'Jan' || month == 'Mar' || month == 'May' || month == 'Jul' || month == 'Aug') {
+                $("#lblToDate").text('31-' + month + '-' + year);
+            }
+            else {
+                $("#lblToDate").text('30-' + month + '-' + year);
+            }
+            $("#spnFromToDate").show();
+        }
+    }
+    function bindDatapoints(lblFrequencyId) {
+        if (lblFrequencyId == '5') {
+            location.href = "@Url.Action("BlockDataEntryTemp", "BlockData")?FreqId=5&Year=" + $("#ddlYear").val() + "&FreqNo=" + $("#ddlYear").val();
+        }
+        else {
+            location.href = "@Url.Action("BlockDataEntryTemp", "BlockData")?FreqId=2&Status=0&Year=" + $("#ddlYear").val() + "&FreqNo=" + $("#ddlMonth").val();
+        }
+    }
+    function htmlDecode(str) {
+        const doc = new DOMParser().parseFromString(str, "text/html");
+        return doc.documentElement.textContent;
+    }
+    function validate() {
+    @Html.Raw(System.Web.HttpUtility.HtmlDecode(script));
+    }
+    function RediecttoPage(year) {
+
+        location.href = "@Url.Action("BlockDataEntryTempYearly", "BlockData")?AppNo=''&Year=" + year + "&FreqId=5&Status=0&FreqNo=" + year + "";
+    }
+    function ModalClose() {
+
+        $("#PreviewDetails").modal('hide');
+    }
+    function ModalPagecall() {
+        $("#hdnSubschemeid").val();
+
+    }
+    $("#hdnSubschemeid").val()
+    //$("#ddlYearType").change(function(){
+    //    location.href="/BlockData/BlockDataEntryTemp?FreqId="+lblFrequencyId+"&FreqNo="+$("#ddlYearType").val();
+    //});
+</script>
+<script>
+    // print function
+    function PrintPage() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#accordion").clone();
+        var head = $('#accordion thead tr');
+
+        //cloneTable.find('input[type=text],select,textarea').each(function () {
+        //    var elementType = $(this).prop('tagName');
+        //    if (elementType == 'SELECT') {
+
+        //        if ($(this).val() > 0)
+        //            var textVal = $(this).find("option:selected").text();
+        //        else
+        //            textVal = '';
+        //    } else
+        //        var textVal = $(this).val();
+        //    $(this).replaceWith('<label>' + textVal + '</label>');
+        //});
+        //cloneTable.find('a').each(function () {
+        //    var anchorVal = $(this).html();
+        //    $(this).replaceWith('<label>' + anchorVal + '</label>');
+        //});
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../css/bootstrap.min.css' rel='stylesheet'><link href='../css/print.css' rel='stylesheet'><link href='../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+    function PrintPage2() {
+        var windowName = "PrintPage";
+        var wOption = "width=900,height=600,menubar=yes,scrollbars=yes,location=no,left=100,top=100";
+        var cloneTable = $("#tblresult").clone();
+        var head = $('#tblresult thead tr');
+
+
+
+        var pageTitle = $("#title").text();
+        var wWinPrint = window.open("", windowName, wOption);
+        wWinPrint.document.write("<html><head><link href='../css/bootstrap.min.css' rel='stylesheet'><link href='../css/print.css' rel='stylesheet'><link href='../css/custom.css' rel='stylesheet'><title>Block Monitoring Programme</title></head><body>");
+        wWinPrint.document.write("<div id='header' class='mb-2 d-flex align-items-center justify-content-between'><h4 class='d-flex align-items-center'><img src='../images/Odisha_logo_Black.png' alt='Block Monitoring Programme' width='70' class='mr-2'>Block Monitoring Programme </h4><div class='pull-left text_logo'><h4 class='logo'><a href='javascript:void(0)' class='btn btn-success btn-sm pull-right' style='float:right;' title='Print' onclick='$(this).hide();window.print();$(this).show();'>Print</a></h4></div></div>")
+        wWinPrint.document.write("<div id='printHeader'>" + pageTitle + "</div>");
+        wWinPrint.document.write("<div id='printContent'>" + cloneTable.html() + "</div>");
+        wWinPrint.document.write("<div id='printFooter' class='text-center'>&copy; 2023 - Block Monitoring Programme</div>");
+        wWinPrint.document.write("</body></html>");
+        wWinPrint.document.close();
+        wWinPrint.focus();
+        return wWinPrint;
+        $('#title').append(title);
+        printHeader = title;
+    }
+</script>
+
+
+
+

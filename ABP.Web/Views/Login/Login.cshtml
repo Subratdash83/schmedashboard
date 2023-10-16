@@ -1,0 +1,231 @@
+﻿@model ABP.Domain.Login.Login
+@{
+    Layout = null;
+    var ListData = ViewBag.DashboardList as Task<IEnumerable<ABP.Domain.Login.Login>>;
+
+}
+
+@*@if (ViewBag.Message != null)
+    {
+        <script>
+                alert("@ViewBag.Message");
+               // window.location.href = "../Role_Master/Registion";
+        </script>
+    }*@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>User Login</title>
+    <!-- <link href="~/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/css/icons.css" rel="stylesheet">
+    <link href="~/css/font-awesome.min.css" rel="stylesheet">-->
+    <!-- <link href="~/css/custom.css" rel="stylesheet">
+    <link href="../css/login.css" rel="stylesheet">
+    <script src="~/js/jquery-3.3.1.min.js"></script> -->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="~/js/aes.js"></script>
+    <link href="../css/login-new.css" rel="stylesheet">
+
+
+</head>
+<body>
+    <div class="mainsection">
+        <div class="d-flex align-items-center">
+            <div class="container">
+                <div class="card login-card">
+                    <div class="no-gutters">
+
+                        <div class="">
+                            <div class="card-body">
+                                <div class="brand-wrapper">
+                                    <img src="../images/Odisha_logo_Black.png" alt="odisha Govt logo" class="logo">
+                                </div>
+                                <p class="login-card-description">Block Monitoring Programme<br> <small> Government of Odisha</small></p>
+
+                                <div class="sdg-full">
+
+                                    <div class=" ">
+                                        <div class="form-check-inline">
+
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="optradio"  checked="checked"> HRMS
+                                            </label>
+                                        </div>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" class="form-check-input" name="optradio" onclick="function pl(){window.location.href='/Login/NewLogin'}pl();return false;"> Portal
+                                            </label>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+
+                                @if (Model != null)
+                                {
+                                    <!--<script>
+        debugger;
+        bootbox.alert("@Model.Message");-->
+                                    @*alert(@Model.Message);*@
+                                    <!--</script>-->
+                                    @*<div class="alert alert-danger alert-dismissible fade show p-2 mb-2 my-alert" role="alert">@Model.Message</div>*@
+                                }
+                                @using (Html.BeginForm("Login", "Login", FormMethod.Post, new { @class = "form-horizontal", onsubmit = "return checkForm();" }))
+                                {
+                                    @* <div class="d-flex form-group">
+            <label>HRMS </label><input type="radio" name="logintype"  checked="checked"/>
+            <label>Portal</label><input type="radio" name="logintype"  onclick="function pl(){window.location.href='/Login/NewLogin'}pl();return false;"/>
+            </div>*@
+
+
+
+                                    <div class="form-group">
+
+                                        <label class="" id="lbluser">User Name</label>
+                                        @Html.TextBoxFor(m => m.VCHUSERNAME, new { @class = "form-control", id = "txtuname", name = "textencryname" })
+                                        @Html.ValidationMessageFor(m => m.VCHUSERNAME)
+                                    </div>
+
+
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1" class="" placeholder="********">Password</label>
+                                        <div class="input-group mb-3">
+                                            @Html.PasswordFor(m => m.vchpassword, new { @class = "form-control", type = "password", id = "txtpwd" })
+                                            
+                                            @Html.ValidationMessageFor(m => m.vchpassword)
+                                           
+                                            <div class="input-group-append">
+                                                <span class="input-group-text" id="basic-addon2"><span id="togglePassword" class="fa fa-eye" onclick="togglePasswordField()"></span></span>
+                                            </div>
+                                        </div>
+
+
+
+                                       
+                                    </div>
+                                    <input type="hidden" id="encryptedtxtuname" name="encryptedtxtuname" />
+                                    <input type="hidden" id="encryptedtxtpwd" name="encryptedtxtpwd" />
+                                    <div class="d-flex">
+                                        <button type="submit" class="btn btn-block login-btn mt-3">Sign in</button>
+                                        @*<a asp-action="ForgetPassword" asp-controller="Login" class="smltxt forgot-pass text-success w-100 d-block" id="password">Forgot Password</a>*@
+                                        <br />
+                                        @*<a asp-action="ChangeOtpPasswordReq" asp-controller="Login" class="smltxt forgot-pass text-success w-100 d-block" id="password">Reset&nbsp;Password?</a>*@
+                                    </div>
+
+
+                                }
+                                <input name="hidmsg" type="hidden">
+
+
+                                <br><a href="mailto:abpsupport@odisha.gov.in" target="_blank" class="w-100 d-block text-secondary" id="password"> For any query/technical support, mail us at <span style="font-weight:bold"> abpsupport@odisha.gov.in <span></a>
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.4.0/bootbox.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+<script>
+    $(".allow_numeric").on("input", function (evt) {
+        var self = $(this);
+        self.val(self.val().replace(/\D/g, ""));
+        if ((evt.which < 48 || evt.which > 57)) {
+            evt.preventDefault();
+        }
+    });
+    function SubmitsEncry(strCntrol) {
+        var strData = $('#' + strCntrol).val();
+        var key = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var iv = CryptoJS.enc.Utf8.parse('8080808080808080');
+        var encryptedlogin = CryptoJS.AES.encrypt(CryptoJS.enc.Utf8.parse(strData), key,
+            {
+                keySize: 128 / 8,
+                iv: iv,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+        $('#encrypted' + strCntrol).val(encryptedlogin); // Store encrypted value in hidden field
+    }
+    function checkForm() {
+        debugger
+        var uname = document.getElementById('txtuname').value;
+        var pwd = document.getElementById('txtpwd').value;
+
+        if (uname.length >=48 ) {
+            bootbox.alert("Please enter User Name Within 48 Characters.");
+            return false;
+        }
+
+        if (pwd.length >= 48) {
+            bootbox.alert("Please enter password Within 48 Characters.");
+            return false;
+        }
+
+        if (uname == '') {
+            bootbox.alert("Please enter User Name.");
+            return false;
+        }
+        else if (pwd == '') {
+            bootbox.alert("Please enter Password.");
+            return false;
+        }
+
+        else {
+            SubmitsEncry('txtuname');
+
+            SubmitsEncry('txtpwd');
+        }
+        document.getElementById('encryptedtxtuname').value = document.getElementById('encryptedUsername').value;
+        document.getElementById('encryptedtxtpwd').value = document.getElementById('encryptedPassword').value;
+    }
+</script>
+
+<script>
+
+    $(document).ready(function () {
+
+
+        if ("@ViewBag.msg" != null && "@ViewBag.msg" != '') {
+            bootbox.alert("@ViewBag.msg");
+        }
+    });
+
+
+</script>
+
+<script>
+    function togglePasswordField() {
+        const passwordField = document.getElementById('txtpwd');
+        const togglePassword = document.getElementById('togglePassword');
+
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            togglePassword.classList.remove('fa-eye');
+            togglePassword.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            togglePassword.classList.remove('fa-eye-slash');
+            togglePassword.classList.add('fa-eye');
+        }
+    }
+</script>
+
+</html>
+
+
